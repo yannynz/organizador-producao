@@ -1,12 +1,23 @@
-    package git.yannynz.organizadorproducao;
+package git.yannynz.organizadorproducao;
 
-    import org.springframework.boot.SpringApplication;
-    import org.springframework.boot.autoconfigure.SpringBootApplication;
+import git.yannynz.organizadorproducao.service.FileWatcherService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-    @SpringBootApplication
-    public class OrganizadorProducao {
+@SpringBootApplication
+public class OrganizadorProducao implements CommandLineRunner {
 
-        public static void main(String[] args) {
-            SpringApplication.run(OrganizadorProducao.class, args);
-        }
+    @Autowired
+    private FileWatcherService fileWatcherService;
+
+    public static void main(String[] args) {
+        SpringApplication.run(OrganizadorProducao.class, args);
     }
+
+    @Override
+    public void run(String... args) throws Exception {
+        fileWatcherService.startWatching();
+    }
+}

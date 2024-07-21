@@ -39,7 +39,6 @@ public class OrderController {
             Order order = orderOptional.get();
             order.setNr(orderDetails.getNr());
             order.setCliente(orderDetails.getCliente());
-            order.setDataHora(orderDetails.getDataHora());
             order.setPrioridade(orderDetails.getPrioridade());
             return ResponseEntity.ok(orderService.saveOrder(order));
         } else {

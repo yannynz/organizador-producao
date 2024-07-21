@@ -1,15 +1,18 @@
 package git.yannynz.organizadorproducao.model;
 
-public class ErroredFiles {
-    private String errorName;
+import java.util.ArrayList;
+import java.util.List;
 
-    public String getErrorName() {
-        return errorName;
+public class ErroredFiles {
+    private final List<String> errorNames = new ArrayList<>();
+
+    // Adiciona um nome de arquivo com erro à lista
+    public void addErrorName(String fileName) {
+        errorNames.add(fileName);
     }
 
-    public void setErrorName(String errorName) {
-        this.errorName = errorName;
+    // Retorna a lista de nomes de arquivos com erro
+    public List<String> getErrorNames() {
+        return errorNames;
     }
 }
-
-
