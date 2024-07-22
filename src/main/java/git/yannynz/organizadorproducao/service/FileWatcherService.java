@@ -54,7 +54,6 @@ public class FileWatcherService {
         // Regex para extrair NR, cliente e prioridade do nome do arquivo
         Pattern pattern = Pattern.compile("NR(\\d+)(\\w+)(Vermelho|Amarelo|Azul|Verde)(?:\\.pdf)?");
         Matcher matcher = pattern.matcher(fileName);
-
         if (matcher.matches()) {
             String orderNumber = matcher.group(1);
             String client = matcher.group(2);
