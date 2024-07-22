@@ -16,14 +16,16 @@ public class Order {
 
     private String cliente;
 
-
     private String prioridade;
+
+    private LocalDateTime dataH;
 
     public Order() {}
 
-    public Order(String nr, String cliente, LocalDateTime dataHora, String prioridade) {
+    public Order(String nr, String cliente, LocalDateTime dataH, String prioridade) {
         this.nr = nr;
         this.cliente = cliente;
+        this.dataH = dataH;
         this.prioridade = prioridade;
     }
 
@@ -59,6 +61,14 @@ public class Order {
         this.prioridade = prioridade;
     }
 
+    public LocalDateTime getDataH() {
+        return dataH;
+    }
+
+    public void setDataH(LocalDateTime dataH) {
+        this.dataH = dataH;
+    }
+
     @Override
     public String toString() {
         return "Order{" +
@@ -66,6 +76,7 @@ public class Order {
                 ", nr='" + nr + '\'' +
                 ", cliente='" + cliente + '\'' +
                 ", prioridade='" + prioridade + '\'' +
+                ", dataH=" + dataH +
                 '}';
     }
 

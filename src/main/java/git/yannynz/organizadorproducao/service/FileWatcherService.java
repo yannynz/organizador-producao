@@ -6,6 +6,9 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -43,7 +46,7 @@ public class FileWatcherService {
                 key.reset();
             }
         } catch (IOException | InterruptedException ex) {
-            ex.printStackTrace();
+            System.out.print("erro watchService"+ex);
         }
     }
 
@@ -59,15 +62,28 @@ public class FileWatcherService {
             String client = matcher.group(2);
             String priority = matcher.group(3);
 
+            LocalDateTime creationTime = getCreationTime(filePath);
+
+
             Order order = new Order();
             order.setNr(orderNumber);
             order.setCliente(client);
             order.setPrioridade(priority);
+            order.setDataH(creationTime);
 
             orderService.saveOrder(order);
             System.out.println("Pedido salvo: " + order);
         } else {
             System.out.println("Nome do arquivo não corresponde ao formato esperado: " + fileName);
+        }
+    }
+    private LocalDateTime getCreationTime(Path filePath) {
+        try {
+            BasicFileAttributes attrs = Files.readAttributes(filePath, BasicFileAttributes.class);
+            return LocalDateTime.ofInstant(attrs.creationTime().toInstant(), ZoneId.systemDefault());
+        } catch (IOException e) {
+            System.out.print("erro ao pegar dateH"+e);
+            return LocalDateTime.now();
         }
     }
 }
