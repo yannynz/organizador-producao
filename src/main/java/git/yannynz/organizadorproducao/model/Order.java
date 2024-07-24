@@ -11,23 +11,15 @@ public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String nr;
-
     private String cliente;
-
     private String prioridade;
-
     private LocalDateTime dataH;
-
+    private int status; // 0 - Fazendo o pedido, 1 - Pedido entregue
+    private LocalDateTime dataEntrega;
+    private String entregador;
+    private String observacao;
     public Order() {}
-
-    public Order(String nr, String cliente, LocalDateTime dataH, String prioridade) {
-        this.nr = nr;
-        this.cliente = cliente;
-        this.dataH = dataH;
-        this.prioridade = prioridade;
-    }
 
     public Long getId() {
         return id;
@@ -67,6 +59,38 @@ public class Order {
 
     public void setDataH(LocalDateTime dataH) {
         this.dataH = dataH;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public LocalDateTime getDataEntrega() {
+        return dataEntrega;
+    }
+
+    public void setDataEntrega(LocalDateTime dataEntrega) {
+        this.dataEntrega = dataEntrega;
+    }
+
+    public String getEntregador() {
+        return entregador;
+    }
+
+    public void setEntregador(String entregador) {
+        this.entregador = entregador;
+    }
+
+    public String getObservacao() {
+        return observacao;
+    }
+
+    public void setObservacao(String observacao) {
+        this.observacao = observacao;
     }
 
     @Override

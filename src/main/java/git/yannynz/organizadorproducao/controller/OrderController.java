@@ -57,4 +57,8 @@
             orderService.deleteOrder(id);
             return ResponseEntity.noContent().build();
         }
+        @PutMapping("/{orderId}/status")
+        public Optional<Order> updateOrderStatus(@PathVariable Long orderId, @RequestParam int status, @RequestParam String entregador, @RequestParam String observacao) {
+            return orderService.updateOrderStatus(orderId, status, entregador, observacao);
+        }
     }
