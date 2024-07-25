@@ -6,6 +6,7 @@
     import org.springframework.http.ResponseEntity;
     import org.springframework.web.bind.annotation.*;
 
+    import java.time.LocalDateTime;
     import java.util.List;
     import java.util.Optional;
 
@@ -57,8 +58,33 @@
             orderService.deleteOrder(id);
             return ResponseEntity.noContent().build();
         }
-        @PutMapping("/{orderId}/status")
-        public Optional<Order> updateOrderStatus(@PathVariable Long orderId, @RequestParam int status, @RequestParam String entregador, @RequestParam String observacao) {
-            return orderService.updateOrderStatus(orderId, status, entregador, observacao);
+        @PutMapping("/{id}/status")
+        public ResponseEntity<Order> updateOrderStatus(
+                @PathVariable Long id,
+                @RequestParam(value = "status", required = false) Integer status,
+                @RequestParam(value = "entregador", required = false) String entregador,
+                @RequestParam(value = "observacao", required = false) String observacao) {
+
+            Optional<Order> optionalOrder = orderService.getOrderById(id);
+            if (optionalOrder.isPresent()) {
+                Order order = optionalOrder.get();
+                if (status != null) {
+                    order.setStatus(status);
+                    if (status == 1) {
+                        order.setDataEntrega(LocalDateTime.now());
+                        if (entregador != null) {
+                            order.setEntregador(entregador);
+                        }
+                        if (observacao != null) {
+                            order.setObservacao(observacao);
+                        }
+                    }
+                }
+                Order updatedOrder = orderService.saveOrder(order);
+                return ResponseEntity.ok(updatedOrder);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
         }
+
     }

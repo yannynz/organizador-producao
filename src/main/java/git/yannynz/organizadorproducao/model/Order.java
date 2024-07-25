@@ -15,7 +15,7 @@ public class Order {
     private String cliente;
     private String prioridade;
     private LocalDateTime dataH;
-    private int status; // 0 - Fazendo o pedido, 1 - Pedido entregue
+    private int status;
     private LocalDateTime dataEntrega;
     private String entregador;
     private String observacao;
