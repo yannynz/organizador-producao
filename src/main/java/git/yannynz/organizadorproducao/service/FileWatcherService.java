@@ -88,19 +88,18 @@ public class FileWatcherService {
             String priority = matcher.group(3);
 
             LocalDateTime creationTime = getCreationTime(filePath);
-            System.out.println("Informações extraídas do arquivo: NR=" + orderNumber + ", Cliente=" + client + ", Prioridade=" + priority);
+            System.out.println("Informações extraídas do arquivo: NR=" + orderNumber + ", Cliente=" + client
+                    + ", Prioridade=" + priority);
 
             Order order = new Order();
             order.setNr(orderNumber);
             order.setCliente(client);
             order.setPrioridade(priority);
             order.setDataH(creationTime);
-
+            messagingTemplate.convertAndSend("/topic/orders", order);
             Order savedOrder = orderService.saveOrder(order);
-            System.out.println("Pedido salvo com sucesso: " + savedOrder);
+            System.out.println("Pedido criado e enviado via WebSocket: "+ savedOrder);
 
-            messagingTemplate.convertAndSend("/topic/orders", savedOrder);
-            System.out.println("Pedido enviado via WebSocket: " + savedOrder);
         } else {
             System.out.println("O arquivo não corresponde ao padrão esperado e será ignorado: " + fileName);
         }
@@ -109,7 +108,8 @@ public class FileWatcherService {
     private LocalDateTime getCreationTime(Path filePath) {
         try {
             BasicFileAttributes attrs = Files.readAttributes(filePath, BasicFileAttributes.class);
-            LocalDateTime creationTime = LocalDateTime.ofInstant(attrs.creationTime().toInstant(), ZoneId.systemDefault());
+            LocalDateTime creationTime = LocalDateTime.ofInstant(attrs.creationTime().toInstant(),
+                    ZoneId.systemDefault());
             System.out.println("Data de criação do arquivo: " + creationTime);
             return creationTime;
         } catch (IOException e) {

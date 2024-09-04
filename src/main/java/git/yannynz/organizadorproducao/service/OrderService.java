@@ -1,12 +1,13 @@
 package git.yannynz.organizadorproducao.service;
 
-import git.yannynz.organizadorproducao.model.Order;
-import git.yannynz.organizadorproducao.repository.OrderRepository;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import git.yannynz.organizadorproducao.model.Order;
+import git.yannynz.organizadorproducao.repository.OrderRepository;
 
 @Service
 public class OrderService {
@@ -16,7 +17,6 @@ public class OrderService {
 
     public List<Order> getAllOrders() {
         return orderRepository.findAll();
-
     }
 
     public Order saveOrder(Order order) {
