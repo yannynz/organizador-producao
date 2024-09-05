@@ -96,8 +96,8 @@ public class FileWatcherService {
             order.setCliente(client);
             order.setPrioridade(priority);
             order.setDataH(creationTime);
-            messagingTemplate.convertAndSend("/topic/orders", order);
             Order savedOrder = orderService.saveOrder(order);
+            messagingTemplate.convertAndSend("/topic/orders", order);
             System.out.println("Pedido criado e enviado via WebSocket: "+ savedOrder);
 
         } else {

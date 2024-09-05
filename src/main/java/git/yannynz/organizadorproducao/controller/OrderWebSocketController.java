@@ -28,7 +28,7 @@ public class OrderWebSocketController {
     public List<Order> getAllOrders() {
         return orderService.getAllOrders();
     }
-    
+
     @MessageMapping("/orders/{id}")
     @SendTo("/topic/orders/{id}")
     public Order getOrderById(Long id) {
@@ -38,7 +38,7 @@ public class OrderWebSocketController {
     @MessageMapping("/orders/create")
     @SendTo("/topic/orders")
     public Order createOrder(Order order) {
-        System.out.println("Pedido criado e enviado via WebSocket: "+ order);
+        System.out.println("Pedido criado e enviado via WebSocket: " + order);
         return orderService.saveOrder(order);
     }
 
@@ -55,15 +55,20 @@ public class OrderWebSocketController {
             updatedOrder.setDataEntrega(order.getDataEntrega());
             updatedOrder.setEntregador(order.getEntregador());
             updatedOrder.setObservacao(order.getObservacao());
-            return orderService.saveOrder(updatedOrder);
+
+            Order savedOrder = orderService.saveOrder(updatedOrder);
+            System.out.println("Pedido atualizado: " + savedOrder);
+            return savedOrder;
         }
         return null;
     }
 
     @MessageMapping("/orders/delete/{id}")
     @SendTo("/topic/orders")
-    public void deleteOrder(Long id) {
+    public Long deleteOrder(Long id) {
         orderService.deleteOrder(id);
+        System.out.println("Pedido deletado via WebSocket: " + id);
+        return id;
     }
 
     @MessageMapping("/orders/clear")
