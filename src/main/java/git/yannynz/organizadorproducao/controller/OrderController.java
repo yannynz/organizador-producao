@@ -69,32 +69,38 @@ public class OrderController {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/{id}/status")
-    public ResponseEntity<Order> updateOrderStatus(
-            @PathVariable Long id,
-            @RequestParam(value = "status", required = false) Integer status,
-            @RequestParam(value = "entregador", required = false) String entregador,
-            @RequestParam(value = "observacao", required = false) String observacao) {
-        Optional<Order> optionalOrder = orderService.getOrderById(id);
-        if (optionalOrder.isPresent()) {
-            Order order = optionalOrder.get();
-            if (status != null) {
-                order.setStatus(status);
-                if (status == 1) {
-                    order.setDataEntrega(LocalDateTime.now());
-                    if (entregador != null) {
-                        order.setEntregador(entregador);
-                    }
-                    if (observacao != null) {
-                        order.setObservacao(observacao);
-                    }
-                }
-            }
-            Order updatedOrder = orderService.saveOrder(order);
-            return ResponseEntity.ok(updatedOrder);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
+@PutMapping("/{id}/status")
+public ResponseEntity<Order> updateOrderStatus(
+        @PathVariable Long id, 
+        @RequestParam(value = "status", required = false) Integer status,
+        @RequestParam(value = "entregador", required = false) String entregador,
+        @RequestParam(value = "observacao", required = false) String observacao) {
 
+    Optional<Order> optionalOrder = orderService.getOrderById(id);
+    
+    if (optionalOrder.isPresent()) {
+        Order order = optionalOrder.get();
+
+        if (status != null) {
+            order.setStatus(status);
+        }
+
+        // Definir data de entrega como o momento atual
+        order.setDataEntrega(LocalDateTime.now());
+
+        // Atualizar entregador e observação se disponíveis
+        if (entregador != null) {
+            order.setEntregador(entregador);
+        }
+
+        if (observacao != null) {
+            order.setObservacao(observacao);
+        }
+
+        Order updatedOrder = orderService.saveOrder(order);
+        return ResponseEntity.ok(updatedOrder);
+    } else {
+        return ResponseEntity.notFound().build();
+    }
+}
 }

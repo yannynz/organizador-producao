@@ -19,7 +19,16 @@ public class Order {
     private LocalDateTime dataEntrega;
     private String entregador;
     private String observacao;
+    private LocalDateTime HorarioRetorno;
     public Order() {}
+    
+    public LocalDateTime getHorarioRetorno() {
+        return HorarioRetorno;
+    }
+
+    public void setHorarioRetorno(LocalDateTime horarioRetorno) {
+        HorarioRetorno = horarioRetorno;
+    }
 
     public Long getId() {
         return id;
