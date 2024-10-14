@@ -51,6 +51,9 @@ public class OrderController {
             order.setCliente(orderDetails.getCliente());
             order.setPrioridade(orderDetails.getPrioridade());
             order.setDataH(orderDetails.getDataH());
+            order.setStatus(orderDetails.getStatus());
+            order.setHorarioRetorno(orderDetails.getHorarioRetorno());
+            
             return ResponseEntity.ok(orderService.saveOrder(order));
         } else {
             return ResponseEntity.notFound().build();
