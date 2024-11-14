@@ -1,0 +1,8 @@
+{
+  "routes": [
+    "/entrega",
+    "/entregaVolta",
+    "/entregues",
+    "/pedidos"
+  ]
+}

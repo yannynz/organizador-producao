@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  postgres-container:
+    image: postgres:latest
+    container_name: postgres-container
+    environment:
+      POSTGRES_DB: teste01
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+    ports:
+      - "5433:5432"  # Mapeando a porta do banco de dados para a máquina local
+    volumes:
+      - pgdata:/var/lib/postgresql/data  # Persistência de dados
+    networks:
+      - organizador-producao-mynetwork
+
+  backend-container:
+    build: .
+    container_name: backend-container
+    ports:
+      - "8080:8080"  # Mapeando a porta 8080 do backend para a máquina local
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-container:5432/teste01  # Conexão com o banco
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 1234
+    depends_on:
+      - postgres-container # Garante que o PostgreSQL esteja pronto antes do backend
+    volumes:
+      - type: bind
+        source: /home/yann/Documentos/testPaste
+        target: /laser
+      - type: bind
+        source: /home/yann/Documentos/facasOk
+        target: /facasOk
+    networks:
+      - organizador-producao-mynetwork
+
+  frontend-container:
+    build:
+      context: ./organizer-front  # Diretório onde está o código do seu front-end Angular
+    container_name: frontend-container
+    volumes:
+      - ./organizer-front/dist:/usr/share/nginx/html  # Diretório do build do Angular
+    depends_on:
+      - backend-container
+    networks:
+      - organizador-producao-mynetwork
+
+  nginx-container:
+    image: nginx:latest
+    container_name: nginx-container
+    ports:
+      - "80:80"  # Porta 80 do Nginx para acesso local
+    depends_on:
+      - frontend-container
+    volumes:
+      - ./organizer-front/dist/organizer-front/browser:/usr/share/nginx/html:ro  # Mapeando o diretório correto de build para o Nginx
+      - ./nginx/organizador.conf:/etc/nginx/nginx.conf  # Usando o arquivo correto de configuração
+    networks:
+      - organizador-producao-mynetwork
+
+networks:
+  organizador-producao-mynetwork:
+    driver: bridge
+
+volumes:
+  pgdata:
+    driver: local
+
