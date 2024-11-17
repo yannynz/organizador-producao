@@ -51,72 +51,72 @@ export class DeliveredComponent implements OnInit, AfterViewInit {
     console.log('Componente DeliveredComponent inicializado');
   }
 
-    ngAfterViewInit(): void {
-    // Garantindo que o orderDetailsModal foi inicializado após a view ser carregada
+  ngAfterViewInit(): void {
     if (this.orderDetailsModal) {
       console.log('Modal inicializado:', this.orderDetailsModal);
     }
   }
 
   loadOrders(): void {
-this.orderService.getOrders().subscribe((orders) => {
+    this.orderService.getOrders().subscribe((orders) => {
       this.allOrders = orders;
       this.orders = orders; // Inicia exibindo todos os pedidos
-    }); }
+    });
+  }
 
- // Função de busca, decide entre buscar por ID no backend ou filtrar no frontend
   filterOrders(): void {
     const searchTerm = this.returnForm.get('search')?.value?.toLowerCase() || '';
 
-    // Se o termo de busca for um número (ID), busca no backend
     if (searchTerm && !isNaN(+searchTerm)) {
       this.orderService.getOrderById(+searchTerm).subscribe((order) => {
-        this.orders = order ? [order] : []; // Exibe o pedido retornado ou lista vazia
+        this.orders = order ? [order] : [];
       }, () => {
-        this.orders = []; // Exibe lista vazia se o pedido não for encontrado
+        this.orders = [];
       });
     } else {
-      // Para outros termos, filtra localmente
       this.orders = this.allOrders.filter(order =>
         order.nr.toLowerCase().includes(searchTerm) ||
         order.cliente.toLowerCase().includes(searchTerm) ||
         order.prioridade.toLowerCase().includes(searchTerm)
       );
-    }}
-
-  setupWebSocket(): void {
-    this.websocketService.watchOrders().subscribe((message) => {
-      const updatedOrder: orders = JSON.parse(message.body);
-      const orderIndex = this.orders.findIndex(order => order.id === updatedOrder.id);
-
-      if (orderIndex !== -1) {
-        this.orders[orderIndex] = updatedOrder;  // Atualiza o pedido existente
-      } else {
-        this.orders.push(updatedOrder);  // Adiciona um novo pedido
-      }
-    });
-  }
-
-  getPriorityColor(prioridade: string): string {
-    // Defina as cores conforme a prioridade
-    switch (prioridade) {
-      case 'Vermelho': return 'red';
-      case 'Amarelo': return 'yellow';
-      case 'Azul': return 'blue';
-      case 'Verde': return 'green';
-      default: return 'black';
     }
   }
 
-  getStatusDescription(status: number): string {
-    switch (status) {
-      case 0: return 'Em Produção';
-      case 1: return 'Cortada';
-      case 2: return 'Pronto para Entrega';
-      case 3: return 'Saiu para Entrega';
-      case 4: return 'Retirada';
-      case 5: return 'Entregue';
-      default: return 'Desconhecido';
+setupWebSocket(): void {
+  this.websocketService.watchOrders().subscribe((message) => {
+    const updatedOrder: orders = JSON.parse(message.body);
+
+    const orderIndex = this.allOrders.findIndex(order => order.id === updatedOrder.id);
+    if (orderIndex !== -1) {
+      this.allOrders[orderIndex] = updatedOrder;
+    } else {
+      this.allOrders.push(updatedOrder);
+    }
+
+    const filteredIndex = this.orders.findIndex(order => order.id === updatedOrder.id);
+    if (filteredIndex !== -1) {
+      this.orders[filteredIndex] = updatedOrder;
+    }
+  });
+}
+
+  updateOrder(): void {
+    if (this.editOrderForm.valid) {
+      const updatedOrder: orders = { ...this.selectedOrder, ...this.editOrderForm.value };
+      this.orderService.updateOrder(updatedOrder.id, updatedOrder).subscribe(() => {
+        this.websocketService.sendUpdateOrder(updatedOrder);
+        const index = this.orders.findIndex(order => order.id === updatedOrder.id);
+        if (index !== -1) {
+          this.orders[index] = updatedOrder; // Atualiza o pedido na lista atual
+        }
+
+        const allOrderIndex = this.allOrders.findIndex(order => order.id === updatedOrder.id);
+        if (allOrderIndex !== -1) {
+          this.allOrders[allOrderIndex] = updatedOrder; // Atualiza a lista completa
+        }
+
+        this.closeOrderDetails();
+      });
     }
   }
 
@@ -134,13 +134,11 @@ this.orderService.getOrders().subscribe((orders) => {
       dataHRetorno: order.dataHRetorno
     });
 
-    // Abre o modal usando o serviço NgbModal
     this.modalService.open(this.orderDetailsModal, { centered: true });
   }
 
   closeOrderDetails(): void {
     this.selectedOrder = null;
-    // Fecha o modal diretamente com o NgbModal
     this.modalService.dismissAll();
   }
 
@@ -148,22 +146,33 @@ this.orderService.getOrders().subscribe((orders) => {
     if (confirm('Tem certeza que deseja excluir este pedido?')) {
       this.orderService.deleteOrder(order.id).subscribe(() => {
         this.orders = this.orders.filter(o => o.id !== order.id);
+        this.allOrders = this.allOrders.filter(o => o.id !== order.id);
         this.closeOrderDetails();
       });
     }
   }
 
-  updateOrder(): void {
-    if (this.editOrderForm.valid) {
-      const updatedOrder: orders = { ...this.selectedOrder, ...this.editOrderForm.value };
-      this.orderService.updateOrder(updatedOrder.id, updatedOrder).subscribe(() => {
-        const index = this.orders.findIndex(order => order.id === updatedOrder.id);
-        if (index !== -1) {
-          this.orders[index] = updatedOrder;  // Atualiza o pedido na lista
-        }
-        this.closeOrderDetails();  // Fecha o modal após a atualização
-      });
-    }
+  getPriorityColor(prioridade: string): string {
+  switch (prioridade) {
+    case 'Vermelho': return 'red';
+    case 'Amarelo': return 'yellow';
+    case 'Azul': return 'blue';
+    case 'Verde': return 'green';
+    default: return 'black';
   }
+}
+
+getStatusDescription(status: number): string {
+  switch (status) {
+    case 0: return 'Em Produção';
+    case 1: return 'Cortada';
+    case 2: return 'Pronto para Entrega';
+    case 3: return 'Saiu para Entrega';
+    case 4: return 'Retirada';
+    case 5: return 'Entregue';
+    default: return 'Desconhecido';
+  }
+}
+
 }
 

@@ -2,22 +2,13 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { orders } from '../models/orders';
-<<<<<<< HEAD
-=======
-import { environment } from '../../environment';
->>>>>>> 61128281 (beta1)
+import { environment } from '../enviroment';
 
 @Injectable({
   providedIn: 'root'
 })
-<<<<<<< HEAD
 export class OrderService {
-  private baseUrl = 'http://localhost:8080/api/orders'; // Ajuste com sua URL
-=======
-
-export class OrderService {
-    private baseUrl = environment.apiUrl;
->>>>>>> 61128281 (beta1)
+  private baseUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) { }
 

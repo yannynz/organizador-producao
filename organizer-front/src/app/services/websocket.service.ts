@@ -2,12 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { RxStompService } from '@stomp/ng2-stompjs';
 import { RxStompConfig } from '@stomp/rx-stomp';
-<<<<<<< HEAD
-=======
-import { environment } from '../../environment';
-
-
->>>>>>> 61128281 (beta1)
+import { environment } from '../enviroment';
 
 @Injectable({
   providedIn: 'root'
@@ -23,11 +18,7 @@ export class WebsocketService {
 
   private myRxStompConfig(): RxStompConfig {
     return {
-<<<<<<< HEAD
-      brokerURL: 'ws://localhost:8080/ws/orders',
-=======
       brokerURL: environment.wsUrl,
->>>>>>> 61128281 (beta1)
       heartbeatIncoming: 0,
       heartbeatOutgoing: 20000,
       reconnectDelay: 200,

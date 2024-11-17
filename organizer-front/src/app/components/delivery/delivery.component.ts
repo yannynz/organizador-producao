@@ -109,7 +109,7 @@ export class DeliveryComponent implements OnInit {
   }
 
   this.selectedOrders.forEach((order) => {
-    const updatedOrder = { 
+    const updatedOrder = {
       ...order,
       entregador: deliveryPerson,
       observacao: notes,
@@ -120,7 +120,10 @@ export class DeliveryComponent implements OnInit {
 
     this.orderService.updateOrder(order.id, updatedOrder).subscribe(
       () => {
-        this.loadOrders();
+        // Notifica outros componentes sobre a atualização do pedido
+        this.websocketService.sendUpdateOrder(updatedOrder);
+
+        this.loadOrders(); // Atualiza localmente a lista de pedidos
       },
       (error) => {
         alert(`Erro ao atualizar o pedido ${order.nr}: ${error}`);
@@ -130,7 +133,7 @@ export class DeliveryComponent implements OnInit {
 
   // Fechar o modal de entrega
   this.modalService.dismissAll();
-  }
+}
 
   getPriorityColor(prioridade: string): string {
     switch (prioridade) {
@@ -156,5 +159,12 @@ export class DeliveryComponent implements OnInit {
   this.selectedOrders = this.selectedOrders.filter(o => o !== order);
 }
 
+highlightOrder(orderId: number) {
+  const orderElement = document.getElementById(`order-${orderId}`);
+  if (orderElement) {
+    orderElement.classList.add('updated');
+    setTimeout(() => orderElement.classList.remove('updated'), 2000);
+  }
+}
 }
 

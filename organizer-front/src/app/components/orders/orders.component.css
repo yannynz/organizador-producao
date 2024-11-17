@@ -5,3 +5,13 @@
 .container{
   min-height: 100vh;
 }
+
+.updated {
+  animation: highlight 2s ease-in-out;
+}
+
+@keyframes highlight {
+  0% { background-color: yellow; }
+  100% { background-color: transparent; }
+}
+

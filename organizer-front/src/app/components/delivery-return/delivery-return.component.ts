@@ -4,6 +4,7 @@ import { OrderService } from '../../services/orders.service';
 import { orders } from '../../models/orders';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { WebsocketService } from '../../services/websocket.service';
 
 @Component({
   selector: 'app-delivery-return',
@@ -19,7 +20,9 @@ export class DeliveryReturnComponent implements OnInit {
 
   constructor(
     private orderService: OrderService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private websocketService: WebsocketService
+
   ) {
     this.returnForm = this.fb.group({
       entregador: ['', Validators.required]
@@ -28,7 +31,7 @@ export class DeliveryReturnComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadOrders();
-  }
+ }
 
   loadOrders(): void {
     const entregadorName = this.returnForm.get('entregador')?.value?.toLowerCase();
@@ -55,27 +58,27 @@ export class DeliveryReturnComponent implements OnInit {
   }
 
   confirmReturn(): void {
-    if (this.selectedOrders.length === 0) {
-      alert('Nenhum pedido selecionado');
-      return;
-    }
-
-    const dataHRetorno = new Date();  // Obter a data e hora atuais para o retorno
-    const entregador = this.returnForm.get('entregador')?.value || '';
-
-    this.selectedOrders.forEach((order) => {
-      order.status = 5;  // Definir status como entregue
-      order.dataHRetorno = dataHRetorno;  // Definir a data e hora de retorno
-
-      this.orderService.updateOrder(order.id, order).subscribe(() => {
-        this.loadOrders();
-      });
-    });
-
-    this.selectedOrders = [];
-    alert('Obrigado por confirmar o retorno da rota');
-    window.location.href = '/entrega';
+  if (this.selectedOrders.length === 0) {
+    alert('Nenhum pedido selecionado');
+    return;
   }
+
+  const dataHRetorno = new Date();
+  const entregador = this.returnForm.get('entregador')?.value || '';
+
+  this.selectedOrders.forEach((order) => {
+    order.status = 5;
+    order.dataHRetorno = dataHRetorno;
+
+    this.orderService.updateOrder(order.id, order).subscribe(() => {
+      this.websocketService.sendUpdateOrder(order);
+    });
+  });
+
+  this.selectedOrders = [];
+  alert('Obrigado por confirmar o retorno da rota');
+  window.location.href = '/entrega';
+}
 
   getPriorityColor(prioridade: string): string {
     const colors: { [key: string]: string } = {

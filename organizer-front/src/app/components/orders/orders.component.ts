@@ -7,7 +7,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { orders } from '../../models/orders';
-import { Subscription } from 'rxjs';
+import { Subscription, interval } from 'rxjs';
 import { WebsocketService } from '../../services/websocket.service';
 import { CommonModule } from '@angular/common';
 import { OrderService } from '../../services/orders.service';
@@ -25,7 +25,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
   editOrderForm: FormGroup;
   editingOrder: orders | undefined;
   ordersSubscription: Subscription | undefined;
-  selectedOrder: orders | null = null; // Armazena o pedido selecionado para edição
+  selectedOrder: orders | null = null; 
 
   constructor(
     private formBuilder: FormBuilder,
@@ -58,41 +58,51 @@ export class OrdersComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    // Inicialização dos pedidos e subscrição via WebSocket
     this.loadOrders();
     this.listenForWebSocketUpdates();
   }
 
-  loadOrders() {
-    // Carrega todos os pedidos existentes
-    this.orderService.getOrders().subscribe((orders: orders[]) => {
-      this.orders = orders.filter(order => order.status === 0 || order.status === 1 );
-      this.orders.sort((a, b) => this.comparePriorities(a.prioridade, b.prioridade));
-    });
+loadOrders() {
+  this.orderService.getOrders().subscribe((orders: orders[]) => {
+    this.orders = orders.filter((order) => this.shouldDisplayOrder(order));
+    this.orders.sort((a, b) =>
+      this.comparePriorities(a.prioridade, b.prioridade)
+    );
+  });
+}
+
+shouldDisplayOrder(order: orders): boolean {
+    return order.status === 0 || order.status === 1;
   }
 
-  listenForWebSocketUpdates() {
-    this.websocketService.watchOrders().subscribe((message: any) => {
-      const receivedOrder = JSON.parse(message.body);
-      // Lógica de atualização, criação ou exclusão com base na ação
-      const order = receivedOrder;
-      if (receivedOrder.action === 'delete') {
-        this.orders = this.orders.filter(o => o.id !== order.id);
-      } else {
-        this.updateOrdersList(order);
-      }
-    });
-  }
+listenForWebSocketUpdates() {
+  this.websocketService.watchOrders().subscribe((message: any) => {
+    const receivedOrder = JSON.parse(message.body);
+    console.log('Pedido recebido via WebSocket:', receivedOrder);  
+
+    const existingIndex = this.orders.findIndex(o => o.id === receivedOrder.id);
+
+    if (existingIndex !== -1) {
+      this.orders[existingIndex] = receivedOrder;
+    } else if (this.shouldDisplayOrder(receivedOrder)) {
+      this.orders.push(receivedOrder);
+    }
+
+    this.orders = this.orders.filter(order => this.shouldDisplayOrder(order));
+
+    this.orders.sort((a, b) => this.comparePriorities(a.prioridade, b.prioridade));
+
+    console.log('Lista de pedidos após atualização via WebSocket:', this.orders); 
+  });
+}
 
   openCreateOrderModal() {
-    // Abre o modal de criação
     this.createOrderForm.reset();
     const modal = new (window as any).bootstrap.Modal(document.getElementById('createOrderModal')!);
     modal.show();
   }
 
   openEditOrderModal(order: orders) {
-    // Abre o modal de edição com os dados preenchidos
     this.selectedOrder = order;
     this.editOrderForm.patchValue({
       nr: order.nr,
@@ -113,26 +123,22 @@ export class OrdersComponent implements OnInit, OnDestroy {
   }
 
   createOrder() {
-    // Chama o serviço para criar um novo pedido
     const newOrder = this.createOrderForm.value;
     this.orderService.createOrder(newOrder).subscribe(() => {
       this.createOrderForm.reset();
-      // Fecha o modal de criação
       this.closeModal('createOrderModal');
-      this.loadOrders(); // Atualiza a lista de pedidos
+      this.loadOrders(); 
     });
   }
 
   updateOrder(): void {
     if (this.editOrderForm.valid) {
-      // Atualiza o pedido com os valores do formulário
       const updatedOrder = { ...this.editingOrder, ...this.editOrderForm.value };
 
-      // Chama o serviço para atualizar o pedido
       this.orderService.updateOrder(updatedOrder.id, updatedOrder).subscribe({
         next: (response) => {
           console.log('Pedido atualizado com sucesso:', response);
-          this.loadOrders(); // Atualiza a lista de pedidos
+          this.loadOrders(); 
           this.editOrderForm.reset();
           this.editingOrder = undefined;
           this.closeModal('editOrderModal');
@@ -145,28 +151,30 @@ export class OrdersComponent implements OnInit, OnDestroy {
   }
 
   delete(orderId: number) {
-    // Chama o serviço para deletar o pedido
     if (confirm('Tem certeza que deseja excluir este pedido?')) {
       this.orderService.deleteOrder(orderId).subscribe(() => {
-        // Remove o pedido da lista local
         this.orders = this.orders.filter(order => order.id !== orderId);
       });
     }
   }
 
-  updateOrdersList(order: orders) {
-    const index = this.orders.findIndex(o => o.id === order.id);
-    if (index !== -1) {
-      this.orders[index] = order; // Atualiza o pedido existente
-    } else {
-      this.orders.push(order); // Adiciona um novo pedido
+updateOrdersList(order: orders) {
+  const index = this.orders.findIndex(o => o.id === order.id);
+
+  if (index !== -1) {
+    this.orders[index] = order;
+  } else {
+    if (order.status === 0 || order.status === 1) {
+      this.orders.push(order);
     }
-    // Organiza a lista de pedidos pela prioridade
-    this.orders.sort((a, b) => this.comparePriorities(a.prioridade, b.prioridade));
   }
+  this.orders = this.orders.filter(o => o.status === 0 || o.status === 1);
+  this.orders.sort((a, b) => this.comparePriorities(a.prioridade, b.prioridade));
+  console.log('Lista de pedidos após atualização:', this.orders); 
+}
 
   comparePriorities(priorityA: string, priorityB: string) {
-    const priorities = ['Vermelho', 'Amarelo', 'Azul', 'Verde']; // Corrigido
+    const priorities = ['Vermelho', 'Amarelo', 'Azul', 'Verde']; 
     return priorities.indexOf(priorityA) - priorities.indexOf(priorityB);
   }
 
@@ -200,7 +208,17 @@ export class OrdersComponent implements OnInit, OnDestroy {
       case 5:
         return 'Entregue';
       default:
-        return 'Desconhecido'; // Valor padrão para status não reconhecidos
+        return 'Desconhecido'; 
     }
   }
+
+  highlightOrder(orderId: number) {
+  const orderElement = document.getElementById(`order-${orderId}`);
+  if (orderElement) {
+    orderElement.classList.add('updated');
+    setTimeout(() => orderElement.classList.remove('updated'), 2000);
+  }
+}
+
+
 }
