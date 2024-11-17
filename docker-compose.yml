@@ -14,6 +14,12 @@ services:
       - pgdata:/var/lib/postgresql/data  # Persistência de dados
     networks:
       - organizador-producao-mynetwork
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "teste01"]
+      interval: 10s
+      retries: 5
+      timeout: 5s
+      start_period: 20s
 
   backend-container:
     build: .
@@ -35,10 +41,11 @@ services:
         target: /facasOk
     networks:
       - organizador-producao-mynetwork
-
+   
   frontend-container:
     build:
       context: ./organizer-front  # Diretório onde está o código do seu front-end Angular
+      dockerfile: Dockerfile
     container_name: frontend-container
     volumes:
       - ./organizer-front/dist:/usr/share/nginx/html  # Diretório do build do Angular
@@ -59,6 +66,7 @@ services:
       - ./nginx/organizador.conf:/etc/nginx/nginx.conf  # Usando o arquivo correto de configuração
     networks:
       - organizador-producao-mynetwork
+
 
 networks:
   organizador-producao-mynetwork:

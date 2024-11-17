@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import git.yannynz.organizadorproducao.service.WebSocketMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -20,8 +21,6 @@ public class OrderWebSocketController {
     private OrderService orderService;
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
-
-    private List<String> orders = new ArrayList<>();
 
     @MessageMapping("/orders")
     @SendTo("/topic/orders")
@@ -55,9 +54,15 @@ public class OrderWebSocketController {
             updatedOrder.setDataEntrega(order.getDataEntrega());
             updatedOrder.setEntregador(order.getEntregador());
             updatedOrder.setObservacao(order.getObservacao());
+            updatedOrder.setDataHRetorno(order.getDataHRetorno());
+            updatedOrder.setDataH(order.getDataH());
 
             Order savedOrder = orderService.saveOrder(updatedOrder);
             System.out.println("Pedido atualizado: " + savedOrder);
+            
+            WebSocketMessage message = new WebSocketMessage("update", savedOrder);
+            messagingTemplate.convertAndSend("/topic/orders", message);
+
             return savedOrder;
         }
         return null;
