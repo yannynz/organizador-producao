@@ -1,8 +1,19 @@
 <div class="container py-4">
   <!-- Formulário de Busca -->
-  <form [formGroup]="returnForm" (ngSubmit)="filterOrders()" class="d-flex justify-content-center mb-4">
+ <form [formGroup]="returnForm" (ngSubmit)="filterOrders()" class="d-flex justify-content-center mb-4">
     <div class="input-group" style="max-width: 500px;">
-   </div>
+      <input
+        type="text"
+        class="form-control"
+        formControlName="search"
+        (input)="filterOrdersByAnyAttribute()"
+        placeholder="Pesquise por ID, NR, Cliente, Prioridade, ou Status"
+        aria-label="Pesquisa"
+      />
+      <button type="button" class="btn btn-outline-primary">
+        <i class="bi bi-search"></i> Buscar
+      </button>
+    </div>
   </form>
 
   <!-- Tabela de Pedidos -->

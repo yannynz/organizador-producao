@@ -174,5 +174,21 @@ getStatusDescription(status: number): string {
   }
 }
 
+filterOrdersByAnyAttribute(): void {
+  const searchTerm = this.returnForm.get('search')?.value?.toLowerCase() || '';
+
+  if (searchTerm) {
+    this.orders = this.allOrders.filter(order =>
+      Object.keys(order).some(key => {
+        const value = (order as any)[key];
+        return value?.toString().toLowerCase().includes(searchTerm);
+      })
+    );
+  } else {
+    this.orders = [...this.allOrders];  
+  }
+}
+
+
 }
 

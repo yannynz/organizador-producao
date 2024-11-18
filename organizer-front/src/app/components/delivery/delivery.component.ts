@@ -17,6 +17,8 @@ export class DeliveryComponent implements OnInit {
   orders: orders[] = [];
   selectedOrders: orders[] = [];
   deliveryForm: FormGroup;
+  filteredOrders: orders[] = [];
+  searchTerm: string = '';
 
   @ViewChild('deliveryModal', { static: false }) deliveryModal!: TemplateRef<any>;
   @ViewChild('thankYouModal', { static: false }) thankYouModal!: TemplateRef<any>;
@@ -42,10 +44,11 @@ export class DeliveryComponent implements OnInit {
     this.listenForNewOrders();
   }
 
-  loadOrders(): void {
+   loadOrders(): void {
     this.orderService.getOrders().subscribe((orders) => {
       this.orders = orders.filter(order => [0, 1, 2].includes(order.status))
         .sort((a, b) => this.comparePriorities(a.prioridade, b.prioridade));
+      this.filteredOrders = [...this.orders]; 
     });
   }
 
@@ -91,7 +94,6 @@ export class DeliveryComponent implements OnInit {
   }
 
   const deliveryPerson = this.deliveryForm.get('deliveryPerson')?.value;
-  const notes = this.deliveryForm.get('notes')?.value;
   const deliveryType = this.deliveryForm.get('deliveryType')?.value;
   const vehicleTypeControl = this.deliveryForm.get('vehicleType');
   const customVehicleControl = this.deliveryForm.get('customVehicle');
@@ -112,7 +114,6 @@ export class DeliveryComponent implements OnInit {
     const updatedOrder = {
       ...order,
       entregador: deliveryPerson,
-      observacao: notes,
       status: status,
       dataEntrega: currentDateTime,
       veiculo: vehicle
@@ -120,10 +121,9 @@ export class DeliveryComponent implements OnInit {
 
     this.orderService.updateOrder(order.id, updatedOrder).subscribe(
       () => {
-        // Notifica outros componentes sobre a atualização do pedido
         this.websocketService.sendUpdateOrder(updatedOrder);
 
-        this.loadOrders(); // Atualiza localmente a lista de pedidos
+        this.loadOrders(); 
       },
       (error) => {
         alert(`Erro ao atualizar o pedido ${order.nr}: ${error}`);
@@ -131,7 +131,6 @@ export class DeliveryComponent implements OnInit {
     );
   });
 
-  // Fechar o modal de entrega
   this.modalService.dismissAll();
 }
 
@@ -166,5 +165,16 @@ highlightOrder(orderId: number) {
     setTimeout(() => orderElement.classList.remove('updated'), 2000);
   }
 }
+
+ filterOrders(): void {
+    const term = this.searchTerm.toLowerCase();
+    this.filteredOrders = this.orders.filter(order =>
+      order.id.toString().includes(term) ||
+      order.nr.toLowerCase().includes(term) ||
+      order.cliente.toLowerCase().includes(term) ||
+      order.prioridade.toLowerCase().includes(term) ||
+      order.status.toString().includes(term)
+    );
+ }
 }
 

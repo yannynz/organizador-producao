@@ -1,12 +1,24 @@
-#nameBar{
-    margin-left: 10px;
+#nameBar {
+  margin-left: 10px;
 }
+
 .footer {
   text-align: center;
-  background-color: #f1f1f1;
   padding: 10px;
+  background-color: #212529; /* cor do rodapé */
+  color: white;
+  position: relative; /* Para layout correto no mobile */
+  bottom: 0;
+  width: 100%;
 }
-body{
+
+body {
   min-height: 100vh;
-  position: relative;
+  display: flex;
+  flex-direction: column;
 }
+
+.container {
+  flex: 1; /* Faz com que o conteúdo ocupe o espaço restante entre a barra e o rodapé */
+}
+

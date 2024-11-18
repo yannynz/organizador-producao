@@ -1,30 +1,40 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
     <a class="navbar-brand" href="#" id="nameBar">Organizador</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarNav"
+      aria-controls="navbarNav"
+      aria-expanded="false"
+      aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav">
+        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+      <ul class="navbar-nav text-end">
         <li class="nav-item">
           <a class="nav-link" href="/pedidos" routerLinkActive="active">Pedidos</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="/entrega" routerLinkActive="active">Entrega</a>
         </li>
-        <li>
-          <a class="nav-link" href="/entregaVolta" routerLinkActive="active">EntregaVolta</a>
-          </li>
         <li class="nav-item">
-          <a class="nav-link" href="/entregues" routerLinkActive="active">Entregues</a>
+          <a class="nav-link" href="/entregaVolta" routerLinkActive="active">Entrega Volta</a>
         </li>
-       </ul>
+        <li class="nav-item">
+          <a class="nav-link" href="/Entregues" routerLinkActive="active">Entregues</a>
+        </li>
+      </ul>
     </div>
-  </nav>
-
-  <div class="container mt-3">
-    <router-outlet></router-outlet>
   </div>
+</nav>
 
-  <footer class="footer text-center text-white py-3 mt-5 mx-0 bg-dark">
-    &copy; 2024 <a href="http://github.com/yannynz">Yann Santana</a>
-  </footer>
+<div class="container mt-3">
+  <router-outlet></router-outlet>
+</div>
+
+<footer class="footer text-center text-white py-3 mt-5 bg-dark">
+  &copy; 2024 <a href="http://github.com/yannynz" class="text-white text-decoration-none">Yann Santana</a>
+</footer>
+
