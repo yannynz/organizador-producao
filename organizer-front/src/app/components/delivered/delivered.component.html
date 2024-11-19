@@ -28,6 +28,7 @@
           <th scope="col">Data de Entrada</th>
           <th scope="col">Status</th>
           <th scope="col">Entregador</th>
+          <th scope="col">Veiculo</th>
           <th scope="col">Ações</th>
         </tr>
       </thead>
@@ -40,6 +41,7 @@
           <td>{{ order.dataH | date: 'dd/MM HH:mm' }}</td>
           <td>{{ getStatusDescription(order.status) }}</td>
           <td>{{ order.entregador }}</td>
+          <td>{{ order.veiculo }}</td>
           <td>
             <button class="btn btn-outline-info btn-sm" (click)="openOrderDetails(order)">
               Detalhes

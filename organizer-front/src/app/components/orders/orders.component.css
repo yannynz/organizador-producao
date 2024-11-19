@@ -1,8 +1,9 @@
-.btn{
-    margin: 5px;
+/* Estilo personalizado */
+.btn {
+  margin: 5px;
 }
 
-.container{
+.container {
   min-height: 100vh;
 }
 
@@ -11,7 +12,16 @@
 }
 
 @keyframes highlight {
-  0% { background-color: yellow; }
-  100% { background-color: transparent; }
+  0% {
+    background-color: yellow;
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+.table-responsive {
+  max-width: 100%;
+  overflow-x: auto;
 }
 

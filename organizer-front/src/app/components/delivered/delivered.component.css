@@ -1,56 +1,72 @@
-.accordion-header {
-    cursor: pointer;
-    background-color: #f8f9fa;
-    padding: 10px;
-  }
-
-  .accordion-body {
-    padding: 10px;
-    background-color: #e9ecef;
-    transition: all 0.3s ease-in-out;
-  }
-
-  .accordion-icon {
-    display: inline-block;
-    margin-left: 10px;
-    transition: transform 0.3s ease;
-  }
-
-  .accordion-icon.open {
-    transform: rotate(90deg);
-  }
-
-  .accordion-collapse {
-    overflow: hidden;
-    transition: max-height 0.3s ease;
-  }
-
-  .accordion-collapse.collapse.show {
-    max-height: 500px;
-  }
-
-  .accordion-collapse.collapse {
-    max-height: 0;
-  }
-
-.modal.show {
-  display: block;
-  background-color: rgba(0, 0, 0, 0.5); /* Overlay escuro */
-}
-
-.modal-dialog-centered {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh; /* Centralização vertical */
-}
-
-.modal-content {
-  border-radius: 8px;
-  max-width: 600px;
-  margin: auto;
-}
-
-.container{
+.container {
   min-height: 100vh;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
+
+/* Formulário de Busca */
+.input-group {
+  width: 100%;
+}
+
+.input-group input {
+  flex: 1;
+}
+
+@media (min-width: 576px) {
+  .input-group {
+    max-width: 500px;
+  }
+}
+
+/* Tabela Responsiva */
+.table-responsive {
+  overflow-x: auto;
+}
+
+.table th,
+.table td {
+  text-align: center;
+  white-space: nowrap;
+}
+
+.table thead {
+  position: sticky;
+  top: 0;
+  background-color: #343a40;
+  color: white;
+}
+
+/* Modal Responsivo */
+.modal-content {
+  width: 90%;
+  max-width: 600px;
+}
+
+.modal-body {
+  overflow-y: auto;
+  max-height: calc(100vh - 200px);
+}
+
+@media (max-width: 576px) {
+  .modal-content {
+    width: 100%;
+  }
+
+  .modal-body {
+    padding: 0.5rem;
+  }
+
+  .table th,
+  .table td {
+    font-size: 0.9rem;
+  }
+}
+
+/* Botões e Ações */
+.btn-sm {
+  font-size: 0.875rem;
+}
+

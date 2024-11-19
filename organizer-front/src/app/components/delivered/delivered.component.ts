@@ -38,7 +38,8 @@ export class DeliveredComponent implements OnInit, AfterViewInit {
       observacao: [''],
       dataH: [''],
       dataEntrega: [''],
-      dataHRetorno: ['']
+      dataHRetorno: [''],
+      veiculo: [''],
     });
     this.returnForm = this.fb.group({
       search: ['']
@@ -131,7 +132,8 @@ setupWebSocket(): void {
       observacao: order.observacao,
       dataH: order.dataH,
       dataEntrega: order.dataEntrega,
-      dataHRetorno: order.dataHRetorno
+      dataHRetorno: order.dataHRetorno,
+      veiculo: order.veiculo,
     });
 
     this.modalService.open(this.orderDetailsModal, { centered: true });
@@ -185,7 +187,7 @@ filterOrdersByAnyAttribute(): void {
       })
     );
   } else {
-    this.orders = [...this.allOrders];  
+    this.orders = [...this.allOrders];
   }
 }
 
