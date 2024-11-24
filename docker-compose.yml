@@ -76,3 +76,5 @@ volumes:
   pgdata:
     driver: local
 
+restart: always
+
