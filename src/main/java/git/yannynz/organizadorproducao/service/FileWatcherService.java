@@ -97,10 +97,10 @@ public class FileWatcherService {
         System.out.println("Processando arquivo na pasta testPaste: " + fileName);
 
         // Atualizado para separar cliente e prioridade corretamente
-        Pattern nrPattern = Pattern.compile("NR(\\d+)(\\w+?)(Vermelho|Amarelo|Azul|Verde)(?:\\.cnc)?");
+        Pattern nrPattern = Pattern.compile("NR(\\d+)(\\w+?)(Vermelho|Amarelo|Azul|Verde)(?:\\.CNC)?");
         Matcher nrMatcher = nrPattern.matcher(fileName);
 
-        Pattern clPattern = Pattern.compile("CL(\\d+)(\\w+?)(Vermelho|Amarelo|Azul|Verde)(?:\\.cnc)?");
+        Pattern clPattern = Pattern.compile("CL(\\d+)(\\w+?)(Vermelho|Amarelo|Azul|Verde)(?:\\.CNC)?");
         Matcher clMatcher = clPattern.matcher(fileName);
 
         if (nrMatcher.matches()) {
@@ -147,10 +147,10 @@ public class FileWatcherService {
     private void trackFileInFacasOk(Path filePath) {
         String fileName = filePath.getFileName().toString();
 
-        Pattern nrPattern = Pattern.compile("NR(\\d+)(\\w+?)(Vermelho|Amarelo|Azul|Verde)(?:\\.cnc)?");
+        Pattern nrPattern = Pattern.compile("NR(\\d+)(\\w+?)(Vermelho|Amarelo|Azul|Verde)(?:\\.CNC)?");
         Matcher nrMatcher = nrPattern.matcher(fileName);
 
-        Pattern clPattern = Pattern.compile("CL(\\d+)(\\w+?)(Vermelho|Amarelo|Azul|Verde)(?:\\.cnc)?");
+        Pattern clPattern = Pattern.compile("CL(\\d+)(\\w+?)(Vermelho|Amarelo|Azul|Verde)(?:\\.CNC)?");
         Matcher clMatcher = clPattern.matcher(fileName);
 
         if (nrMatcher.matches()) {
