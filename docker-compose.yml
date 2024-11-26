@@ -37,7 +37,7 @@ services:
         source: /mnt/laser/Laser
         target: /laser
       - type: bind
-        source: /mnt/laser/Laser/FACAS\ OK
+        source: /mnt/laser/Laser/FACAS OK
         target: /facasOk
     networks:
       - organizador-producao-mynetwork
