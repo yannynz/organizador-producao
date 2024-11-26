@@ -46,6 +46,7 @@ public class FileWatcherService {
         if (Files.isDirectory(directoryToWatchTestPaste)) {
             System.out.println("Iniciando monitoramento da pasta testPaste: " + directoryToWatchTestPaste);
             new Thread(() -> watchDirectoryPath(directoryToWatchTestPaste, "testPaste")).start();
+            scanDirectory(directoryToWatchTestPaste, "testPaste");
         } else {
             System.out.println("O caminho fornecido não é um diretório: " + directoryToWatchTestPaste);
         }
@@ -53,6 +54,7 @@ public class FileWatcherService {
         if (Files.isDirectory(directoryToWatchFacasOk)) {
             System.out.println("Iniciando monitoramento da pasta facasOk: " + directoryToWatchFacasOk);
             new Thread(() -> watchDirectoryPath(directoryToWatchFacasOk, "facasOk")).start();
+            scanDirectory(directoryToWatchFacasOk, "facasOk");
         } else {
             System.out.println("O caminho fornecido não é um diretório: " + directoryToWatchFacasOk);
         }
@@ -187,5 +189,21 @@ public class FileWatcherService {
             return LocalDateTime.now();
         }
     }
+
+private void scanDirectory(Path directory, String directoryName) {
+    try {
+        Files.list(directory).filter(Files::isRegularFile).forEach(filePath -> {
+            System.out.println("Arquivo existente encontrado na pasta " + directoryName + ": " + filePath.getFileName());
+            if (directoryName.equals("facasOk")) {
+                trackFileInFacasOk(filePath);
+            } else {
+                processFile(filePath);
+            }
+        });
+    } catch (IOException e) {
+        System.out.println("Erro ao realizar varredura inicial na pasta " + directoryName + ": " + e.getMessage());
+    }
+}
+
 }
 
