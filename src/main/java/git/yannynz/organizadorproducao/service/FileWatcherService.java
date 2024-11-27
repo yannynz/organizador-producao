@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service;
 
 import git.yannynz.organizadorproducao.model.Order;
 import git.yannynz.organizadorproducao.repository.OrderRepository;
-import git.yannynz.organizadorproducao.service.OrderService;
 
 @Service
 public class FileWatcherService {
@@ -32,9 +31,6 @@ public class FileWatcherService {
     private final Path directoryToWatchTestPaste = Paths.get("/laser");
     private final Path directoryToWatchFacasOk = Paths.get("/facasOk");
     private final Set<String> processedFiles = new HashSet<>();
-
-    @Autowired
-    private OrderService orderService;
 
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
@@ -98,48 +94,32 @@ public class FileWatcherService {
         processedFiles.add(fileName);
         System.out.println("Processando arquivo na pasta testPaste: " + fileName);
 
-        // Atualizado para separar cliente e prioridade corretamente
-        Pattern nrPattern = Pattern.compile("NR(\\d+)(\\w+?)(VERMELHO|AMARELO|AZUL|VERDE)(?:\\.CNC)?");
-        Matcher nrMatcher = nrPattern.matcher(fileName);
+        Pattern pattern = Pattern.compile("NR(\\d+)(\\w+?)_(VERMELHO|AMARELO|AZUL|VERDE)(?:\\.CNC)?");
+        Matcher matcher = pattern.matcher(fileName);
 
-        Pattern clPattern = Pattern.compile("CL(\\d+)(\\w+?)(VERMELHO|AMARELO|AZUL|VERDE)(?:\\.CNC)?");
-        Matcher clMatcher = clPattern.matcher(fileName);
+        if (matcher.matches()) {
+            String orderNumber = matcher.group(1);
+            String client = matcher.group(2);
+            String priority = matcher.group(3);
 
-        if (nrMatcher.matches()) {
-            String orderNumber = nrMatcher.group(1);
-            String client = nrMatcher.group(2);
-            String priority = nrMatcher.group(3);
+            if (orderRepository.findByNr(orderNumber).isPresent()) {
+                System.out.println("Pedido com NR " + orderNumber + " já existe. Ignorando novo arquivo.");
+                return;
+            }
 
             LocalDateTime creationTime = getCreationTime(filePath);
-            System.out.println("Informações extraídas do arquivo NR: NR=" + orderNumber + ", Cliente=" + client + ", Prioridade=" + priority);
+            System.out.println("Informações extraídas do arquivo: NR=" + orderNumber + ", Cliente=" + client + ", Prioridade=" + priority);
 
             Order order = new Order();
             order.setNr(orderNumber);
             order.setCliente(client);
             order.setPrioridade(priority);
             order.setDataH(creationTime);
-            order.setStatus(0); // Status "a cortar" para NR
-            Order savedOrder = orderService.saveOrder(order);
-            messagingTemplate.convertAndSend("/topic/orders", order);
-            System.out.println("Pedido NR criado e enviado via WebSocket: " + savedOrder);
+            order.setStatus(0); // Status inicial
 
-        } else if (clMatcher.matches()) {
-            String orderNumber = clMatcher.group(1);
-            String client = clMatcher.group(2);
-            String priority = clMatcher.group(3);
-
-            LocalDateTime creationTime = getCreationTime(filePath);
-            System.out.println("Informações extraídas do arquivo CL: NR=" + orderNumber + ", Cliente=" + client + ", Prioridade=" + priority);
-
-            Order order = new Order();
-            order.setNr(orderNumber);
-            order.setCliente(client);
-            order.setPrioridade(priority);
-            order.setDataH(creationTime);
-            order.setStatus(0); // Status inicial "a cortar" para CL
-            Order savedOrder = orderService.saveOrder(order);
-            messagingTemplate.convertAndSend("/topic/orders", order);
-            System.out.println("Pedido CL criado e enviado via WebSocket: " + savedOrder);
+            Order savedOrder = orderRepository.save(order);
+            messagingTemplate.convertAndSend("/topic/orders", savedOrder);
+            System.out.println("Pedido criado e enviado via WebSocket: " + savedOrder);
 
         } else {
             System.out.println("O arquivo não corresponde ao padrão esperado e será ignorado: " + fileName);
@@ -149,36 +129,31 @@ public class FileWatcherService {
     private void trackFileInFacasOk(Path filePath) {
         String fileName = filePath.getFileName().toString();
 
-        Pattern nrPattern = Pattern.compile("NR(\\d+)(\\w+?)(VERMELHO|AMARELO|AZUL|VERDE)(?:\\.CNC)?");
-        Matcher nrMatcher = nrPattern.matcher(fileName);
+        Pattern pattern = Pattern.compile("NR(\\d+)(\\w+?)_(VERMELHO|AMARELO|AZUL|VERDE)(?:\\.CNC)?");
+        Matcher matcher = pattern.matcher(fileName);
 
-        Pattern clPattern = Pattern.compile("CL(\\d+)(\\w+?)(VERMELHO|AMARELO|AZUL|VERDE)(?:\\.CNC)?");
-        Matcher clMatcher = clPattern.matcher(fileName);
-
-        if (nrMatcher.matches()) {
-            String orderNumber = nrMatcher.group(1);
-            updateOrderStatus(orderNumber, 1); // Status "cortada pois necessita montar ainda" para NR em facasOk
-        } else if (clMatcher.matches()) {
-            String orderNumber = clMatcher.group(1);
-            updateOrderStatus(orderNumber, 2); // Status "Pronta pq é so isso mesmo" para CL em facasOk
+        if (matcher.matches()) {
+            String orderNumber = matcher.group(1);
+            updateOrderStatus(orderNumber, 1); // Atualizar status para "cortada"
         }
     }
 
-    private void updateOrderStatus(String orderNumber, int status) {
-    Optional<Order> orderOpt = orderRepository.findByNr(orderNumber);
-    if (orderOpt.isPresent()) {
-        Order order = orderOpt.get();
-        order.setStatus(status);
-        orderRepository.save(order);
-        System.out.println("Status do pedido " + orderNumber + " atualizado para " + status);
-
-        // Envia a atualização em tempo real para os clientes via WebSocket
-        messagingTemplate.convertAndSend("/topic/orders", order);
-        System.out.println("Atualização de status enviada via WebSocket para o pedido: " + orderNumber);
-    } else {
-        System.out.println("Pedido não encontrado para o número: " + orderNumber);
+    private void updateOrderStatus(String orderNumber, int newStatus) {
+        Optional<Order> orderOpt = orderRepository.findByNr(orderNumber);
+        if (orderOpt.isPresent()) {
+            Order order = orderOpt.get();
+            if (order.getStatus() != newStatus) {
+                order.setStatus(newStatus);
+                orderRepository.save(order);
+                messagingTemplate.convertAndSend("/topic/orders", order);
+                System.out.println("Status do pedido " + orderNumber + " atualizado para " + newStatus);
+            } else {
+                System.out.println("Status do pedido " + orderNumber + " já está atualizado para " + newStatus);
+            }
+        } else {
+            System.out.println("Pedido não encontrado para o número: " + orderNumber);
+        }
     }
-}
 
     private LocalDateTime getCreationTime(Path filePath) {
         try {
@@ -190,20 +165,19 @@ public class FileWatcherService {
         }
     }
 
-private void scanDirectory(Path directory, String directoryName) {
-    try {
-        Files.list(directory).filter(Files::isRegularFile).forEach(filePath -> {
-            System.out.println("Arquivo existente encontrado na pasta " + directoryName + ": " + filePath.getFileName());
-            if (directoryName.equals("facasOk")) {
-                trackFileInFacasOk(filePath);
-            } else {
-                processFile(filePath);
-            }
-        });
-    } catch (IOException e) {
-        System.out.println("Erro ao realizar varredura inicial na pasta " + directoryName + ": " + e.getMessage());
+    private void scanDirectory(Path directory, String directoryName) {
+        try {
+            Files.list(directory).filter(Files::isRegularFile).forEach(filePath -> {
+                System.out.println("Arquivo existente encontrado na pasta " + directoryName + ": " + filePath.getFileName());
+                if (directoryName.equals("facasOk")) {
+                    trackFileInFacasOk(filePath);
+                } else {
+                    processFile(filePath);
+                }
+            });
+        } catch (IOException e) {
+            System.out.println("Erro ao realizar varredura inicial na pasta " + directoryName + ": " + e.getMessage());
+        }
     }
-}
-
 }
 

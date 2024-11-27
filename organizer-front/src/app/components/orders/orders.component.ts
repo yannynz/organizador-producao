@@ -25,7 +25,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
   editOrderForm: FormGroup;
   editingOrder: orders | undefined;
   ordersSubscription: Subscription | undefined;
-  selectedOrder: orders | null = null; 
+  selectedOrder: orders | null = null;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -78,7 +78,7 @@ shouldDisplayOrder(order: orders): boolean {
 listenForWebSocketUpdates() {
   this.websocketService.watchOrders().subscribe((message: any) => {
     const receivedOrder = JSON.parse(message.body);
-    console.log('Pedido recebido via WebSocket:', receivedOrder);  
+    console.log('Pedido recebido via WebSocket:', receivedOrder);
 
     const existingIndex = this.orders.findIndex(o => o.id === receivedOrder.id);
 
@@ -92,7 +92,7 @@ listenForWebSocketUpdates() {
 
     this.orders.sort((a, b) => this.comparePriorities(a.prioridade, b.prioridade));
 
-    console.log('Lista de pedidos após atualização via WebSocket:', this.orders); 
+    console.log('Lista de pedidos após atualização via WebSocket:', this.orders);
   });
 }
 
@@ -127,7 +127,7 @@ listenForWebSocketUpdates() {
     this.orderService.createOrder(newOrder).subscribe(() => {
       this.createOrderForm.reset();
       this.closeModal('createOrderModal');
-      this.loadOrders(); 
+      this.loadOrders();
     });
   }
 
@@ -138,7 +138,7 @@ listenForWebSocketUpdates() {
       this.orderService.updateOrder(updatedOrder.id, updatedOrder).subscribe({
         next: (response) => {
           console.log('Pedido atualizado com sucesso:', response);
-          this.loadOrders(); 
+          this.loadOrders();
           this.editOrderForm.reset();
           this.editingOrder = undefined;
           this.closeModal('editOrderModal');
@@ -170,23 +170,23 @@ updateOrdersList(order: orders) {
   }
   this.orders = this.orders.filter(o => o.status === 0 || o.status === 1);
   this.orders.sort((a, b) => this.comparePriorities(a.prioridade, b.prioridade));
-  console.log('Lista de pedidos após atualização:', this.orders); 
+  console.log('Lista de pedidos após atualização:', this.orders);
 }
 
   comparePriorities(priorityA: string, priorityB: string) {
-    const priorities = ['Vermelho', 'Amarelo', 'Azul', 'Verde']; 
+    const priorities = ['VERMELHO', 'AMARELO', 'AZUL', 'VERDE'];
     return priorities.indexOf(priorityA) - priorities.indexOf(priorityB);
   }
 
   getPriorityColor(prioridade: string): string {
     switch (prioridade) {
-      case 'Vermelho':
+      case 'VERMELHO':
         return 'red';
-      case 'Amarelo':
-        return 'orange';
-      case 'Azul':
+      case 'AMARELO':
+        return 'yellow';
+      case 'AZUL':
         return 'blue';
-      case 'Verde':
+      case 'VERDE':
         return 'green';
       default:
         return 'black';
@@ -208,7 +208,7 @@ updateOrdersList(order: orders) {
       case 5:
         return 'Entregue';
       default:
-        return 'Desconhecido'; 
+        return 'Desconhecido';
     }
   }
 

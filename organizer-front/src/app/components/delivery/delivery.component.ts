@@ -48,7 +48,7 @@ export class DeliveryComponent implements OnInit {
     this.orderService.getOrders().subscribe((orders) => {
       this.orders = orders.filter(order => [0, 1, 2].includes(order.status))
         .sort((a, b) => this.comparePriorities(a.prioridade, b.prioridade));
-      this.filteredOrders = [...this.orders]; 
+      this.filteredOrders = [...this.orders];
     });
   }
 
@@ -123,7 +123,7 @@ export class DeliveryComponent implements OnInit {
       () => {
         this.websocketService.sendUpdateOrder(updatedOrder);
 
-        this.loadOrders(); 
+        this.loadOrders();
       },
       (error) => {
         alert(`Erro ao atualizar o pedido ${order.nr}: ${error}`);
@@ -134,24 +134,24 @@ export class DeliveryComponent implements OnInit {
   this.modalService.dismissAll();
 }
 
+  comparePriorities(priorityA: string, priorityB: string) {
+    const priorities = ['VERMELHO', 'AMARELO', 'AZUL', 'VERDE'];
+    return priorities.indexOf(priorityA) - priorities.indexOf(priorityB);
+  }
+
   getPriorityColor(prioridade: string): string {
     switch (prioridade) {
-      case 'Vermelho':
+      case 'VERMELHO':
         return 'red';
-      case 'Amarelo':
-        return 'orange';
-      case 'Azul':
+      case 'AMARELO':
+        return 'yellow';
+      case 'AZUL':
         return 'blue';
-      case 'Verde':
+      case 'VERDE':
         return 'green';
       default:
         return 'black';
     }
-  }
-
-  comparePriorities(a: string, b: string): number {
-    const priorityOrder = ['Alta', 'Média', 'Baixa'];
-    return priorityOrder.indexOf(a) - priorityOrder.indexOf(b);
   }
 
   removeFromSelection(order: orders): void {

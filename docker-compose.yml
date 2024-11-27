@@ -34,10 +34,12 @@ services:
       - postgres-container # Garante que o PostgreSQL esteja pronto antes do backend
     volumes:
       - type: bind
-        source: /mnt/laser/Laser
+        source: /home/yann/Documentos/testPaste
+          #source: /mnt/laser/Laser
         target: /laser
       - type: bind
-        source: /mnt/laser/Laser/FACAS OK
+        source: /home/yann/Documentos/facasOk
+          #source: /mnt/laser/Laser/FACAS OK
         target: /facasOk
     networks:
       - organizador-producao-mynetwork

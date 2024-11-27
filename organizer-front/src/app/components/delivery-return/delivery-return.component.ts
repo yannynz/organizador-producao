@@ -80,15 +80,23 @@ export class DeliveryReturnComponent implements OnInit {
   window.location.href = '/entrega';
 }
 
-  getPriorityColor(prioridade: string): string {
-    const colors: { [key: string]: string } = {
-      'Vermelho': 'red',
-      'Amarelo': 'orange',
-      'Azul': 'blue',
-      'Verde': 'green'
-    };
-    return colors[prioridade] || 'black';
+  comparePriorities(priorityA: string, priorityB: string) {
+    const priorities = ['VERMELHO', 'AMARELO', 'AZUL', 'VERDE'];
+    return priorities.indexOf(priorityA) - priorities.indexOf(priorityB);
   }
 
-}
+  getPriorityColor(prioridade: string): string {
+    switch (prioridade) {
+      case 'VERMELHO':
+        return 'red';
+      case 'AMARELO':
+        return 'yellow';
+      case 'AZUL':
+        return 'blue';
+      case 'VERDE':
+        return 'green';
+      default:
+        return 'black';
+    }
+  }}
 

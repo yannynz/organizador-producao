@@ -28,7 +28,6 @@
           <th scope="col">Data de Entrada</th>
           <th scope="col">Status</th>
           <th scope="col">Entregador</th>
-          <th scope="col">Veiculo</th>
           <th scope="col">Ações</th>
         </tr>
       </thead>
@@ -41,7 +40,6 @@
           <td>{{ order.dataH | date: 'dd/MM HH:mm' }}</td>
           <td>{{ getStatusDescription(order.status) }}</td>
           <td>{{ order.entregador }}</td>
-          <td>{{ order.veiculo }}</td>
           <td>
             <button class="btn btn-outline-info btn-sm" (click)="openOrderDetails(order)">
               Detalhes
@@ -74,10 +72,10 @@
             <th>Prioridade</th>
             <td>
               <select formControlName="prioridade" class="form-control">
-                <option value="Vermelho">Vermelho</option>
-                <option value="Amarelo">Amarelo</option>
-                <option value="Azul">Azul</option>
-                <option value="Verde">Verde</option>
+                <option value="VERMELHO">Vermelho</option>
+                <option value="AMARELO">Amarelo</option>
+                <option value="AZUL">Azul</option>
+                <option value="VERDE">Verde</option>
               </select>
             </td>
           </tr>
@@ -96,6 +94,10 @@
           <tr>
             <th>Data de Retorno</th>
             <td>{{ editOrderForm.get('dataHRetorno')?.value | date:'dd/MM/yyyy HH:mm' }}</td>
+          </tr>
+          <tr>
+            <th>Veiculo</th>
+            <td>{{ editOrderForm.get('veiculo')?.value }}</td>
           </tr>
         </tbody>
       </table>

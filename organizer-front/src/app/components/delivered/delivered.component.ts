@@ -156,10 +156,10 @@ setupWebSocket(): void {
 
   getPriorityColor(prioridade: string): string {
   switch (prioridade) {
-    case 'Vermelho': return 'red';
-    case 'Amarelo': return 'yellow';
-    case 'Azul': return 'blue';
-    case 'Verde': return 'green';
+    case 'VERMELHO': return 'red';
+    case 'AMARELO': return 'yellow';
+    case 'AZUL': return 'blue';
+    case 'VERDE': return 'green';
     default: return 'black';
   }
 }
