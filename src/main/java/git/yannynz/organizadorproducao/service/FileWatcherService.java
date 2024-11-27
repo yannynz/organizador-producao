@@ -169,11 +169,6 @@ public class FileWatcherService {
         try {
             Files.list(directory).filter(Files::isRegularFile).forEach(filePath -> {
                 System.out.println("Arquivo existente encontrado na pasta " + directoryName + ": " + filePath.getFileName());
-                if (directoryName.equals("facasOk")) {
-                    trackFileInFacasOk(filePath);
-                } else {
-                    processFile(filePath);
-                }
             });
         } catch (IOException e) {
             System.out.println("Erro ao realizar varredura inicial na pasta " + directoryName + ": " + e.getMessage());
