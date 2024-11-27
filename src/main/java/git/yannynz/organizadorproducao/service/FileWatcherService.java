@@ -165,13 +165,13 @@ public class FileWatcherService {
         }
     }
 
-    private void scanDirectory(Path directory, String directoryName) {
+    private void scanDirectory(Path directory, String directoryToWatchTestPaste) {
         try {
             Files.list(directory).filter(Files::isRegularFile).forEach(filePath -> {
-                System.out.println("Arquivo existente encontrado na pasta " + directoryName + ": " + filePath.getFileName());
+                System.out.println("Arquivo existente encontrado na pasta " + directoryToWatchTestPaste+ ": " + filePath.getFileName());
             });
         } catch (IOException e) {
-            System.out.println("Erro ao realizar varredura inicial na pasta " + directoryName + ": " + e.getMessage());
+            System.out.println("Erro ao realizar varredura inicial na pasta " + directoryToWatchTestPaste + ": " + e.getMessage());
         }
     }
 }

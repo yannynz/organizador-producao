@@ -65,7 +65,7 @@ services:
       - frontend-container
     volumes:
       - ./organizer-front/dist/organizer-front/browser:/usr/share/nginx/html:ro  # Mapeando o diretório correto de build para o Nginx
-      - ./nginx/organizador.conf:/etc/nginx/nginx.conf  # Usando o arquivo correto de configuração
+      - ./nginx/organizador.conf:/etc/nginx/nginx.conf:ro  # Usando o arquivo correto de configuração
     networks:
       - organizador-producao-mynetwork
 
