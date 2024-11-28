@@ -1,9 +1,11 @@
 /home/yann/Documentos/organizador-producao/src/main/java/git/yannynz/organizadorproducao/OrganizadorProducao.java
 /home/yann/Documentos/organizador-producao/src/main/java/git/yannynz/organizadorproducao/config/MyWebSocketHandler.java
+/home/yann/Documentos/organizador-producao/src/main/java/git/yannynz/organizadorproducao/config/RabbitMQConfig.java
 /home/yann/Documentos/organizador-producao/src/main/java/git/yannynz/organizadorproducao/config/WebConfig.java
 /home/yann/Documentos/organizador-producao/src/main/java/git/yannynz/organizadorproducao/config/WebSocketConfig.java
 /home/yann/Documentos/organizador-producao/src/main/java/git/yannynz/organizadorproducao/controller/OrderController.java
 /home/yann/Documentos/organizador-producao/src/main/java/git/yannynz/organizadorproducao/controller/OrderWebSocketController.java
+/home/yann/Documentos/organizador-producao/src/main/java/git/yannynz/organizadorproducao/model/FileInfo.java
 /home/yann/Documentos/organizador-producao/src/main/java/git/yannynz/organizadorproducao/model/Order.java
 /home/yann/Documentos/organizador-producao/src/main/java/git/yannynz/organizadorproducao/repository/OrderRepository.java
 /home/yann/Documentos/organizador-producao/src/main/java/git/yannynz/organizadorproducao/service/FileWatcherService.java

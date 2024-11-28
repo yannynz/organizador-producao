@@ -18,6 +18,6 @@ public class OrganizadorProducao implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        fileWatcherService.startWatching();
+        System.out.println("Iniciando serviço de monitoramento de pastas...");
     }
 }

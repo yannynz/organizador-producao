@@ -32,18 +32,17 @@ services:
       SPRING_DATASOURCE_PASSWORD: 1234
     depends_on:
       - postgres-container # Garante que o PostgreSQL esteja pronto antes do backend
+      - rabbitmq-container  # Garante que o RabbitMQ esteja pronto antes do backend
     volumes:
       - type: bind
-        #source: /home/yann/Documentos/testPaste
         source: /mnt/laser/Laser
         target: /laser
       - type: bind
-        #source: /home/yann/Documentos/facasOk
         source: /mnt/laser/Laser/FACAS OK
         target: /facasOk
     networks:
       - organizador-producao-mynetwork
-   
+
   frontend-container:
     build:
       context: ./organizer-front  # Diretório onde está o código do seu front-end Angular
@@ -69,6 +68,17 @@ services:
     networks:
       - organizador-producao-mynetwork
 
+  rabbitmq-container:
+    image: rabbitmq:management
+    container_name: rabbitmq-container
+    ports:
+      - "5672:5672"  # Porta do RabbitMQ
+      - "15672:15672"  # Porta para acessar o painel de administração
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - organizador-producao-mynetwork
 
 networks:
   organizador-producao-mynetwork:
@@ -77,5 +87,4 @@ networks:
 volumes:
   pgdata:
     driver: local
-
 
