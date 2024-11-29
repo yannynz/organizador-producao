@@ -6,8 +6,8 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class RabbitMQConfig {
-    public static final String QUEUE_LASER = "laserQueue";
-    public static final String QUEUE_FACAS = "facasOkQueue";
+    public static final String QUEUE_LASER = "laser_notifications";
+    public static final String QUEUE_FACAS = "facas_notifications";
 
     @Bean
     public Queue laserQueue() {
