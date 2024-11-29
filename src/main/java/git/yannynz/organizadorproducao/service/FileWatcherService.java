@@ -36,7 +36,7 @@ public class FileWatcherService {
      * Ouve mensagens da fila RabbitMQ associada à pasta /facasOk.
      * A mensagem contém informações simulando o "arquivo" ou seus dados.
      */
-    @RabbitListener(queues = "facas_nofications")
+    @RabbitListener(queues = "facas_notifications")
     public void handleFacasOkQueue(String message) {
         System.out.println("Mensagem recebida na fila 'facasOkQueue': " + message);
         trackFileInFacasOk(message);
