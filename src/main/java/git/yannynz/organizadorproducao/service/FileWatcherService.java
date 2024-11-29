@@ -32,7 +32,6 @@ public class FileWatcherService {
         System.out.println("Mensagem recebida na fila 'laserQueue': " + message);
         processFile(message);
     }
-
     /**
      * Ouve mensagens da fila RabbitMQ associada à pasta /facasOk.
      * A mensagem contém informações simulando o "arquivo" ou seus dados.
@@ -46,7 +45,7 @@ public class FileWatcherService {
     private void processFile(String fileName) {
         System.out.println("Processando mensagem simulando arquivo na pasta laser: " + fileName);
 
-        Pattern pattern = Pattern.compile("NR(\\d+)(\\w+?)_(VERMELHO|AMARELO|AZUL|VERDE)(?:\\.CNC)?");
+        Pattern pattern = Pattern.compile("NR(\\d+)([\\w\\s]+?)_(VERMELHO|AMARELO|AZUL|VERDE)(?:\\.CNC)?");
         Matcher matcher = pattern.matcher(fileName);
 
         if (matcher.matches()) {
@@ -81,7 +80,7 @@ public class FileWatcherService {
     private void trackFileInFacasOk(String fileName) {
         System.out.println("Processando mensagem simulando arquivo na pasta facasOk: " + fileName);
 
-        Pattern pattern = Pattern.compile("NR(\\d+)(\\w+?)_(VERMELHO|AMARELO|AZUL|VERDE)(?:\\.CNC)?");
+        Pattern pattern = Pattern.compile("NR(\\d+)([\\w\\s]+?)_(VERMELHO|AMARELO|AZUL|VERDE)(?:\\.CNC)?");
         Matcher matcher = pattern.matcher(fileName);
 
         if (matcher.matches()) {

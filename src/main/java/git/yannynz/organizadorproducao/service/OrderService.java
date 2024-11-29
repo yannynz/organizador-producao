@@ -33,6 +33,10 @@ public class OrderService {
 
     }
 
+    public Optional<Order> getOrderByNr(String nr) {
+        return orderRepository.findByNr(nr);
+    }
+
     public void deleteAllOrders() {
         orderRepository.deleteAll();
     }

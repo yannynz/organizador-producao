@@ -9,9 +9,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class OrganizadorProducao implements CommandLineRunner {
 
-    @Autowired
-    private FileWatcherService fileWatcherService;
-
     public static void main(String[] args) {
         SpringApplication.run(OrganizadorProducao.class, args);
     }
