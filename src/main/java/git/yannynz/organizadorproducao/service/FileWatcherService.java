@@ -1,7 +1,6 @@
 package git.yannynz.organizadorproducao.service;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -10,6 +9,8 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import git.yannynz.organizadorproducao.model.Order;
 import git.yannynz.organizadorproducao.repository.OrderRepository;
@@ -30,16 +31,27 @@ public class FileWatcherService {
     @RabbitListener(queues = "laser_notifications")
     public void handleLaserQueue(String message) {
         System.out.println("Mensagem recebida na fila 'laserQueue': " + message);
-        processFile(message);
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode = objectMapper.readTree(message);
+            String fileName = jsonNode.get("file_name").asText(); // Extraindo file_name
+            processFile(fileName);
+        } catch (Exception e) {
+            System.err.println("Erro ao processar mensagem JSON na fila 'laserQueue': " + e.getMessage());
+        }
     }
-    /**
-     * Ouve mensagens da fila RabbitMQ associada à pasta /facasOk.
-     * A mensagem contém informações simulando o "arquivo" ou seus dados.
-     */
+
     @RabbitListener(queues = "facas_notifications")
     public void handleFacasOkQueue(String message) {
         System.out.println("Mensagem recebida na fila 'facasOkQueue': " + message);
-        trackFileInFacasOk(message);
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode = objectMapper.readTree(message);
+            String fileName = jsonNode.get("file_name").asText(); // Extraindo file_name
+            trackFileInFacasOk(fileName);
+        } catch (Exception e) {
+            System.err.println("Erro ao processar mensagem JSON na fila 'facasOkQueue': " + e.getMessage());
+        }
     }
 
     private void processFile(String fileName) {
@@ -50,7 +62,7 @@ public class FileWatcherService {
 
         if (matcher.matches()) {
             String orderNumber = matcher.group(1);
-            String client = matcher.group(2);
+            String client = matcher.group(2).trim(); // Removendo espaços desnecessários
             String priority = matcher.group(3);
 
             if (orderRepository.findByNr(orderNumber).isPresent()) {
@@ -80,13 +92,26 @@ public class FileWatcherService {
     private void trackFileInFacasOk(String fileName) {
         System.out.println("Processando mensagem simulando arquivo na pasta facasOk: " + fileName);
 
-        Pattern pattern = Pattern.compile("NR(\\d+)([\\w\\s]+?)_(VERMELHO|AMARELO|AZUL|VERDE)(?:\\.CNC)?");
-        Matcher matcher = pattern.matcher(fileName);
+        // Padrão para identificar pedidos gerais (com NR...)
+        Pattern nrPattern = Pattern.compile("NR(\\d+)([\\w\\s]+?)_(VERMELHO|AMARELO|AZUL|VERDE)(?:\\.CNC)?");
+        // Padrão específico para pedidos de corte a laser (com CL...)
+        Pattern clPattern = Pattern.compile("CL(\\d+)([\\w\\s]+?)_(VERMELHO|AMARELO|AZUL|VERDE)(?:\\.CNC)?");
 
-        if (matcher.matches()) {
-            String orderNumber = matcher.group(1);
+        Matcher nrMatcher = nrPattern.matcher(fileName);
+        Matcher clMatcher = clPattern.matcher(fileName);
+
+        if (clMatcher.matches()) {
+            // Pedido de corte a laser (CL...)
+            String orderNumber = clMatcher.group(1);
+            System.out.println("Pedido de corte a laser identificado. NR=" + orderNumber);
+            updateOrderStatus(orderNumber, 2); // Atualizar status para "pronta"
+        } else if (nrMatcher.matches()) {
+            // Pedido regular (NR...)
+            String orderNumber = nrMatcher.group(1);
+            System.out.println("Pedido regular identificado. NR=" + orderNumber);
             updateOrderStatus(orderNumber, 1); // Atualizar status para "cortada"
         } else {
+            // Arquivo fora dos padrões esperados
             System.out.println("A mensagem não corresponde ao padrão esperado e será ignorada: " + fileName);
         }
     }
@@ -108,3 +133,4 @@ public class FileWatcherService {
         }
     }
 }
+

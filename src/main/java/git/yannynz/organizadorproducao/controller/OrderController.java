@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import git.yannynz.organizadorproducao.model.Order;
 import git.yannynz.organizadorproducao.service.OrderService;
 
-@CrossOrigin(origins = "http://192.168.10.46")
 @RestController
 @RequestMapping("/api/orders")
 public class OrderController {
