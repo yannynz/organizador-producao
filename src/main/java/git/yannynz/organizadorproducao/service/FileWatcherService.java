@@ -57,7 +57,7 @@ public class FileWatcherService {
     private void processFile(String fileName) {
         System.out.println("Processando mensagem simulando arquivo na pasta laser: " + fileName);
 
-        Pattern pattern = Pattern.compile("NR(\\d+)([\\w\\s]+?)_(VERMELHO|AMARELO|AZUL|VERDE)(?:\\.CNC)?");
+        Pattern pattern = Pattern.compile("NR(\\d+)([\\w\\s\\d]+?)_(VERMELHO|AMARELO|AZUL|VERDE)(?:\\.CNC)?");
         Matcher matcher = pattern.matcher(fileName);
 
         if (matcher.matches()) {
@@ -93,9 +93,9 @@ public class FileWatcherService {
         System.out.println("Processando mensagem simulando arquivo na pasta facasOk: " + fileName);
 
         // Padrão para identificar pedidos gerais (com NR...)
-        Pattern nrPattern = Pattern.compile("NR(\\d+)([\\w\\s]+?)_(VERMELHO|AMARELO|AZUL|VERDE)(?:\\.CNC)?");
+        Pattern nrPattern = Pattern.compile("NR(\\d+)([\\w\\s\\d]+?)_(VERMELHO|AMARELO|AZUL|VERDE)(?:\\.CNC)?");
         // Padrão específico para pedidos de corte a laser (com CL...)
-        Pattern clPattern = Pattern.compile("CL(\\d+)([\\w\\s]+?)_(VERMELHO|AMARELO|AZUL|VERDE)(?:\\.CNC)?");
+        Pattern clPattern = Pattern.compile("CL(\\d+)([\\w\\s\\d]+?)_(VERMELHO|AMARELO|AZUL|VERDE)(?:\\.CNC)?");
 
         Matcher nrMatcher = nrPattern.matcher(fileName);
         Matcher clMatcher = clPattern.matcher(fileName);
