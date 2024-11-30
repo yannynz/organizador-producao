@@ -1,6 +1,6 @@
 node_modules
 Dockerfile
-dist
+dist/
 .dockerignore
 .vscode
 .angular
