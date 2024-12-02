@@ -24,6 +24,7 @@
         <th scope="col">Cliente</th>
         <th scope="col">Prioridade</th>
         <th scope="col">DataHora</th>
+        <th scope="col">Obs</th>
       </tr>
     </thead>
     <tbody>
@@ -38,6 +39,7 @@
           {{ order.prioridade }}
         </td>
         <td>{{ order.dataH | date: 'dd/MM HH:mm' }}</td>
+        <td>{{ order.observacao || 'Sem Observações' }}</td>
       </tr>
     </tbody>
   </table>

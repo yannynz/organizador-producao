@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.time.ZoneId;
+import java.util.Date;
 
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,39 +57,68 @@ public class FileWatcherService {
     }
 
     private void processFile(String fileName) {
-        System.out.println("Processando mensagem simulando arquivo na pasta laser: " + fileName);
+    System.out.println("Processando mensagem simulando arquivo na pasta laser: " + fileName);
 
-        Pattern pattern = Pattern.compile("NR(\\d+)([\\p{L}\\s\\d]+?)_(VERMELHO|AMARELO|AZUL|VERDE)(?:\\.CNC)?");
-        Matcher matcher = pattern.matcher(fileName);
+    // Padrões para identificar os tipos de arquivos
+    Pattern nrPattern = Pattern.compile("NR(\\d+)([\\p{L}\\s\\d]+?)_(VERMELHO|AMARELO|AZUL|VERDE)(?:\\.CNC)?");
+    Pattern clPattern = Pattern.compile("CL(\\d+)([\\p{L}\\s\\d]+?)_(VERMELHO|AMARELO|AZUL|VERDE)(?:\\.CNC)?");
 
-        if (matcher.matches()) {
-            String orderNumber = matcher.group(1);
-            String client = matcher.group(2).trim(); // Removendo espaços desnecessários
-            String priority = matcher.group(3);
+    Matcher nrMatcher = nrPattern.matcher(fileName);
+    Matcher clMatcher = clPattern.matcher(fileName);
 
-            if (orderRepository.findByNr(orderNumber).isPresent()) {
-                System.out.println("Pedido com NR " + orderNumber + " já existe. Ignorando nova mensagem.");
-                return;
-            }
+    if (clMatcher.matches()) {
+        // Processamento para arquivos CL
+        String orderNumber = clMatcher.group(1);
+        String client = clMatcher.group(2).trim(); // Removendo espaços desnecessários
+        String priority = clMatcher.group(3);
 
-            LocalDateTime creationTime = LocalDateTime.now();
-            System.out.println("Informações extraídas da mensagem: NR=" + orderNumber + ", Cliente=" + client + ", Prioridade=" + priority);
-
-            Order order = new Order();
-            order.setNr(orderNumber);
-            order.setCliente(client);
-            order.setPrioridade(priority);
-            order.setDataH(creationTime);
-            order.setStatus(0); // Status inicial
-
-            Order savedOrder = orderRepository.save(order);
-            messagingTemplate.convertAndSend("/topic/orders", savedOrder);
-            System.out.println("Pedido criado e enviado via WebSocket: " + savedOrder);
-
-        } else {
-            System.out.println("A mensagem não corresponde ao padrão esperado e será ignorada: " + fileName);
+        if (orderRepository.findByNr(orderNumber).isPresent()) {
+            System.out.println("Pedido com NR " + orderNumber + " já existe. Ignorando nova mensagem.");
+            return;
         }
+
+        LocalDateTime creationTime = LocalDateTime.now(ZoneId.of("America/Sao_Paulo"));
+        System.out.println("Informações extraídas da mensagem (CL): NR=" + orderNumber + ", Cliente=" + client + ", Prioridade=" + priority);
+
+        Order order = new Order();
+        order.setNr(orderNumber);
+        order.setCliente(client);
+        order.setPrioridade(priority);
+        order.setDataH(creationTime);
+        order.setStatus(0); // Status inicial para arquivos CL 
+
+        Order savedOrder = orderRepository.save(order);
+        messagingTemplate.convertAndSend("/topic/orders", savedOrder);
+        System.out.println("Pedido criado e enviado via WebSocket: " + savedOrder);
+    } else if (nrMatcher.matches()) {
+        // Processamento para arquivos NR
+        String orderNumber = nrMatcher.group(1);
+        String client = nrMatcher.group(2).trim(); // Removendo espaços desnecessários
+        String priority = nrMatcher.group(3);
+
+        if (orderRepository.findByNr(orderNumber).isPresent()) {
+            System.out.println("Pedido com NR " + orderNumber + " já existe. Ignorando nova mensagem.");
+            return;
+        }
+
+        LocalDateTime creationTime = LocalDateTime.now(ZoneId.of("America/Sao_Paulo"));
+        System.out.println("Informações extraídas da mensagem (NR): NR=" + orderNumber + ", Cliente=" + client + ", Prioridade=" + priority);
+
+        Order order = new Order();
+        order.setNr(orderNumber);
+        order.setCliente(client);
+        order.setPrioridade(priority);
+        order.setDataH(creationTime);
+        order.setStatus(0); // Status inicial para arquivos NR
+
+        Order savedOrder = orderRepository.save(order);
+        messagingTemplate.convertAndSend("/topic/orders", savedOrder);
+        System.out.println("Pedido criado e enviado via WebSocket: " + savedOrder);
+    } else {
+        // Arquivo fora dos padrões esperados
+        System.out.println("A mensagem não corresponde ao padrão esperado e será ignorada: " + fileName);
     }
+}
 
     private void trackFileInFacasOk(String fileName) {
         System.out.println("Processando mensagem simulando arquivo na pasta facasOk: " + fileName);
