@@ -12,6 +12,8 @@ services:
       - "5433:5432"  # Mapeando a porta do banco de dados para a máquina local
     volumes:
       - pgdata:/var/lib/postgresql/data  # Persistência de dados
+      - /etc/timezone:/etc/timezone:ro  # Montando o arquivo timezone
+      - /etc/localtime:/etc/localtime:ro  # Montando o arquivo localtime para configurar o fuso horário
     networks:
       - organizador-producao-mynetwork
     healthcheck:
@@ -33,6 +35,9 @@ services:
     depends_on:
       - postgres-container  # Garante que o PostgreSQL esteja pronto antes do backend
       - rabbitmq-container  # Garante que o RabbitMQ esteja pronto antes do backend
+    volumes:
+      - /etc/timezone:/etc/timezone:ro  # Montando o arquivo timezone
+      - /etc/localtime:/etc/localtime:ro  # Montando o arquivo localtime
     networks:
       - organizador-producao-mynetwork
 
@@ -43,6 +48,8 @@ services:
     container_name: frontend-container
     volumes:
       - ./organizer-front/dist:/usr/share/nginx/html  # Diretório do build do Angular
+      - /etc/timezone:/etc/timezone:ro  # Montando o arquivo timezone
+      - /etc/localtime:/etc/localtime:ro  # Montando o arquivo localtime
     depends_on:
       - backend-container
     networks:
@@ -58,6 +65,8 @@ services:
     volumes:
       - ./organizer-front/dist/organizer-front/browser:/usr/share/nginx/html:ro  # Mapeando o diretório correto de build para o Nginx
       - ./nginx/organizador.conf:/etc/nginx/nginx.conf:ro  # Usando o arquivo correto de configuração
+      - /etc/timezone:/etc/timezone:ro  # Montando o arquivo timezone
+      - /etc/localtime:/etc/localtime:ro  # Montando o arquivo localtime
     networks:
       - organizador-producao-mynetwork
 
@@ -70,6 +79,9 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - /etc/timezone:/etc/timezone:ro  # Montando o arquivo timezone
+      - /etc/localtime:/etc/localtime:ro  # Montando o arquivo localtime
     networks:
       - organizador-producao-mynetwork
 
