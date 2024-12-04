@@ -14,12 +14,27 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
   templateUrl: './delivered.component.html',
   styleUrls: ['./delivered.component.css']
 })
-export class DeliveredComponent implements OnInit, AfterViewInit {
+export class DeliveredComponent implements OnInit {
   allOrders: orders[] = [];
   orders: orders[] = [];
   selectedOrder: orders | null = null;
   editOrderForm: FormGroup;
   returnForm: FormGroup; // Formulário de busca
+  currentPage: number = 0;
+  pageSize: number = 20;
+  totalPages: number = 0;
+  visiblePages: number[] = [];
+
+
+  statusDescriptions: { [key: number]: string } = {
+    0: 'Em Produção',
+    1: 'Cortada',
+    2: 'Pronto para Entrega',
+    3: 'Saiu para Entrega',
+    4: 'Retirada',
+    5: 'Entregue',
+
+  };
 
   @ViewChild('orderDetailsModal') orderDetailsModal!: ElementRef;
 
@@ -49,57 +64,91 @@ export class DeliveredComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.loadOrders();
     this.setupWebSocket();
-    console.log('Componente DeliveredComponent inicializado');
   }
 
-  ngAfterViewInit(): void {
-    if (this.orderDetailsModal) {
-      console.log('Modal inicializado:', this.orderDetailsModal);
-    }
-  }
-
-  loadOrders(): void {
+   loadOrders(): void {
     this.orderService.getOrders().subscribe((orders) => {
       this.allOrders = orders;
-      this.orders = orders; // Inicia exibindo todos os pedidos
+      this.totalPages = Math.ceil(this.allOrders.length / this.pageSize);
+      this.updateOrdersForCurrentPage();
+      this.updateVisiblePages();
     });
   }
 
+  updateOrdersForCurrentPage(): void {
+    const startIndex = this.currentPage * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    this.orders = this.allOrders.slice(startIndex, endIndex);
+  }
+
+  updateVisiblePages(): void {
+    const pages = [];
+    let startPage = this.currentPage - 2 > 0 ? this.currentPage - 2 : 0;
+    let endPage = startPage + 4;
+
+    if (endPage >= this.totalPages) {
+      endPage = this.totalPages - 1;
+      startPage = endPage - 4 < 0 ? 0 : endPage - 4;
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+
+    this.visiblePages = pages;
+  }
+
+  goToPage(page: number): void {
+    this.currentPage = page;
+    this.updateOrdersForCurrentPage();
+    this.updateVisiblePages();
+  }
+
   filterOrders(): void {
+    this.filterOrdersByAnyAttribute(); // Filtro chamado ao submeter o formulário de busca
+  }
+
+  filterOrdersByAnyAttribute(): void {
     const searchTerm = this.returnForm.get('search')?.value?.toLowerCase() || '';
 
-    if (searchTerm && !isNaN(+searchTerm)) {
-      this.orderService.getOrderById(+searchTerm).subscribe((order) => {
-        this.orders = order ? [order] : [];
-      }, () => {
-        this.orders = [];
+    if (searchTerm) {
+      this.orders = this.allOrders.filter(order => {
+        // Buscando pelo termo de pesquisa em várias propriedades
+        const statusDescription = this.statusDescriptions[order.status]?.toLowerCase() || '';
+
+        return (
+          order.nr.toLowerCase().includes(searchTerm) || // Número do pedido
+          order.cliente.toLowerCase().includes(searchTerm) || // Nome do cliente
+          order.prioridade.toLowerCase().includes(searchTerm) || // Prioridade
+          statusDescription.includes(searchTerm) || // Descrição do status
+          (order.entregador && order.entregador.toLowerCase().includes(searchTerm)) || // Entregador
+          (order.observacao && order.observacao.toLowerCase().includes(searchTerm)) // Observação
+        );
       });
+      this.totalPages = Math.ceil(this.orders.length / this.pageSize); // Atualizando número de páginas após o filtro
+      this.updateVisiblePages(); // Atualizando as páginas visíveis
     } else {
-      this.orders = this.allOrders.filter(order =>
-        order.nr.toLowerCase().includes(searchTerm) ||
-        order.cliente.toLowerCase().includes(searchTerm) ||
-        order.prioridade.toLowerCase().includes(searchTerm)
-      );
+      this.orders = [...this.allOrders]; // Se não houver termo de pesquisa, mostrar todos os pedidos
+      this.totalPages = Math.ceil(this.orders.length / this.pageSize);
+      this.updateVisiblePages();
     }
   }
 
 setupWebSocket(): void {
-  this.websocketService.watchOrders().subscribe((message) => {
-    const updatedOrder: orders = JSON.parse(message.body);
+    this.websocketService.watchOrders().subscribe((message) => {
+      const updatedOrder: orders = JSON.parse(message.body);
 
-    const orderIndex = this.allOrders.findIndex(order => order.id === updatedOrder.id);
-    if (orderIndex !== -1) {
-      this.allOrders[orderIndex] = updatedOrder;
-    } else {
-      this.allOrders.push(updatedOrder);
-    }
-
-    const filteredIndex = this.orders.findIndex(order => order.id === updatedOrder.id);
-    if (filteredIndex !== -1) {
-      this.orders[filteredIndex] = updatedOrder;
-    }
-  });
-}
+      const orderIndex = this.allOrders.findIndex(order => order.id === updatedOrder.id);
+      if (orderIndex !== -1) {
+        this.allOrders[orderIndex] = updatedOrder;
+      } else {
+        this.allOrders.push(updatedOrder);
+      }
+      this.totalPages = Math.ceil(this.allOrders.length / this.pageSize);
+      this.updateOrdersForCurrentPage();
+      this.updateVisiblePages();
+    });
+  }
 
   updateOrder(): void {
     if (this.editOrderForm.valid) {
@@ -155,42 +204,25 @@ setupWebSocket(): void {
   }
 
   getPriorityColor(prioridade: string): string {
-  switch (prioridade) {
-    case 'VERMELHO': return 'red';
-    case 'AMARELO': return 'yellow';
-    case 'AZUL': return 'blue';
-    case 'VERDE': return 'green';
-    default: return 'black';
+    switch (prioridade) {
+      case 'VERMELHO': return 'red';
+      case 'AMARELO': return 'yellow';
+      case 'AZUL': return 'blue';
+      case 'VERDE': return 'green';
+      default: return 'black';
+    }
   }
-}
 
-getStatusDescription(status: number): string {
-  switch (status) {
-    case 0: return 'Em Produção';
-    case 1: return 'Cortada';
-    case 2: return 'Pronto para Entrega';
-    case 3: return 'Saiu para Entrega';
-    case 4: return 'Retirada';
-    case 5: return 'Entregue';
-    default: return 'Desconhecido';
+  getStatusDescription(status: number): string {
+    switch (status) {
+      case 0: return 'Em Produção';
+      case 1: return 'Cortada';
+      case 2: return 'Pronto para Entrega';
+      case 3: return 'Saiu para Entrega';
+      case 4: return 'Retirada';
+      case 5: return 'Entregue';
+      default: return 'Desconhecido';
+    }
   }
-}
-
-filterOrdersByAnyAttribute(): void {
-  const searchTerm = this.returnForm.get('search')?.value?.toLowerCase() || '';
-
-  if (searchTerm) {
-    this.orders = this.allOrders.filter(order =>
-      Object.keys(order).some(key => {
-        const value = (order as any)[key];
-        return value?.toString().toLowerCase().includes(searchTerm);
-      })
-    );
-  } else {
-    this.orders = [...this.allOrders];
-  }
-}
-
-
 }
 

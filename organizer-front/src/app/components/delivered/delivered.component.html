@@ -1,112 +1,60 @@
 <div class="container py-4">
-  <!-- Formulário de Busca -->
  <form [formGroup]="returnForm" (ngSubmit)="filterOrders()" class="d-flex justify-content-center mb-4">
-    <div class="input-group" style="max-width: 500px;">
-      <input
-        type="text"
-        class="form-control"
-        formControlName="search"
-        (input)="filterOrdersByAnyAttribute()"
-        placeholder="Pesquise por ID, NR, Cliente, Prioridade, ou Status"
-        aria-label="Pesquisa"
-      />
-      <button type="button" class="btn btn-outline-primary">
-        <i class="bi bi-search"></i> Buscar
-      </button>
-    </div>
-  </form>
-
-  <!-- Tabela de Pedidos -->
-  <div *ngIf="orders.length > 0" class="table-responsive">
-    <table class="table table-hover table-striped align-middle">
-      <thead class="table-dark">
-        <tr>
-          <th scope="col">Id</th>
-          <th scope="col">NR</th>
-          <th scope="col">Cliente</th>
-          <th scope="col">Prioridade</th>
-          <th scope="col">Data de Entrada</th>
-          <th scope="col">Status</th>
-          <th scope="col">Entregador</th>
-          <th scope="col">Ações</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let order of orders">
-          <td>{{ order.id }}</td>
-          <td>{{ order.nr }}</td>
-          <td>{{ order.cliente }}</td>
-          <td [style.color]="getPriorityColor(order.prioridade)">{{ order.prioridade }}</td>
-          <td>{{ order.dataH | date: 'dd/MM HH:mm' }}</td>
-          <td>{{ getStatusDescription(order.status) }}</td>
-          <td>{{ order.entregador }}</td>
-          <td>
-            <button class="btn btn-outline-info btn-sm" (click)="openOrderDetails(order)">
-              Detalhes
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+  <div class="input-group" style="max-width: 500px;">
+    <input
+      type="text"
+      class="form-control"
+      formControlName="search"
+      (input)="filterOrdersByAnyAttribute()"
+      placeholder="Pesquise por ID, NR, Cliente, Prioridade, ou Status"
+      aria-label="Pesquisa"
+    />
+    <button type="submit" class="btn btn-outline-primary">
+      <i class="bi bi-search"></i> Buscar
+    </button>
   </div>
+</form>
 
-<!-- Modal de Detalhes do Pedido -->
-<ng-template #orderDetailsModal let-modal>
-  <div class="modal-header">
-    <h5 class="modal-title">Detalhes do Pedido</h5>
-    <button type="button" class="btn-close" aria-label="Close" (click)="closeOrderDetails()"></button>
-  </div>
-  <div class="modal-body">
-    <form [formGroup]="editOrderForm">
-      <table class="table table-bordered">
-        <tbody>
-          <tr>
-            <th>NR</th>
-            <td>{{ editOrderForm.get('nr')?.value }}</td>
-          </tr>
-          <tr>
-            <th>Cliente</th>
-            <td>{{ editOrderForm.get('cliente')?.value }}</td>
-          </tr>
-          <tr>
-            <th>Prioridade</th>
-            <td>
-              <select formControlName="prioridade" class="form-control">
-                <option value="VERMELHO">Vermelho</option>
-                <option value="AMARELO">Amarelo</option>
-                <option value="AZUL">Azul</option>
-                <option value="VERDE">Verde</option>
-              </select>
-            </td>
-          </tr>
-          <tr>
-            <th>Observações</th>
-            <td><textarea formControlName="observacao" class="form-control"></textarea></td>
-          </tr>
-          <tr>
-            <th>Data de Entrada</th>
-            <td>{{ editOrderForm.get('dataH')?.value | date:'dd/MM/yyyy HH:mm' }}</td>
-          </tr>
-          <tr>
-            <th>Data de Saída</th>
-            <td>{{ editOrderForm.get('dataEntrega')?.value | date:'dd/MM/yyyy HH:mm' }}</td>
-          </tr>
-          <tr>
-            <th>Data de Retorno</th>
-            <td>{{ editOrderForm.get('dataHRetorno')?.value | date:'dd/MM/yyyy HH:mm' }}</td>
-          </tr>
-          <tr>
-            <th>Veiculo</th>
-            <td>{{ editOrderForm.get('veiculo')?.value }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </form>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="closeOrderDetails()">Fechar</button>
-    <button type="button" class="btn btn-primary" (click)="updateOrder()">Atualizar</button>
-  </div>
-</ng-template>
+<!-- Tabela de Pedidos -->
+<div *ngIf="orders.length > 0" class="table-responsive">
+  <table class="table table-hover table-striped align-middle">
+    <thead class="table-dark">
+      <tr>
+        <th scope="col">Id</th>
+        <th scope="col">NR</th>
+        <th scope="col">Cliente</th>
+        <th scope="col">Prioridade</th>
+        <th scope="col">Data de Entrada</th>
+        <th scope="col">Status</th>
+        <th scope="col">Entregador</th>
+        <th scope="col">Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let order of orders">
+        <td>{{ order.id }}</td>
+        <td>{{ order.nr }}</td>
+        <td>{{ order.cliente }}</td>
+        <td [style.color]="getPriorityColor(order.prioridade)">{{ order.prioridade }}</td>
+        <td>{{ order.dataH | date: 'dd/MM HH:mm' }}</td>
+        <td>{{ getStatusDescription(order.status) }}</td>
+        <td>{{ order.entregador }}</td>
+        <td>
+          <button class="btn btn-outline-info btn-sm" (click)="openOrderDetails(order)">
+            Detalhes
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 
+<!-- Abas de Navegação -->
+<div class="pagination">
+  <button *ngFor="let page of [].constructor(totalPages); let i = index"
+          class="btn btn-outline-primary" (click)="goToPage(i)">
+    {{ i + 1 }}
+  </button>
+</div>
 
+</div>

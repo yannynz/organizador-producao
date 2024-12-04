@@ -1,6 +1,14 @@
+.container-fluid {
+  padding: 20px;
+}
 
-.container{
-  min-height: 100vh;
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.search-bar input {
+  width: 100%;
 }
 
 .updated {
@@ -8,7 +16,34 @@
 }
 
 @keyframes highlight {
-  0% { background-color: yellow; }
-  100% { background-color: transparent; }
+  0% {
+    background-color: yellow;
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+@media (max-width: 768px) {
+  .search-bar {
+    width: 80%;
+  }
+
+  .modal-body {
+    padding: 15px;
+  }
+
+  .table th, .table td {
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  .btn {
+    font-size: 14px;
+  }
+
+  .modal-footer button {
+    font-size: 14px;
+  }
 }
 

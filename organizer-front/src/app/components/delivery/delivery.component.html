@@ -1,24 +1,24 @@
-<div class="container">
-  <div class="d-flex justify-content-end mb-2">
-    <div class="search-bar me-2">
-  <input
-    type="text"
-    class="form-control"
-    placeholder="Pesquise por ID, NR, Cliente, Prioridade ou Status"
-    [(ngModel)]="searchTerm"
-    (input)="filterOrders()"
-  />
-</div>
+<div class="container-fluid">
+  <div class="d-flex justify-content-end mb-3">
+    <div class="search-bar me-2 w-50">
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Pesquise por ID, NR, Cliente, Prioridade ou Status"
+        [(ngModel)]="searchTerm"
+        (input)="filterOrders()"
+      />
+    </div>
     <button (click)="preConfirmDelivery()" class="btn btn-primary">
       Confirmar Pedido
     </button>
   </div>
 
   <!-- Tabela de Pedidos -->
-  <table class="table table-striped">
+  <table class="table table-striped table-responsive">
     <thead>
       <tr>
-        <th scope="col">Selecionar</th>
+        <th scope="col">Select</th>
         <th scope="col">Id</th>
         <th scope="col">NR</th>
         <th scope="col">Cliente</th>
@@ -28,7 +28,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let order of filteredOrders">
+      <tr *ngFor="let order of filteredOrders" [id]="'order-' + order.id">
         <td>
           <input type="checkbox" (change)="onOrderSelectionChange(order, $event)" />
         </td>
@@ -53,77 +53,91 @@
   <div class="modal-body">
     <!-- Seção de Pedidos Selecionados -->
     <div class="mb-3">
-           <form [formGroup]="deliveryForm">
-          <h5>Pedidos Selecionados:</h5>
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th scope="col">Id</th>
-        <th scope="col">NR</th>
-        <th scope="col">Cliente</th>
-        <th scope="col">Prioridade</th>
-        <th scope="col">Data/Hora</th>
-        <th scope="col">Obs</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let order of selectedOrders">
-        <td>{{ order.id }}</td>
-        <td>{{ order.nr }}</td>
-        <td>{{ order.cliente }}</td>
-           <td [style.color]="getPriorityColor(order.prioridade)">
-          {{ order.prioridade }}
-        </td>
-        <td>{{ order.dataH | date: 'dd/MM HH:mm' }}</td>
-        <td>{{ order.observacao || 'Sem observações' }}</td>
-      </tr>
-    </tbody>
-  </table>
-    <div *ngIf="selectedOrders.length === 0" class="text-muted mt-2">
-        Nenhum pedido selecionado.
-      </div>
+      <form [formGroup]="deliveryForm">
+        <h5>Pedidos Selecionados:</h5>
+        <table class="table table-striped table-responsive">
+          <thead>
+            <tr>
+              <th scope="col">Id</th>
+              <th scope="col">NR</th>
+              <th scope="col">Cliente</th>
+              <th scope="col">Prioridade</th>
+              <th scope="col">Data/Hora</th>
+              <th scope="col">Obs</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let order of selectedOrders">
+              <td>{{ order.id }}</td>
+              <td>{{ order.nr }}</td>
+              <td>{{ order.cliente }}</td>
+              <td [style.color]="getPriorityColor(order.prioridade)">
+                {{ order.prioridade }}
+              </td>
+              <td>{{ order.dataH | date: 'dd/MM HH:mm' }}</td>
+              <td>{{ order.observacao || 'Sem observações' }}</td>
+            </tr>
+          </tbody>
+        </table>
 
-    <form [formGroup]="deliveryForm">
-      <!-- Campo Entregador -->
-      <div class="mb-3">
-        <label placeholder="insira sem nome com apenas letras minusculas e sem acento" for="deliveryPerson" class="form-label">Entregador</label>
-        <input type="text" id="deliveryPerson" formControlName="deliveryPerson" class="form-control" placeholder="Nome do entregador" />
-      </div>
+        <div *ngIf="selectedOrders.length === 0" class="text-muted mt-2">
+          Nenhum pedido selecionado.
+        </div>
 
-      <!-- Campo Tipo de Entrega -->
-      <div class="mb-3">
-        <label for="deliveryType" class="form-label">Tipo de Entrega</label>
-        <select id="deliveryType" formControlName="deliveryType" class="form-select">
-          <option value="" disabled selected>Escolha o tipo de entrega</option>
-          <option value="Sair para entrega">Sair para entrega</option>
-          <option value="Retirada">Retirada</option>
-        </select>
-      </div>
+        <div class="mb-3">
+          <label for="deliveryPerson" class="form-label">Entregador</label>
+          <input
+            type="text"
+            id="deliveryPerson"
+            formControlName="deliveryPerson"
+            class="form-control"
+            placeholder="Nome do entregador"
+          />
+        </div>
 
-      <!-- Campo Tipo de Veículo (Exibido apenas se 'Sair para entrega' for selecionado) -->
-      <div *ngIf="deliveryForm.get('deliveryType')?.value === 'Sair para entrega'" class="mb-3">
-        <label for="vehicleType" class="form-label">Tipo de Veículo</label>
-        <select id="vehicleType" formControlName="vehicleType" class="form-select">
-          <option value="" disabled selected>Escolha o tipo de veículo</option>
-          <option value="Strada">Strada</option>
-          <option value="Twister">Twister</option>
-          <option value="A pé">A pé</option>
-          <option value="Outro">Outro</option>
-        </select>
-      </div>
+        <div class="mb-3">
+          <label for="deliveryType" class="form-label">Tipo de Entrega</label>
+          <select id="deliveryType" formControlName="deliveryType" class="form-select">
+            <option value="" disabled selected>Escolha o tipo de entrega</option>
+            <option value="Sair para entrega">Sair para entrega</option>
+            <option value="Retirada">Retirada</option>
+          </select>
+        </div>
 
-      <!-- Campo Veículo Personalizado (aparece se 'Outro' for selecionado) -->
-      <div *ngIf="deliveryForm.get('vehicleType')?.value === 'Outro'" class="mb-3">
-        <label for="customVehicle" class="form-label">Veículo Personalizado</label>
-        <input type="text" id="customVehicle" formControlName="customVehicle" class="form-control" placeholder="Digite o veículo" />
-      </div>
-    </form>
+        <!-- Campo Tipo de Veículo -->
+        <div *ngIf="deliveryForm.get('deliveryType')?.value === 'Sair para entrega'" class="mb-3">
+          <label for="vehicleType" class="form-label">Tipo de Veículo</label>
+          <select id="vehicleType" formControlName="vehicleType" class="form-select">
+            <option value="" disabled selected>Escolha o tipo de veículo</option>
+            <option value="Strada">Strada</option>
+            <option value="Twister">Twister</option>
+            <option value="A pé">A pé</option>
+            <option value="Outro">Outro</option>
+          </select>
+        </div>
+
+        <!-- Campo Veículo Personalizado -->
+        <div *ngIf="deliveryForm.get('vehicleType')?.value === 'Outro'" class="mb-3">
+          <label for="customVehicle" class="form-label">Veículo Personalizado</label>
+          <input
+            type="text"
+            id="customVehicle"
+            formControlName="customVehicle"
+            class="form-control"
+            placeholder="Digite o veículo"
+          />
+        </div>
+      </form>
+    </div>
+  </div>
+
   <div class="modal-footer">
     <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">Cancelar</button>
     <button type="button" class="btn btn-primary" (click)="confirmDelivery()">Confirmar Entrega</button>
   </div>
+</ng-template>
 
-  <!-- Modal de Agradecimento -->
+<!-- Modal de Agradecimento -->
 <ng-template #thankYouModal let-modal>
   <div class="modal-header">
     <h5 class="modal-title">Entrega Confirmada</h5>
