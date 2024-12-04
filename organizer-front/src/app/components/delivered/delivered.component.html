@@ -52,9 +52,62 @@
 <!-- Abas de Navegação -->
 <div class="pagination">
   <button *ngFor="let page of [].constructor(totalPages); let i = index"
-          class="btn btn-outline-primary" (click)="goToPage(i)">
+          class="btn btn-outline-primary pagination-btn"
+          (click)="goToPage(i)">
     {{ i + 1 }}
   </button>
 </div>
-
 </div>
+<!-- Modal de Detalhes do Pedido -->
+<ng-template #orderDetailsModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title">Detalhes do Pedido</h5>
+    <button type="button" class="btn-close" aria-label="Close" (click)="closeOrderDetails()"></button>
+  </div>
+  <div class="modal-body">
+    <form [formGroup]="editOrderForm">
+      <table class="table table-bordered">
+        <tbody>
+          <tr>
+            <th>NR</th>
+            <td>{{ editOrderForm.get('nr')?.value }}</td>
+          </tr>
+          <tr>
+            <th>Cliente</th>
+            <td>{{ editOrderForm.get('cliente')?.value }}</td>
+          </tr>
+          <tr>
+            <th>Prioridade</th>
+            <td>
+              <select formControlName="prioridade" class="form-control">
+                <option value="VERMELHO">Vermelho</option>
+                <option value="AMARELO">Amarelo</option>
+                <option value="AZUL">Azul</option>
+                <option value="VERDE">Verde</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <th>Observações</th>
+            <td><textarea formControlName="observacao" class="form-control"></textarea></td>
+          </tr>
+          <tr>
+            <th>Data de Entrada</th>
+            <td>{{ editOrderForm.get('dataH')?.value | date:'dd/MM/yyyy HH:mm' }}</td>
+          </tr>
+          <tr>
+            <th>Data de Saída</th>
+            <td>{{ editOrderForm.get('dataEntrega')?.value | date:'dd/MM/yyyy HH:mm' }}</td>
+          </tr>
+          <tr>
+            <th>Data de Retorno</th>
+            <td>{{ editOrderForm.get('dataHRetorno')?.value | date:'dd/MM/yyyy HH:mm' }}</td>
+          </tr>
+          <tr>
+            <th>Veiculo</th>
+            <td>{{ editOrderForm.get('veiculo')?.value }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </form>
+  </div>

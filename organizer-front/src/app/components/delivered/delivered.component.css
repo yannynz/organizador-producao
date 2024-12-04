@@ -70,3 +70,12 @@
   font-size: 0.875rem;
 }
 
+.pagination {
+  display: flex;
+  justify-content: center; /* Alinha os botões no centro */
+  gap: 0.5rem; /* Espaçamento entre os botões */
+}
+
+.pagination button {
+  margin: 0 0.5rem; /* Espaçamento adicional entre os botões */
+}
