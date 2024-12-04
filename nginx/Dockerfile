@@ -1,6 +1,12 @@
 # Use a imagem oficial do Nginx
 FROM nginx:alpine
 
+ENV TZ=America/Sao_Paulo
+RUN apk add --no-cache tzdata && \
+    cp /usr/share/zoneinfo/$TZ /etc/localtime && \
+    echo $TZ > /etc/timezone && \
+    apk del tzdata
+
 # Copie o arquivo de configuração do Nginx para dentro do container
 COPY nginx.conf /etc/nginx/nginx.conf
 

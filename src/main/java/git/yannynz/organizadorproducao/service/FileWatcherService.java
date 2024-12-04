@@ -1,6 +1,6 @@
 package git.yannynz.organizadorproducao.service;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -77,7 +77,7 @@ public class FileWatcherService {
             return;
         }
 
-        LocalDateTime creationTime = LocalDateTime.now(ZoneId.of("America/Sao_Paulo"));
+        ZonedDateTime creationTime = ZonedDateTime.now(ZoneId.of("America/Sao_Paulo"));
         System.out.println("Informações extraídas da mensagem (CL): NR=" + orderNumber + ", Cliente=" + client + ", Prioridade=" + priority);
 
         Order order = new Order();
@@ -101,7 +101,7 @@ public class FileWatcherService {
             return;
         }
 
-        LocalDateTime creationTime = LocalDateTime.now(ZoneId.of("America/Sao_Paulo"));
+        ZonedDateTime creationTime = ZonedDateTime.now(ZoneId.of("America/Sao_Paulo"));
         System.out.println("Informações extraídas da mensagem (NR): NR=" + orderNumber + ", Cliente=" + client + ", Prioridade=" + priority);
 
         Order order = new Order();

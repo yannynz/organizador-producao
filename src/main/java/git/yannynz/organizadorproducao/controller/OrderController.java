@@ -1,6 +1,6 @@
 package git.yannynz.organizadorproducao.controller;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -107,7 +107,7 @@ public ResponseEntity<Order> updateOrderStatus(
         }
 
         // Definir data de entrega como o momento atual
-        order.setDataEntrega(LocalDateTime.now());
+        order.setDataEntrega(ZonedDateTime.now());
 
         // Atualizar entregador e observação se disponíveis
         if (entregador != null) {

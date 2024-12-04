@@ -26,6 +26,8 @@ export class OrdersComponent implements OnInit, OnDestroy {
   editingOrder: orders | undefined;
   ordersSubscription: Subscription | undefined;
   selectedOrder: orders | null = null;
+  filteredPriority: string | null=null;
+
 
   constructor(
     private formBuilder: FormBuilder,
@@ -62,10 +64,33 @@ export class OrdersComponent implements OnInit, OnDestroy {
     this.listenForWebSocketUpdates();
   }
 
+filterByPriority(priority: string) {
+  this.filteredPriority = priority;
+  this.applyFilter();
+}
+
+clearPriorityFilter() {
+  this.filteredPriority = null;
+  this.applyFilter();
+}
+
+applyFilter() {
+  this.loadOrders(); // Recarrega a lista de pedidos
+}
+
 loadOrders() {
   this.orderService.getOrders().subscribe((orders: orders[]) => {
-    this.orders = orders.filter((order) => this.shouldDisplayOrder(order));
-    this.orders.sort((a, b) =>
+    let filteredOrders = orders.filter(order =>
+      this.shouldDisplayOrder(order)
+    );
+
+    if (this.filteredPriority) {
+      filteredOrders = filteredOrders.filter(
+        order => order.prioridade === this.filteredPriority
+      );
+    }
+
+    this.orders = filteredOrders.sort((a, b) =>
       this.comparePriorities(a.prioridade, b.prioridade)
     );
   });

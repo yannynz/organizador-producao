@@ -1,9 +1,10 @@
 package git.yannynz.organizadorproducao.model;
 
-import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
 import java.util.Objects;
+import jakarta.persistence.*;
+import java.time.ZonedDateTime;
+
 
 @Entity
 @Table(name = "orders")
@@ -14,13 +15,13 @@ public class Order {
     private String nr;
     private String cliente;
     private String prioridade;
-    private LocalDateTime dataH;
+    private ZonedDateTime dataH;
     private int status;
-    private LocalDateTime dataEntrega;
+    private ZonedDateTime dataEntrega;
     private String entregador;
     private String observacao;
     private String veiculo;  
-    private LocalDateTime dataHRetorno;  
+    private ZonedDateTime dataHRetorno;  
 
     public Order() {}
 
@@ -32,11 +33,11 @@ public class Order {
         this.veiculo = veiculo;
     }
 
-    public LocalDateTime getDataHRetorno() {
+    public ZonedDateTime getDataHRetorno() {
         return dataHRetorno;
     }
 
-    public void setDataHRetorno(LocalDateTime dataHRetorno) {
+    public void setDataHRetorno(ZonedDateTime dataHRetorno) {
         this.dataHRetorno = dataHRetorno;
     }
 
@@ -72,11 +73,11 @@ public class Order {
         this.prioridade = prioridade;
     }
 
-    public LocalDateTime getDataH() {
+    public ZonedDateTime getDataH() {
         return dataH;
     }
 
-    public void setDataH(LocalDateTime dataH) {
+    public void setDataH(ZonedDateTime dataH) {
         this.dataH = dataH;
     }
 
@@ -88,11 +89,11 @@ public class Order {
         this.status = status;
     }
 
-    public LocalDateTime getDataEntrega() {
+    public ZonedDateTime getDataEntrega() {
         return dataEntrega;
     }
 
-    public void setDataEntrega(LocalDateTime dataEntrega) {
+    public void setDataEntrega(ZonedDateTime dataEntrega) {
         this.dataEntrega = dataEntrega;
     }
 

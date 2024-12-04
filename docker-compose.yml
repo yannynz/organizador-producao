@@ -5,6 +5,7 @@ services:
     image: postgres:latest
     container_name: postgres-container
     environment:
+      TZ: America/Sao_Paulo  # Configurando o fuso horário
       POSTGRES_DB: teste01
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1234
@@ -77,6 +78,7 @@ services:
       - "5672:5672"  # Porta do RabbitMQ
       - "15672:15672"  # Porta para acessar o painel de administração
     environment:
+      TZ: America/Sao_Paulo  # Configurando o fuso horário
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
     volumes:

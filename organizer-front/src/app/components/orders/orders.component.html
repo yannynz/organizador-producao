@@ -1,19 +1,27 @@
 <div class="container mt-4">
   <!-- Indicadores de Prioridade -->
   <div class="row mb-3 text-center">
-    <div class="col-6 col-md-3">
-      <p><span class="badge bg-danger">●</span> Alta Prioridade</p>
-    </div>
-    <div class="col-6 col-md-3">
-      <p><span class="badge bg-warning text-dark">●</span> Média Prioridade</p>
-    </div>
-    <div class="col-6 col-md-3">
-      <p><span class="badge bg-primary">●</span> Baixa Prioridade</p>
-    </div>
-    <div class="col-6 col-md-3">
-      <p><span class="badge bg-success">●</span> Baixíssima Prioridade</p>
-    </div>
+  <div class="col-6 col-md-3">
+    <button class="btn btn-danger w-100"
+            (click)="filterByPriority('VERMELHO')"
+            (dblclick)="clearPriorityFilter()">Alta Prioridade</button>
   </div>
+  <div class="col-6 col-md-3">
+    <button class="btn btn-warning text-dark w-100"
+            (click)="filterByPriority('AMARELO')"
+            (dblclick)="clearPriorityFilter()">Média Prioridade</button>
+  </div>
+  <div class="col-6 col-md-3">
+    <button class="btn btn-primary w-100"
+            (click)="filterByPriority('AZUL')"
+            (dblclick)="clearPriorityFilter()">Baixa Prioridade</button>
+  </div>
+  <div class="col-6 col-md-3">
+    <button class="btn btn-success w-100"
+            (click)="filterByPriority('VERDE')"
+            (dblclick)="clearPriorityFilter()">Baixíssima Prioridade</button>
+  </div>
+</div>
 
   <!-- Tabela de Pedidos -->
   <div class="table-responsive">
@@ -39,134 +47,12 @@
           </td>
           <td>{{ order.dataH | date: 'dd/MM HH:mm' }}</td>
           <td>{{ getStatusDescription(order.status) }}</td>
-          <td>{{ order.observacao }}</td>
+          <td>{{ order.observacao || 'Sem observações' }}</td>
         </tr>
       </tbody>
     </table>
   </div>
 </div>
 
-<!-- Modal de Criação de Pedido -->
-<div
-  class="modal fade"
-  id="createOrderModal"
-  tabindex="-1"
-  aria-labelledby="createOrderModalLabel"
-  aria-hidden="true"
->
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="createOrderModalLabel">Novo Pedido</h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-          aria-label="Close"
-        ></button>
-      </div>
-      <div class="modal-body">
-        <form [formGroup]="createOrderForm" (ngSubmit)="createOrder()">
-          <div class="mb-3">
-            <label for="nr" class="form-label">Número</label>
-            <input type="text" id="nr" formControlName="nr" class="form-control" />
-          </div>
-          <div class="mb-3">
-            <label for="cliente" class="form-label">Cliente</label>
-            <input
-              type="text"
-              id="cliente"
-              formControlName="cliente"
-              class="form-control"
-            />
-          </div>
-          <div class="mb-3">
-            <label for="prioridade" class="form-label">Prioridade</label>
-            <select
-              formControlName="prioridade"
-              class="form-control"
-              id="prioridade"
-            >
-              <option value="Vermelho">Vermelho</option>
-              <option value="Amarelo">Amarelo</option>
-              <option value="Azul">Azul</option>
-              <option value="Verde">Verde</option>
-            </select>
-          </div>
-          <div class="mb-3">
-            <label for="dataH" class="form-label">Data e Hora</label>
-            <input
-              type="datetime-local"
-              id="dataH"
-              formControlName="dataH"
-              class="form-control"
-            />
-          </div>
-          <button type="submit" class="btn btn-primary w-100">Criar Pedido</button>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
 
-<!-- Modal de Edição de Pedido -->
-<div
-  class="modal fade"
-  id="editOrderModal"
-  tabindex="-1"
-  aria-labelledby="editOrderModalLabel"
-  aria-hidden="true"
->
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="editOrderModalLabel">Editar Pedido</h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-          aria-label="Close"
-        ></button>
-      </div>
-      <div class="modal-body">
-        <form [formGroup]="editOrderForm" (ngSubmit)="updateOrder()">
-          <div class="mb-3">
-            <label for="nr" class="form-label">Número</label>
-            <input type="text" id="nr" formControlName="nr" class="form-control" />
-          </div>
-          <div class="mb-3">
-            <label for="cliente" class="form-label">Cliente</label>
-            <input
-              type="text"
-              id="cliente"
-              formControlName="cliente"
-              class="form-control"
-            />
-          </div>
-          <div class="mb-3">
-            <label for="prioridade" class="form-label">Prioridade</label>
-            <input
-              type="text"
-              id="prioridade"
-              formControlName="prioridade"
-              class="form-control"
-            />
-          </div>
-          <div class="mb-3">
-            <label for="dataH" class="form-label">Data e Hora</label>
-            <input
-              type="datetime-local"
-              id="dataH"
-              formControlName="dataH"
-              class="form-control"
-            />
-          </div>
-          <button type="submit" class="btn btn-primary w-100">
-            Atualizar Pedido
-          </button>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
 

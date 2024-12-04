@@ -1,4 +1,11 @@
 FROM openjdk:17-jdk-slim as build
+# Configurar o fuso horário para São Paulo
+ENV TZ=America/Sao_Paulo
+RUN apt-get update && apt-get install -y tzdata && \
+    echo $TZ > /etc/timezone && \
+    ln -sf /usr/share/zoneinfo/$TZ /etc/localtime && \
+    dpkg-reconfigure -f noninteractive tzdata && \
+    apt-get clean
 WORKDIR /app
 COPY . .
 RUN ./mvnw clean install -DskipTests
