@@ -1,5 +1,5 @@
 <div class="container-fluid">
-  <div class="d-flex justify-content-end mb-3">
+  <div class="d-flex justify-content-end mb-3 align-items-center">
     <div class="search-bar me-2 w-50">
       <input
         type="text"
@@ -9,9 +9,13 @@
         (input)="filterOrders()"
       />
     </div>
-    <button (click)="preConfirmDelivery()" class="btn btn-primary">
+    <button (click)="preConfirmDelivery()" class="btn btn-primary me-2">
       Confirmar Pedido
     </button>
+      <button class="btn btn-outline-primary" (click)="openAdverseOutputModal()">
+      Adicionar Saída Adversa
+    </button>
+
   </div>
 
   <!-- Tabela de Pedidos -->
@@ -135,8 +139,8 @@
     <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">Cancelar</button>
     <button type="button" class="btn btn-primary" (click)="confirmDelivery()">Confirmar Entrega</button>
   </div>
-</ng-template>
 
+</ng-template>
 <!-- Modal de Agradecimento -->
 <ng-template #thankYouModal let-modal>
   <div class="modal-header">
@@ -147,6 +151,58 @@
   </div>
   <div class="modal-footer">
     <button type="button" class="btn btn-primary" (click)="modal.close()">Fechar</button>
+  </div>
+</ng-template>
+
+<!-- Modal de Saída Adversa -->
+<ng-template #adverseOutputModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title">Adicionar Saída Adversa</h5>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+  </div>
+  <div class="modal-body">
+    <form [formGroup]="adverseOutputForm">
+      <!-- Tipo de Saída Adversa -->
+      <div class="mb-3">
+        <label for="adverseType" class="form-label">Tipo de Saída</label>
+        <select id="adverseType" formControlName="adverseType" class="form-select">
+          <option value="" disabled selected>Escolha o tipo de saída</option>
+          <option value="Contabilidade">Contabilidade</option>
+          <option value="Retidara Pagamento">Retirada Pagamento</option>
+          <option value="Retirada Material">Retirada Material</option>
+          <option value="Retirada p/Conserto">Retirada p/ Conserto</option>
+          <option value="Modelo">Modelo</option>
+          <option value="Pertinax">Pertinax</option>
+        </select>
+      </div>
+
+      <!-- Nome do Cliente -->
+      <div class="mb-3">
+        <label for="cliente" class="form-label">Cliente</label>
+        <input
+          type="text"
+          id="cliente"
+          formControlName="cliente"
+          class="form-control"
+          placeholder="Nome do cliente"
+        />
+      </div>
+
+      <!-- Observação -->
+      <div class="mb-3">
+        <label for="obs" class="form-label">Observação</label>
+        <textarea
+          id="obs"
+          formControlName="observacao"
+          class="form-control"
+          placeholder="Adicione observações (opcional)"
+        ></textarea>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">Cancelar</button>
+    <button type="button" class="btn btn-primary" (click)="addAdverseOutput()">Adicionar</button>
   </div>
 </ng-template>
 

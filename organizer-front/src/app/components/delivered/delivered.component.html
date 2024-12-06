@@ -9,10 +9,13 @@
       placeholder="Pesquise por ID, NR, Cliente, Prioridade, ou Status"
       aria-label="Pesquisa"
     />
-    <button type="submit" class="btn btn-outline-primary">
+    <button type="submit" class="btn btn-outline-primary me-2">
       <i class="bi bi-search"></i> Buscar
     </button>
   </div>
+  <button type="button" class="btn btn-success" (click)="openAdverseOutputModal()">
+      <i class="bi bi-plus-circle"></i> Adicionar Saída Adversa
+    </button>
 </form>
 
 <!-- Tabela de Pedidos -->
@@ -116,3 +119,49 @@
     <button type="button" class="btn btn-primary" (click)="updateOrder()">Atualizar</button>
   </div>
 </ng-template>
+
+<!-- Modal de adicionar saída adversa -->
+<ng-template #adverseOutputModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title">Adicionar Saída Adversa</h5>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+  </div>
+  <div class="modal-body">
+    <form [formGroup]="adverseOutputForm">
+      <div class="mb-3">
+        <label for="adverseType" class="form-label">Tipo de Saída</label>
+        <select id="adverseType" formControlName="adverseType" class="form-select">
+          <option value="" disabled>Escolha o tipo de saída</option>
+          <option value="Contabilidade">Contabilidade</option>
+          <option value="Retidara Pagamento">Retirada Pagamento</option>
+          <option value="Retirada Material">Retirada Material</option>
+          <option value="Retirada p/Conserto">Retirada p/ Conserto</option>
+          <option value="Modelo">Modelo</option>
+          <option value="Pertinax">Pertinax</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label for="cliente" class="form-label">Cliente</label>
+        <input id="cliente" type="text" formControlName="cliente" class="form-control" />
+      </div>
+      <div class="mb-3">
+        <label for="prioridade" class="form-label">Prioridade</label>
+        <select id="prioridade" formControlName="prioridade" class="form-select">
+          <option value="VERMELHO">Vermelho</option>
+          <option value="AMARELO">Amarelo</option>
+          <option value="AZUL">Azul</option>
+          <option value="VERDE">Verde</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label for="observacao" class="form-label">Observações</label>
+        <textarea id="observacao" formControlName="observacao" class="form-control"></textarea>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">Cancelar</button>
+    <button type="button" class="btn btn-primary" [disabled]="adverseOutputForm.invalid" (click)="addAdverseOutput()">Adicionar</button>
+  </div>
+</ng-template>
+

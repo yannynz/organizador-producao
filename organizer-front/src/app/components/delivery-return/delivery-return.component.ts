@@ -5,6 +5,7 @@ import { orders } from '../../models/orders';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { WebsocketService } from '../../services/websocket.service';
+import { DateTime } from 'luxon';
 
 @Component({
   selector: 'app-delivery-return',
@@ -63,7 +64,7 @@ export class DeliveryReturnComponent implements OnInit {
     return;
   }
 
-  const dataHRetorno = new Date();
+  const dataHRetorno = DateTime.now().setZone('America/Sao_Paulo').toJSDate();
   const entregador = this.returnForm.get('entregador')?.value || '';
 
   this.selectedOrders.forEach((order) => {

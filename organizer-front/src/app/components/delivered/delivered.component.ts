@@ -6,6 +6,7 @@ import { WebsocketService } from '../../services/websocket.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { DateTime } from 'luxon';
 
 @Component({
   selector: 'app-delivered',
@@ -15,6 +16,9 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
   styleUrls: ['./delivered.component.css']
 })
 export class DeliveredComponent implements OnInit {
+
+  @ViewChild('adverseOutputModal') adverseOutputModal!: ElementRef;
+  adverseOutputForm: FormGroup;
   allOrders: orders[] = [];
   orders: orders[] = [];
   selectedOrder: orders | null = null;
@@ -59,6 +63,12 @@ export class DeliveredComponent implements OnInit {
     this.returnForm = this.fb.group({
       search: ['']
     });
+    this.adverseOutputForm = this.fb.group({
+      adverseType: ['', Validators.required],
+      cliente: ['', Validators.required],
+      prioridade: ['VERDE', Validators.required],
+      observacao: ['']
+    });
   }
 
   ngOnInit(): void {
@@ -66,7 +76,7 @@ export class DeliveredComponent implements OnInit {
     this.setupWebSocket();
   }
 
-   loadOrders(): void {
+  loadOrders(): void {
     this.orderService.getOrders().subscribe((orders) => {
       this.allOrders = orders;
       this.totalPages = Math.ceil(this.allOrders.length / this.pageSize);
@@ -134,7 +144,7 @@ export class DeliveredComponent implements OnInit {
     }
   }
 
-setupWebSocket(): void {
+  setupWebSocket(): void {
     this.websocketService.watchOrders().subscribe((message) => {
       const updatedOrder: orders = JSON.parse(message.body);
 
@@ -223,6 +233,38 @@ setupWebSocket(): void {
       case 5: return 'Entregue';
       default: return 'Desconhecido';
     }
+  }
+
+  openAdverseOutputModal(): void {
+    this.modalService.open(this.adverseOutputModal, { centered: true });
+  }
+
+  addAdverseOutput(): void {
+    if (this.adverseOutputForm.invalid) {
+      alert('Preencha todos os campos obrigatórios.');
+      return;
+    }
+    const newAdverseOrder: orders = {
+      id: 0,
+      nr: this.adverseOutputForm.get('adverseType')?.value,
+      cliente: this.adverseOutputForm.get('cliente')?.value,
+      dataH: DateTime.now().setZone('America/Sao_Paulo').toJSDate(),
+      prioridade: this.adverseOutputForm.get('prioridade')?.value,
+      status: 2,
+      observacao: this.adverseOutputForm.get('observacao')?.value || 'Sem observações',
+      isOpen: false,
+    };
+
+    this.orderService.createOrder(newAdverseOrder).subscribe(
+      (savedOrder) => {
+        this.orders.push(savedOrder); // Atualiza lista na página
+        this.loadOrders(); // Atualiza lista completa
+        this.modalService.dismissAll(); // Fecha o modal
+      },
+      (error) => {
+        alert('Erro ao salvar a saída adversa: ' + error.message);
+      }
+    );
   }
 }
 

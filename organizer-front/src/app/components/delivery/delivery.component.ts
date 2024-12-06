@@ -20,10 +20,11 @@ export class DeliveryComponent implements OnInit {
   deliveryForm: FormGroup;
   filteredOrders: orders[] = [];
   searchTerm: string = '';
+  adverseOutputForm: FormGroup;
 
   @ViewChild('deliveryModal', { static: false }) deliveryModal!: TemplateRef<any>;
   @ViewChild('thankYouModal', { static: false }) thankYouModal!: TemplateRef<any>;
-
+  @ViewChild('adverseOutputModal', { static: false }) adverseOutputModal!: TemplateRef<any>;
 
   constructor(
     private orderService: OrderService,
@@ -38,6 +39,12 @@ export class DeliveryComponent implements OnInit {
       vehicleType: [''],
       customVehicle: [''],
     });
+    this.adverseOutputForm = this.fb.group({
+      adverseType: ['', Validators.required],
+      cliente: ['', Validators.required],
+      observacao: [''],
+    });
+
   }
 
   ngOnInit(): void {
@@ -80,13 +87,42 @@ export class DeliveryComponent implements OnInit {
   }
 
   preConfirmDelivery(): void {
-    if (this.selectedOrders.length === 0) {
-      alert('Nenhum pedido selecionado');
-    } else {
-      this.deliveryForm.reset(); // Resetar formulário
-      this.modalService.open(this.deliveryModal); // Abrir o modal de entrega
-    }
+    this.deliveryForm.reset(); // Resetar formulário
+    this.modalService.open(this.deliveryModal); // Abrir o modal de entrega
   }
+
+  addAdverseOutput(): void {
+    if (this.adverseOutputForm.invalid) {
+      alert('Preencha todos os campos obrigatórios.');
+      return;
+    }
+    const newAdverseOrder: orders = {
+      id: 0, // Será gerado pelo backend
+      nr: this.adverseOutputForm.get('adverseType')?.value,
+      cliente: this.adverseOutputForm.get('cliente')?.value,
+      dataH: DateTime.now().setZone('America/Sao_Paulo').toJSDate(),
+      prioridade: 'VERDE',
+      status: 2,
+      observacao: this.adverseOutputForm.get('observacao')?.value || 'Sem observações',
+      isOpen: false,
+    };
+    this.orderService.createOrder(newAdverseOrder).subscribe(
+      (savedOrder) => {
+        this.selectedOrders.push(savedOrder);
+        this.loadOrders();
+        this.modalService.dismissAll();
+      },
+      (error) => {
+        alert('Erro ao salvar a saída adversa: ' + error.message);
+      }
+    );
+  }
+
+  openAdverseOutputModal(): void {
+    this.adverseOutputForm.reset(); // Resetar o formulário antes de abrir o modal
+    this.modalService.open(this.adverseOutputModal); // Abrir o modal de saída adversa
+  }
+
 
   confirmDelivery(): void {
     if (this.deliveryForm.invalid) {
