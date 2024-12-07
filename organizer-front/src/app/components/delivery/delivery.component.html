@@ -1,5 +1,5 @@
 <div class="container-fluid">
-  <div class="d-flex justify-content-end mb-3 align-items-center">
+  <div class="d-flex justify-content-end mb-3 align-items-center align-middle">
     <div class="search-bar me-2 w-50">
       <input
         type="text"
@@ -19,19 +19,22 @@
   </div>
 
   <!-- Tabela de Pedidos -->
-  <table class="table table-striped table-responsive">
-    <thead>
+  <table class="table table-striped table-responsive align-middle table-hover">
+    <thead class="table-dark">
       <tr>
-        <th scope="col">Select</th>
-        <th scope="col">Id</th>
+        <th scope="col">SELECIONE</th>
+        <th scope="col">ID</th>
         <th scope="col">NR</th>
-        <th scope="col">Cliente</th>
-        <th scope="col">Prioridade</th>
-        <th scope="col">DataHora</th>
-        <th scope="col">Obs</th>
+        <th scope="col">CLIENTE</th>
+        <th scope="col">PRIORIDADE</th>
+        <th scope="col">DATA DE ENTRADA</th>
+        <th scope="col">OBS</th>
       </tr>
     </thead>
     <tbody>
+    <div *ngIf="!orders.length" class="text-center py-4">
+      <p class="text-muted">Carregando pedidos...</p>
+    </div>
       <tr *ngFor="let order of filteredOrders" [id]="'order-' + order.id">
         <td>
           <input type="checkbox" (change)="onOrderSelectionChange(order, $event)" />
@@ -39,8 +42,8 @@
         <td>{{ order.id }}</td>
         <td>{{ order.nr }}</td>
         <td>{{ order.cliente }}</td>
-        <td [style.color]="getPriorityColor(order.prioridade)">
-          {{ order.prioridade }}
+        <td [ngStyle]="{'background-color': getPriorityColor(order.prioridade)}">
+            {{ order.prioridade }}
         </td>
         <td>{{ order.dataH | date: 'dd/MM HH:mm' }}</td>
         <td>{{ order.observacao || 'Sem Observações' }}</td>
@@ -173,8 +176,20 @@
           <option value="Retirada p/Conserto">Retirada p/ Conserto</option>
           <option value="Modelo">Modelo</option>
           <option value="Pertinax">Pertinax</option>
+          <option value="Outro">Outro</option>
         </select>
       </div>
+
+     <div *ngIf="adverseOutputForm.get('adverseType')?.value === 'Outro'" class="mb-3">
+  <label for="customAdverseType" class="form-label">Tipo de Saída Personalizado</label>
+  <input
+    type="text"
+    id="customAdverseType"
+    formControlName="customAdverseType"
+    class="form-control"
+    placeholder="Digite o tipo de saída"
+  />
+</div>
 
       <!-- Nome do Cliente -->
       <div class="mb-3">

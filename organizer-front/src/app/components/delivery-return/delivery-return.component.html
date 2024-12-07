@@ -7,6 +7,10 @@
     <button type="submit" class="btn btn-primary">Buscar Pedidos</button>
   </form>
 
+    <div *ngIf="!orders.length" class="text-center py-4">
+      <p class="text-muted">Carregando pedidos...</p>
+    </div>
+
   <div *ngIf="orders.length > 0">
     <h3>Pedidos para Retorno</h3>
     <table class="table table-striped">
@@ -15,9 +19,10 @@
           <th scope="col">Selecionar</th>
           <th scope="col">Id</th>
           <th scope="col">NR</th>
-          <th scope="col">Cliente</th>
-          <th scope="col">Prioridade</th>
-          <th scope="col">DataHora</th>
+          <th scope="col">CLIENTE</th>
+          <th scope="col">PRIORIDADE</th>
+          <th scope="col">DATA DE ENTRADA</th>
+          <th scope="col">DATA DE SAIDA</th>
         </tr>
       </thead>
       <tbody>
@@ -35,6 +40,15 @@
             {{ order.prioridade }}
           </td>
           <td>{{ order.dataH | date: 'dd/MM HH:mm' }}</td>
+          <td>{{ order.dataEntrega | date: 'dd/MM HH:mm' }}</td>
+           <td>
+      <button
+        class="btn btn-danger"
+        (click)="cancelDelivery(order)"
+      >
+        Cancelar Saída
+      </button>
+    </td>
         </tr>
       </tbody>
     </table>

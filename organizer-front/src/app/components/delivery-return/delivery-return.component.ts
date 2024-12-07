@@ -32,17 +32,31 @@ export class DeliveryReturnComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadOrders();
- }
+  }
 
   loadOrders(): void {
-    const entregadorName = this.returnForm.get('entregador')?.value?.toLowerCase();
+    // Obter e normalizar o valor do entregador
+    const entregadorRaw = this.returnForm.get('entregador')?.value;
+    const entregadorName = entregadorRaw
+      ?.normalize("NFD") // Decompor caracteres acentuados
+      .replace(/[\u0300-\u036f]/g, "") // Remover marcas diacríticas
+      .replace(/\s+/g, " ") // Substituir múltiplos espaços por um único espaço
+      .trim() // Remover espaços no início e no final
+      .toLowerCase(); // Converter para letras minúsculas
 
     if (!entregadorName) {
       return;
     }
 
     this.orderService.getOrders().subscribe((orders) => {
-      this.orders = orders.filter(order => order.status === 3 && order.entregador?.toLowerCase() === entregadorName);
+      this.orders = orders.filter(order =>
+        order.status === 3 &&
+        order.entregador?.normalize("NFD") // Normalizar o nome do entregador nos pedidos
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/\s+/g, " ")
+          .trim()
+          .toLowerCase() === entregadorName
+      );
 
       if (this.orders.length === 0) {
         alert('Nenhum pedido encontrado para este entregador.');
@@ -59,27 +73,27 @@ export class DeliveryReturnComponent implements OnInit {
   }
 
   confirmReturn(): void {
-  if (this.selectedOrders.length === 0) {
-    alert('Nenhum pedido selecionado');
-    return;
-  }
+    if (this.selectedOrders.length === 0) {
+      alert('Nenhum pedido selecionado');
+      return;
+    }
 
-  const dataHRetorno = DateTime.now().setZone('America/Sao_Paulo').toJSDate();
-  const entregador = this.returnForm.get('entregador')?.value || '';
+    const dataHRetorno = DateTime.now().setZone('America/Sao_Paulo').toJSDate();
+    const entregador = this.returnForm.get('entregador')?.value || '';
 
-  this.selectedOrders.forEach((order) => {
-    order.status = 5;
-    order.dataHRetorno = dataHRetorno;
+    this.selectedOrders.forEach((order) => {
+      order.status = 5;
+      order.dataHRetorno = dataHRetorno;
 
-    this.orderService.updateOrder(order.id, order).subscribe(() => {
-      this.websocketService.sendUpdateOrder(order);
+      this.orderService.updateOrder(order.id, order).subscribe(() => {
+        this.websocketService.sendUpdateOrder(order);
+      });
     });
-  });
 
-  this.selectedOrders = [];
-  alert('Obrigado por confirmar o retorno da rota');
-  window.location.href = '/entrega';
-}
+    this.selectedOrders = [];
+    alert('Obrigado por confirmar o retorno da rota');
+    window.location.href = '/entrega';
+  }
 
   comparePriorities(priorityA: string, priorityB: string) {
     const priorities = ['VERMELHO', 'AMARELO', 'AZUL', 'VERDE'];
@@ -99,5 +113,28 @@ export class DeliveryReturnComponent implements OnInit {
       default:
         return 'black';
     }
-  }}
+  }
+  cancelDelivery(order: orders): void {
+  if (!confirm('Você tem certeza que deseja cancelar a saída deste pedido?')) {
+    return;
+  }
+
+  const updatedOrder = { ...order }; // Cria uma cópia para manter imutabilidade
+  updatedOrder.status = 2; // Define o status como "Pronta para entrega"
+  updatedOrder.dataEntrega = undefined; // Remove a data de entrega
+
+  this.orderService.updateOrder(updatedOrder.id, updatedOrder).subscribe({
+    next: () => {
+      this.websocketService.sendUpdateOrder(updatedOrder); // Notifica via WebSocket
+      alert('Saída do pedido cancelada com sucesso.');
+      this.loadOrders(); // Recarrega os pedidos
+    },
+    error: (err) => {
+      console.error('Erro ao cancelar saída:', err);
+      alert('Ocorreu um erro ao tentar cancelar a saída do pedido.');
+    }
+  });
+}
+
+}
 

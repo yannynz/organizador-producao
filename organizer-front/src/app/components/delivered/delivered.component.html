@@ -18,19 +18,28 @@
     </button>
 </form>
 
+    <div *ngIf="orders.length === 0 && returnForm.get('search')?.value" class="alert alert-warning">
+      Nenhum pedido encontrado para a pesquisa "{{ returnForm.get('search')?.value }}".
+    </div>
+
+    <div *ngIf="!allOrders.length" class="text-center py-4">
+      <p class="text-muted">Carregando pedidos...</p>
+    </div>
+
 <!-- Tabela de Pedidos -->
 <div *ngIf="orders.length > 0" class="table-responsive">
   <table class="table table-hover table-striped align-middle">
     <thead class="table-dark">
       <tr>
-        <th scope="col">Id</th>
+        <th scope="col">ID</th>
         <th scope="col">NR</th>
-        <th scope="col">Cliente</th>
-        <th scope="col">Prioridade</th>
-        <th scope="col">Data de Entrada</th>
-        <th scope="col">Status</th>
-        <th scope="col">Entregador</th>
-        <th scope="col">Ações</th>
+        <th scope="col">CLIENTE</th>
+        <th scope="col">PRIORIDADE</th>
+        <th scope="col">DATA DE ENTRADA</th>
+        <th scope="col">DATA DE ENTREGA</th>
+        <th scope="col">STATUS</th>
+        <th scope="col">ENTREGADOR</th>
+        <th scope="col">AÇÕES</th>
       </tr>
     </thead>
     <tbody>
@@ -40,8 +49,9 @@
         <td>{{ order.cliente }}</td>
         <td [style.color]="getPriorityColor(order.prioridade)">{{ order.prioridade }}</td>
         <td>{{ order.dataH | date: 'dd/MM HH:mm' }}</td>
+        <td>{{ order.dataEntrega ? (order.dataEntrega | date: 'dd/MM HH:mm') : "Pedido ainda não foi entregue" }}</td>
         <td>{{ getStatusDescription(order.status) }}</td>
-        <td>{{ order.entregador }}</td>
+        <td>{{ order.entregador || "Pedido ainda não foi entregue" }}</td>
         <td>
           <button class="btn btn-outline-info btn-sm" (click)="openOrderDetails(order)">
             Detalhes
@@ -54,12 +64,34 @@
 
 <!-- Abas de Navegação -->
 <div class="pagination">
-  <button *ngFor="let page of [].constructor(totalPages); let i = index"
-          class="btn btn-outline-primary pagination-btn"
-          (click)="goToPage(i)">
-    {{ i + 1 }}
+  <!-- Botão de página anterior -->
+  <button
+    class="btn"
+    [disabled]="currentPage === 0"
+    (click)="goToPage(currentPage - 1)">
+    &laquo; Anterior
+  </button>
+
+  <!-- Botões de página -->
+  <button
+    *ngFor="let page of visiblePages; let i = index"
+    class="btn"
+    [class.btn-primary]="currentPage === page"
+    [class.btn-outline-primary]="currentPage !== page"
+    (click)="goToPage(page)">
+    {{ page + 1 }}
+  </button>
+
+  <!-- Botão de página seguinte -->
+  <button
+    class="btn"
+    [disabled]="currentPage === totalPages - 1"
+    (click)="goToPage(currentPage + 1)">
+    Próxima &raquo;
   </button>
 </div>
+
+
 </div>
 <!-- Modal de Detalhes do Pedido -->
 <ng-template #orderDetailsModal let-modal>
@@ -115,6 +147,7 @@
     </form>
   </div>
   <div class="modal-footer">
+    <button type="button" class="btn btn-danger" (click)="deleteOrder()">Deletar Pedido</button>
     <button type="button" class="btn btn-secondary" (click)="closeOrderDetails()">Fechar</button>
     <button type="button" class="btn btn-primary" (click)="updateOrder()">Atualizar</button>
   </div>
@@ -124,7 +157,6 @@
 <ng-template #adverseOutputModal let-modal>
   <div class="modal-header">
     <h5 class="modal-title">Adicionar Saída Adversa</h5>
-    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
   </div>
   <div class="modal-body">
     <form [formGroup]="adverseOutputForm">
@@ -138,8 +170,19 @@
           <option value="Retirada p/Conserto">Retirada p/ Conserto</option>
           <option value="Modelo">Modelo</option>
           <option value="Pertinax">Pertinax</option>
+          <option value="Outro">Outro</option>
         </select>
       </div>
+<div *ngIf="adverseOutputForm.get('adverseType')?.value === 'Outro'" class="mb-3">
+  <label for="customAdverseType" class="form-label">Tipo de Saída Personalizado</label>
+  <input
+    type="text"
+    id="customAdverseType"
+    formControlName="customAdverseType"
+    class="form-control"
+    placeholder="Digite o tipo de saída"
+  />
+</div>
       <div class="mb-3">
         <label for="cliente" class="form-label">Cliente</label>
         <input id="cliente" type="text" formControlName="cliente" class="form-control" />

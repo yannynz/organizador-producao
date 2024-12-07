@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { OrderService } from '../../services/orders.service';
 import { orders } from '../../models/orders';
@@ -7,6 +7,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { DateTime } from 'luxon';
+import { format } from 'date-fns';
+import { debounceTime } from 'rxjs/operators';
 
 @Component({
   selector: 'app-delivered',
@@ -65,6 +67,7 @@ export class DeliveredComponent implements OnInit {
     });
     this.adverseOutputForm = this.fb.group({
       adverseType: ['', Validators.required],
+      customAdverseType: [''],
       cliente: ['', Validators.required],
       prioridade: ['VERDE', Validators.required],
       observacao: ['']
@@ -74,16 +77,23 @@ export class DeliveredComponent implements OnInit {
   ngOnInit(): void {
     this.loadOrders();
     this.setupWebSocket();
-  }
-
-  loadOrders(): void {
-    this.orderService.getOrders().subscribe((orders) => {
-      this.allOrders = orders;
-      this.totalPages = Math.ceil(this.allOrders.length / this.pageSize);
-      this.updateOrdersForCurrentPage();
-      this.updateVisiblePages();
+    this.returnForm.get('search')?.valueChanges.pipe(debounceTime(300)).subscribe(() => {
+      this.filterOrdersByAnyAttribute();
     });
   }
+
+ loadOrders(): void {
+  this.orderService.getOrders().subscribe((orders) => {
+    this.allOrders = orders.sort((a, b) => {
+      const dateA = a.dataH ? new Date(a.dataH).getTime() : 0;
+      const dateB = b.dataH ? new Date(b.dataH).getTime() : 0;
+      return dateB - dateA; // Ordena do mais novo para o mais antigo
+    });
+    this.totalPages = Math.ceil(this.allOrders.length / this.pageSize);
+    this.updateOrdersForCurrentPage();
+    this.updateVisiblePages();
+  });
+}
 
   updateOrdersForCurrentPage(): void {
     const startIndex = this.currentPage * this.pageSize;
@@ -93,13 +103,8 @@ export class DeliveredComponent implements OnInit {
 
   updateVisiblePages(): void {
     const pages = [];
-    let startPage = this.currentPage - 2 > 0 ? this.currentPage - 2 : 0;
-    let endPage = startPage + 4;
-
-    if (endPage >= this.totalPages) {
-      endPage = this.totalPages - 1;
-      startPage = endPage - 4 < 0 ? 0 : endPage - 4;
-    }
+    const startPage = Math.max(0, this.currentPage - 2); // Pega a página inicial com 2 antes da página atual
+    const endPage = Math.min(this.totalPages - 1, startPage + 4); // Mostra até 5 páginas no máximo
 
     for (let i = startPage; i <= endPage; i++) {
       pages.push(i);
@@ -109,9 +114,11 @@ export class DeliveredComponent implements OnInit {
   }
 
   goToPage(page: number): void {
-    this.currentPage = page;
-    this.updateOrdersForCurrentPage();
-    this.updateVisiblePages();
+    if (page >= 0 && page < this.totalPages) {
+      this.currentPage = page;
+      this.updateOrdersForCurrentPage();
+      this.updateVisiblePages();
+    }
   }
 
   filterOrders(): void {
@@ -123,6 +130,10 @@ export class DeliveredComponent implements OnInit {
 
     if (searchTerm) {
       this.orders = this.allOrders.filter(order => {
+        // Converter datas para strings formatadas
+        const creationDate = order.dataH ? format(new Date(order.dataH), 'dd/MM/yyyy') : '';
+        const deliveryDate = order.dataEntrega ? format(new Date(order.dataEntrega), 'dd/MM/yyyy') : '';
+
         // Buscando pelo termo de pesquisa em várias propriedades
         const statusDescription = this.statusDescriptions[order.status]?.toLowerCase() || '';
 
@@ -132,7 +143,10 @@ export class DeliveredComponent implements OnInit {
           order.prioridade.toLowerCase().includes(searchTerm) || // Prioridade
           statusDescription.includes(searchTerm) || // Descrição do status
           (order.entregador && order.entregador.toLowerCase().includes(searchTerm)) || // Entregador
-          (order.observacao && order.observacao.toLowerCase().includes(searchTerm)) // Observação
+          (order.observacao && order.observacao.toLowerCase().includes(searchTerm)) || // Observação
+          (order.veiculo && order.veiculo.toLowerCase().includes(searchTerm)) || // Veículo
+          creationDate.includes(searchTerm) || // Data de criação
+          deliveryDate.includes(searchTerm) // Data de entrega
         );
       });
       this.totalPages = Math.ceil(this.orders.length / this.pageSize); // Atualizando número de páginas após o filtro
@@ -203,13 +217,35 @@ export class DeliveredComponent implements OnInit {
     this.modalService.dismissAll();
   }
 
-  deleteOrder(order: orders): void {
-    if (confirm('Tem certeza que deseja excluir este pedido?')) {
-      this.orderService.deleteOrder(order.id).subscribe(() => {
-        this.orders = this.orders.filter(o => o.id !== order.id);
-        this.allOrders = this.allOrders.filter(o => o.id !== order.id);
-        this.closeOrderDetails();
-      });
+  deleteOrder(): void {
+    if (!this.selectedOrder) {
+      alert('Nenhum pedido selecionado para exclusão.');
+      return;
+    }
+
+    const orderId = this.selectedOrder?.id; // Utiliza o operador opcional para evitar erro
+    if (
+      confirm(
+        `Tem certeza que deseja excluir o pedido de ID ${orderId}? Esta ação não pode ser desfeita.`
+      )
+    ) {
+      this.orderService.deleteOrder(orderId!).subscribe(
+        () => {
+          // Atualiza a lista de pedidos e remove o pedido excluído
+          this.orders = this.orders.filter((o) => o.id !== orderId);
+          this.allOrders = this.allOrders.filter((o) => o.id !== orderId);
+
+          // Fecha o modal
+          this.closeOrderDetails();
+
+          // Limpa o pedido selecionado
+          this.selectedOrder = null;
+        },
+        (error) => {
+          console.error('Erro ao deletar pedido:', error);
+          alert('Não foi possível excluir o pedido. Tente novamente.');
+        }
+      );
     }
   }
 
@@ -240,31 +276,42 @@ export class DeliveredComponent implements OnInit {
   }
 
   addAdverseOutput(): void {
-    if (this.adverseOutputForm.invalid) {
-      alert('Preencha todos os campos obrigatórios.');
-      return;
-    }
-    const newAdverseOrder: orders = {
-      id: 0,
-      nr: this.adverseOutputForm.get('adverseType')?.value,
-      cliente: this.adverseOutputForm.get('cliente')?.value,
-      dataH: DateTime.now().setZone('America/Sao_Paulo').toJSDate(),
-      prioridade: this.adverseOutputForm.get('prioridade')?.value,
-      status: 2,
-      observacao: this.adverseOutputForm.get('observacao')?.value || 'Sem observações',
-      isOpen: false,
-    };
-
-    this.orderService.createOrder(newAdverseOrder).subscribe(
-      (savedOrder) => {
-        this.orders.push(savedOrder); // Atualiza lista na página
-        this.loadOrders(); // Atualiza lista completa
-        this.modalService.dismissAll(); // Fecha o modal
-      },
-      (error) => {
-        alert('Erro ao salvar a saída adversa: ' + error.message);
-      }
-    );
+  if (this.adverseOutputForm.invalid) {
+    alert('Preencha todos os campos obrigatórios.');
+    return;
   }
+
+  const selectedAdverseType =
+    this.adverseOutputForm.get('adverseType')?.value === 'Outro'
+      ? this.adverseOutputForm.get('customAdverseType')?.value
+      : this.adverseOutputForm.get('adverseType')?.value;
+
+  if (!selectedAdverseType) {
+    alert('Informe o tipo de saída.');
+    return;
+  }
+
+  const newAdverseOrder: orders = {
+    id: 0, // Será gerado pelo backend
+    nr: selectedAdverseType,
+    cliente: this.adverseOutputForm.get('cliente')?.value,
+    dataH: DateTime.now().setZone('America/Sao_Paulo').toJSDate(),
+    prioridade: 'VERDE',
+    status: 2,
+    observacao: this.adverseOutputForm.get('observacao')?.value || 'Sem observações',
+    isOpen: false,
+  };
+
+  this.orderService.createOrder(newAdverseOrder).subscribe(
+    (savedOrder) => {
+      this.orders.push(savedOrder);
+      this.loadOrders();
+      this.modalService.dismissAll();
+    },
+    (error) => {
+      alert('Erro ao salvar a saída adversa: ' + error.message);
+    }
+  );
 }
+  }
 

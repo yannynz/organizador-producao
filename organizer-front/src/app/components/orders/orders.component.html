@@ -23,21 +23,26 @@
   </div>
 </div>
 
+
+
   <!-- Tabela de Pedidos -->
-  <div class="table-responsive">
-    <table class="table table-striped">
-      <thead>
+  <div class="table-responsive ">
+    <table class="table table-striped table-hover table-striped align-middle">
+      <thead class="table-dark">
         <tr>
           <th>ID</th>
-          <th>nr</th>
-          <th>cliente</th>
-          <th>prioridade</th>
-          <th>dataHora</th>
-          <th>status</th>
-          <th>obs</th>
+          <th>NR</th>
+          <th>CLIENTE</th>
+          <th>PRIORIDADE</th>
+          <th>DATA DE ENTRADA</th>
+          <th>STATUS</th>
+          <th>OBS</th>
         </tr>
       </thead>
       <tbody>
+<div *ngIf="!orders.length" class="text-center py-4">
+      <p class="text-muted">Carregando pedidos...</p>
+    </div>
         <tr *ngFor="let order of orders">
           <td>{{ order.id }}</td>
           <td>{{ order.nr }}</td>

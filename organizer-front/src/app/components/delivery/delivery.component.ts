@@ -41,6 +41,7 @@ export class DeliveryComponent implements OnInit {
     });
     this.adverseOutputForm = this.fb.group({
       adverseType: ['', Validators.required],
+      customAdverseType: [''],
       cliente: ['', Validators.required],
       observacao: [''],
     });
@@ -58,6 +59,9 @@ export class DeliveryComponent implements OnInit {
         .sort((a, b) => this.comparePriorities(a.prioridade, b.prioridade));
       this.filteredOrders = [...this.orders];
     });
+    (error: any) => {
+      alert('Erro ao carregar os pedidos: ' + error.message);
+    }
   }
 
   listenForNewOrders(): void {
@@ -92,31 +96,43 @@ export class DeliveryComponent implements OnInit {
   }
 
   addAdverseOutput(): void {
-    if (this.adverseOutputForm.invalid) {
-      alert('Preencha todos os campos obrigatórios.');
-      return;
-    }
-    const newAdverseOrder: orders = {
-      id: 0, // Será gerado pelo backend
-      nr: this.adverseOutputForm.get('adverseType')?.value,
-      cliente: this.adverseOutputForm.get('cliente')?.value,
-      dataH: DateTime.now().setZone('America/Sao_Paulo').toJSDate(),
-      prioridade: 'VERDE',
-      status: 2,
-      observacao: this.adverseOutputForm.get('observacao')?.value || 'Sem observações',
-      isOpen: false,
-    };
-    this.orderService.createOrder(newAdverseOrder).subscribe(
-      (savedOrder) => {
-        this.selectedOrders.push(savedOrder);
-        this.loadOrders();
-        this.modalService.dismissAll();
-      },
-      (error) => {
-        alert('Erro ao salvar a saída adversa: ' + error.message);
-      }
-    );
+  if (this.adverseOutputForm.invalid) {
+    alert('Preencha todos os campos obrigatórios.');
+    return;
   }
+
+  const selectedAdverseType =
+    this.adverseOutputForm.get('adverseType')?.value === 'Outro'
+      ? this.adverseOutputForm.get('customAdverseType')?.value
+      : this.adverseOutputForm.get('adverseType')?.value;
+
+  if (!selectedAdverseType) {
+    alert('Informe o tipo de saída.');
+    return;
+  }
+
+  const newAdverseOrder: orders = {
+    id: 0, // Será gerado pelo backend
+    nr: selectedAdverseType,
+    cliente: this.adverseOutputForm.get('cliente')?.value,
+    dataH: DateTime.now().setZone('America/Sao_Paulo').toJSDate(),
+    prioridade: 'VERDE',
+    status: 2,
+    observacao: this.adverseOutputForm.get('observacao')?.value || 'Sem observações',
+    isOpen: false,
+  };
+
+  this.orderService.createOrder(newAdverseOrder).subscribe(
+    (savedOrder) => {
+      this.selectedOrders.push(savedOrder);
+      this.loadOrders();
+      this.modalService.dismissAll();
+    },
+    (error) => {
+      alert('Erro ao salvar a saída adversa: ' + error.message);
+    }
+  );
+}
 
   openAdverseOutputModal(): void {
     this.adverseOutputForm.reset(); // Resetar o formulário antes de abrir o modal
@@ -124,52 +140,61 @@ export class DeliveryComponent implements OnInit {
   }
 
 
-  confirmDelivery(): void {
-    if (this.deliveryForm.invalid) {
-      alert('Preencha todos os campos obrigatórios.');
-      return;
-    }
-
-    const deliveryPerson = this.deliveryForm.get('deliveryPerson')?.value;
-    const deliveryType = this.deliveryForm.get('deliveryType')?.value;
-    const vehicleTypeControl = this.deliveryForm.get('vehicleType');
-    const customVehicleControl = this.deliveryForm.get('customVehicle');
-    const vehicle = vehicleTypeControl?.value === 'Outro' ? customVehicleControl?.value : vehicleTypeControl?.value;
-    const currentDateTime = DateTime.now().setZone('America/Sao_Paulo').toJSDate();
-
-    let status: number;
-    if (deliveryType === 'Sair para entrega') {
-      status = 3;
-    } else if (deliveryType === 'Retirada') {
-      status = 4;
-    } else {
-      alert('Tipo de entrega inválido.');
-      return;
-    }
-
-    this.selectedOrders.forEach((order) => {
-      const updatedOrder = {
-        ...order,
-        entregador: deliveryPerson,
-        status: status,
-        dataEntrega: currentDateTime,
-        veiculo: vehicle
-      };
-
-      this.orderService.updateOrder(order.id, updatedOrder).subscribe(
-        () => {
-          this.websocketService.sendUpdateOrder(updatedOrder);
-
-          this.loadOrders();
-        },
-        (error) => {
-          alert(`Erro ao atualizar o pedido ${order.nr}: ${error}`);
-        }
-      );
-    });
-
-    this.modalService.dismissAll();
+confirmDelivery(): void {
+  if (this.deliveryForm.invalid) {
+    alert('Preencha todos os campos obrigatórios.');
+    return;
   }
+
+  // Obter e normalizar o valor do entregador
+  const deliveryPersonRaw = this.deliveryForm.get('deliveryPerson')?.value;
+  const deliveryPerson = deliveryPersonRaw
+    ?.normalize("NFD") // Decompor caracteres acentuados
+    .replace(/[\u0300-\u036f]/g, "") // Remover marcas diacríticas
+    .replace(/\s+/g, " ") // Substituir múltiplos espaços por um único espaço
+    .trim() // Remover espaços no início e no final
+    .toLowerCase(); // Converter para letras minúsculas
+
+  const deliveryType = this.deliveryForm.get('deliveryType')?.value;
+  const vehicleTypeControl = this.deliveryForm.get('vehicleType');
+  const customVehicleControl = this.deliveryForm.get('customVehicle');
+  const vehicle = vehicleTypeControl?.value === 'Outro' ? customVehicleControl?.value : vehicleTypeControl?.value;
+  const currentDateTime = DateTime.now().setZone('America/Sao_Paulo').toJSDate();
+
+  let status: number;
+  if (deliveryType === 'Sair para entrega') {
+    status = 3;
+  } else if (deliveryType === 'Retirada') {
+    status = 4;
+  } else {
+    alert('Tipo de entrega inválido.');
+    return;
+  }
+
+  this.selectedOrders.forEach((order) => {
+    const updatedOrder = {
+      ...order,
+      entregador: deliveryPerson,
+      status: status,
+      dataEntrega: currentDateTime,
+      veiculo: vehicle
+    };
+
+    this.orderService.updateOrder(order.id, updatedOrder).subscribe(
+      () => {
+        this.websocketService.sendUpdateOrder(updatedOrder);
+
+        this.loadOrders();
+      },
+      (error) => {
+        alert(`Erro ao atualizar o pedido ${order.nr}: ${error}`);
+      }
+    );
+  });
+
+  this.modalService.dismissAll();
+  console.log(deliveryPerson);
+}
 
   comparePriorities(priorityA: string, priorityB: string) {
     const priorities = ['VERMELHO', 'AMARELO', 'AZUL', 'VERDE'];
