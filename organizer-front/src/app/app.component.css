@@ -8,7 +8,7 @@
   padding: 10px;
   background-color: #212529; /* cor do rodapé */
   color: white;
-  position: relative; /* Para layout correto no mobile */
+  position: fixed; /* Para layout correto no mobile */
   bottom: 0;
   width: 100%;
 }

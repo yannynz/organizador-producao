@@ -32,10 +32,7 @@
       </tr>
     </thead>
     <tbody>
-    <div *ngIf="!orders.length" class="text-center py-4">
-      <p class="text-muted">Carregando pedidos...</p>
-    </div>
-      <tr *ngFor="let order of filteredOrders" [id]="'order-' + order.id">
+     <tr *ngFor="let order of filteredOrders" [id]="'order-' + order.id">
         <td>
           <input type="checkbox" (change)="onOrderSelectionChange(order, $event)" />
         </td>
@@ -50,6 +47,10 @@
       </tr>
     </tbody>
   </table>
+<div *ngIf="!orders.length" class="text-center py-4">
+      <p class="text-muted">Carregando pedidos...</p>
+    </div>
+
 </div>
 
 <!-- Modal -->
