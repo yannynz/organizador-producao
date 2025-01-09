@@ -22,8 +22,17 @@ public class Order {
     private String observacao;
     private String veiculo;  
     private ZonedDateTime dataHRetorno;  
+    private String recebedor;
 
     public Order() {}
+
+    public String getRecebedor() {
+        return recebedor;
+    }
+
+    public void setRecebedor(String recebedor) {
+        this.recebedor = recebedor;
+    }
 
     public String getVeiculo() {
         return veiculo;

@@ -1,61 +1,95 @@
 <div class="container">
-  <form [formGroup]="returnForm" (ngSubmit)="loadOrders()">
-    <div class="mb-3">
+  <!-- Formulário para buscar pedidos -->
+  <form [formGroup]="returnForm" (ngSubmit)="loadOrders()" class="form-container">
+    <h2 class="form-title">Buscar Pedidos</h2>
+    <div class="input-group">
       <label for="entregador" class="form-label">Nome do Entregador</label>
-      <input formControlName="entregador" type="text" class="form-control" id="entregador" placeholder="insira seu nome somente com letras minusculas e sem acento" />
+      <input formControlName="entregador" type="text" class="form-control" id="entregador"
+        placeholder="Digite o nome do entregador" />
     </div>
-    <button type="submit" class="btn btn-primary">Buscar Pedidos</button>
+    <button type="submit" class="btn btn-primary btn-block">Buscar</button>
   </form>
 
-    <div *ngIf="!orders.length" class="text-center py-4">
-      <p class="text-muted">Carregando pedidos...</p>
+  <!-- Tabela de pedidos -->
+  <div *ngIf="orders.length > 0" class="orders-container">
+    <h3 class="section-title">Pedidos para Retorno</h3>
+    <div class="actions">
+      <button (click)="toggleSelectAll()" class="btn btn-secondary">
+        {{ selectAll ? 'Desmarcar Todos' : 'Selecionar Todos' }}
+      </button>
     </div>
-
-  <div *ngIf="orders.length > 0">
-    <h3>Pedidos para Retorno</h3>
-    <table class="table table-striped">
-      <thead>
+    <table class="table">
+      <thead class="table-dark">
         <tr>
-          <th scope="col">Selecionar</th>
-          <th scope="col">Id</th>
-          <th scope="col">NR</th>
-          <th scope="col">CLIENTE</th>
-          <th scope="col">PRIORIDADE</th>
-          <th scope="col">DATA DE ENTRADA</th>
-          <th scope="col">DATA DE SAIDA</th>
+          <th>Selecionar</th>
+          <th>NR</th>
+          <th>Cliente</th>
+          <th>Data de Entrada</th>
+          <th>Data de Saída</th>
+          <th>Ações</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let order of orders">
           <td>
-            <input
-              type="checkbox"
-              (change)="onOrderSelectionChange(order, $event)"
-            />
+            <input type="checkbox" [checked]="selectedOrders.includes(order)"
+              (change)="onOrderSelectionChange(order, $event)" />
           </td>
-          <td>{{ order.id }}</td>
           <td>{{ order.nr }}</td>
           <td>{{ order.cliente }}</td>
-          <td [style.color]="getPriorityColor(order.prioridade)">
-            {{ order.prioridade }}
-          </td>
           <td>{{ order.dataH | date: 'dd/MM HH:mm' }}</td>
           <td>{{ order.dataEntrega | date: 'dd/MM HH:mm' }}</td>
-           <td>
-      <button
-        class="btn btn-danger"
-        (click)="cancelDelivery(order)"
-      >
-        Cancelar Saída
-      </button>
-    </td>
+          <td><button class="btn btn-danger" type="button" (click)="cancelDelivery(order)">Cancelar
+              saida</button></td>
         </tr>
       </tbody>
     </table>
-
-    <button (click)="confirmReturn()" class="btn btn-success">
+    <button (click)="groupOrdersByClient()" class="btn btn-success btn-block">
       Confirmar Retorno
     </button>
   </div>
-</div>
 
+  <!-- Modal para confirmação de retorno -->
+  <div class="modal" tabindex="-1" [ngClass]="{ 'd-block': showModal }">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title">Confirmar Retorno</h2>
+          <button type="button" class="btn-close" aria-label="Close" (click)="showModal = false"></button>
+        </div>
+        <div class="modal-body">
+          <div *ngFor="let group of groupedOrders" class="grouped-orders">
+            <h3>Cliente: {{ group.cliente }}</h3>
+            <table class="table modal-table">
+              <thead class="table-dark">
+                <tr>
+                  <th>NR</th>
+                  <th>CLIENTE</th>
+                  <th>DATA DE ENTRADA</th>
+                  <th>DATA DE SAIDA</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let order of group.pedidos">
+                  <td>{{ order.nr }}</td>
+                  <td>{{ order.cliente }}</td>
+                  <td>{{ order.dataH | date: 'dd/MM HH:mm' }}</td>
+                  <td>{{ order.dataEntrega | date: 'dd/MM HH:mm' }}</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="input-group">
+              <label for="recebedor-{{ group.cliente }}" class="form-labelModal">Recebido por:</label>
+              <input id="recebedor-{{ group.cliente }}" [(ngModel)]="group.recebedor" type="text"
+                placeholder="Digite o nome do recebedor" class="form-controlModal" />
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="showModal = false">Cancelar</button>
+          <button type="button" class="btn btn-success" (click)="confirmGroupedReturn()">Confirmar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

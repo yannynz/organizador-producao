@@ -1,46 +1,50 @@
-.container-fluid {
-  padding: 20px;
+/* Estilo personalizado */
+.container {
+  min-height: auto;
+  padding: 1rem;
 }
 
 .table-responsive {
-  width: 100%;
+  max-width: 100%;
   overflow-x: auto;
 }
 
-.search-bar input {
-  width: 100%;
+@media (max-width: 576px) {
+  .btn {
+    font-size: 0.8rem;
+    padding: 5px;
+  }
 }
 
 .updated {
   animation: highlight 2s ease-in-out;
 }
 
-
-@media (max-width: 768px) {
-  .search-bar {
-    width: 80%;
+@keyframes highlight {
+  0% {
+    background-color: yellow;
   }
-
-  .modal-body {
-    padding: 15px;
-  }
-
-  .table th, .table td {
-    font-size: 14px;
-    padding: 8px;
-  }
-
-  .btn {
-    font-size: 14px;
-  }
-
-  .modal-footer button {
-    font-size: 14px;
+  100% {
+    background-color: transparent;
   }
 }
-
-.text-center.py-4 {
-  flex: 1;
-  height: 100%;
+.modal-body {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  width: 100%;
 }
+
+.modal-body table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.modal-body th,
+.modal-body td {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  text-align: left;
+  white-space: pre-wrap;
+}
+
 

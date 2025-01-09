@@ -61,6 +61,7 @@ export class DeliveredComponent implements OnInit {
       dataEntrega: [''],
       dataHRetorno: [''],
       veiculo: [''],
+      recebedor: [''],
     });
     this.returnForm = this.fb.group({
       search: ['']
@@ -82,18 +83,19 @@ export class DeliveredComponent implements OnInit {
     });
   }
 
- loadOrders(): void {
-  this.orderService.getOrders().subscribe((orders) => {
-    this.allOrders = orders.sort((a, b) => {
-      const dateA = a.dataH ? new Date(a.dataH).getTime() : 0;
-      const dateB = b.dataH ? new Date(b.dataH).getTime() : 0;
-      return dateB - dateA; // Ordena do mais novo para o mais antigo
+  loadOrders(): void {
+    this.orderService.getOrders().subscribe((orders) => {
+      this.allOrders = orders.sort((a, b) => {
+        const dateA = a.dataH ? new Date(a.dataH).getTime() : 0;
+        const dateB = b.dataH ? new Date(b.dataH).getTime() : 0;
+        return dateB - dateA; // Ordena do mais novo para o mais antigo
+      });
+      this.totalPages = Math.ceil(this.allOrders.length / this.pageSize);
+      this.filterOrdersByAnyAttribute();
+      this.updateOrdersForCurrentPage();
+      this.updateVisiblePages();
     });
-    this.totalPages = Math.ceil(this.allOrders.length / this.pageSize);
-    this.updateOrdersForCurrentPage();
-    this.updateVisiblePages();
-  });
-}
+  }
 
   updateOrdersForCurrentPage(): void {
     const startIndex = this.currentPage * this.pageSize;
@@ -130,11 +132,8 @@ export class DeliveredComponent implements OnInit {
 
     if (searchTerm) {
       this.orders = this.allOrders.filter(order => {
-        // Converter datas para strings formatadas
         const creationDate = order.dataH ? format(new Date(order.dataH), 'dd/MM/yyyy') : '';
         const deliveryDate = order.dataEntrega ? format(new Date(order.dataEntrega), 'dd/MM/yyyy') : '';
-
-        // Buscando pelo termo de pesquisa em várias propriedades
         const statusDescription = this.statusDescriptions[order.status]?.toLowerCase() || '';
 
         return (
@@ -149,8 +148,8 @@ export class DeliveredComponent implements OnInit {
           deliveryDate.includes(searchTerm) // Data de entrega
         );
       });
-      this.totalPages = Math.ceil(this.orders.length / this.pageSize); // Atualizando número de páginas após o filtro
-      this.updateVisiblePages(); // Atualizando as páginas visíveis
+      this.totalPages = Math.ceil(this.orders.length / this.pageSize); // Atualiza número de páginas após o filtro
+      this.updateVisiblePages(); // Atualiza as páginas visíveis
     } else {
       this.orders = [...this.allOrders]; // Se não houver termo de pesquisa, mostrar todos os pedidos
       this.totalPages = Math.ceil(this.orders.length / this.pageSize);
@@ -179,15 +178,21 @@ export class DeliveredComponent implements OnInit {
       const updatedOrder: orders = { ...this.selectedOrder, ...this.editOrderForm.value };
       this.orderService.updateOrder(updatedOrder.id, updatedOrder).subscribe(() => {
         this.websocketService.sendUpdateOrder(updatedOrder);
-        const index = this.orders.findIndex(order => order.id === updatedOrder.id);
-        if (index !== -1) {
-          this.orders[index] = updatedOrder; // Atualiza o pedido na lista atual
-        }
-
         const allOrderIndex = this.allOrders.findIndex(order => order.id === updatedOrder.id);
         if (allOrderIndex !== -1) {
-          this.allOrders[allOrderIndex] = updatedOrder; // Atualiza a lista completa
+          this.allOrders[allOrderIndex] = updatedOrder;
+        } else {
+          this.allOrders.push(updatedOrder);
         }
+        const orderIndex = this.orders.findIndex(order => order.id === updatedOrder.id);
+        if (orderIndex !== -1) {
+          this.orders[orderIndex] = updatedOrder;
+        } else {
+          this.orders.push(updatedOrder);
+        }
+        this.filterOrdersByAnyAttribute();
+        this.totalPages = Math.ceil(this.orders.length / this.pageSize);
+        this.updateVisiblePages();
 
         this.closeOrderDetails();
       });
@@ -207,6 +212,7 @@ export class DeliveredComponent implements OnInit {
       dataEntrega: order.dataEntrega,
       dataHRetorno: order.dataHRetorno,
       veiculo: order.veiculo,
+      recebedor: order.recebedor,
     });
 
     this.modalService.open(this.orderDetailsModal, { centered: true });
@@ -271,47 +277,51 @@ export class DeliveredComponent implements OnInit {
     }
   }
 
+  getStatusKeys(): number[] {
+    return Object.keys(this.statusDescriptions).map(key => +key);
+  }
+
   openAdverseOutputModal(): void {
     this.modalService.open(this.adverseOutputModal, { centered: true });
   }
 
   addAdverseOutput(): void {
-  if (this.adverseOutputForm.invalid) {
-    alert('Preencha todos os campos obrigatórios.');
-    return;
-  }
-
-  const selectedAdverseType =
-    this.adverseOutputForm.get('adverseType')?.value === 'Outro'
-      ? this.adverseOutputForm.get('customAdverseType')?.value
-      : this.adverseOutputForm.get('adverseType')?.value;
-
-  if (!selectedAdverseType) {
-    alert('Informe o tipo de saída.');
-    return;
-  }
-
-  const newAdverseOrder: orders = {
-    id: 0, // Será gerado pelo backend
-    nr: selectedAdverseType,
-    cliente: this.adverseOutputForm.get('cliente')?.value,
-    dataH: DateTime.now().setZone('America/Sao_Paulo').toJSDate(),
-    prioridade: 'VERDE',
-    status: 2,
-    observacao: this.adverseOutputForm.get('observacao')?.value || 'Sem observações',
-    isOpen: false,
-  };
-
-  this.orderService.createOrder(newAdverseOrder).subscribe(
-    (savedOrder) => {
-      this.orders.push(savedOrder);
-      this.loadOrders();
-      this.modalService.dismissAll();
-    },
-    (error) => {
-      alert('Erro ao salvar a saída adversa: ' + error.message);
+    if (this.adverseOutputForm.invalid) {
+      alert('Preencha todos os campos obrigatórios.');
+      return;
     }
-  );
-}
+
+    const selectedAdverseType =
+      this.adverseOutputForm.get('adverseType')?.value === 'Outro'
+        ? this.adverseOutputForm.get('customAdverseType')?.value
+        : this.adverseOutputForm.get('adverseType')?.value;
+
+    if (!selectedAdverseType) {
+      alert('Informe o tipo de saída.');
+      return;
+    }
+
+    const newAdverseOrder: orders = {
+      id: 0, // Será gerado pelo backend
+      nr: selectedAdverseType,
+      cliente: this.adverseOutputForm.get('cliente')?.value,
+      dataH: DateTime.now().setZone('America/Sao_Paulo').toJSDate(),
+      prioridade: 'VERDE',
+      status: 2,
+      observacao: this.adverseOutputForm.get('observacao')?.value || 'Sem observações',
+      isOpen: false,
+    };
+
+    this.orderService.createOrder(newAdverseOrder).subscribe(
+      (savedOrder) => {
+        this.orders.push(savedOrder);
+        this.loadOrders();
+        this.modalService.dismissAll();
+      },
+      (error) => {
+        alert('Erro ao salvar a saída adversa: ' + error.message);
+      }
+    );
   }
+}
 

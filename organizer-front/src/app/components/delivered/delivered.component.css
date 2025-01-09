@@ -26,10 +26,17 @@
   overflow-x: auto;
 }
 
+.table {
+  width: 100%;
+  table-layout: auto;
+  border-collapse: collapse; /* Remove espaçamento entre células */
+}
+
 .table th,
 .table td {
   text-align: center;
-  white-space: nowrap;
+  word-wrap: break-word; /* Quebra palavras longas para evitar overflow */
+  padding: 0.5rem; /* Ajuste o preenchimento das células */
 }
 
 .table thead {
@@ -62,6 +69,7 @@
   .table th,
   .table td {
     font-size: 0.9rem;
+    padding: 0.3rem; /* Ajuste o padding para telas menores */
   }
 }
 
@@ -79,3 +87,4 @@
 .pagination button {
   margin: 0 0.5rem; /* Espaçamento adicional entre os botões */
 }
+

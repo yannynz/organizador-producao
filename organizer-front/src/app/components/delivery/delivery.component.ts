@@ -38,6 +38,7 @@ export class DeliveryComponent implements OnInit {
       deliveryType: ['', Validators.required],
       vehicleType: [''],
       customVehicle: [''],
+      recebedor: [''],
     });
     this.adverseOutputForm = this.fb.group({
       adverseType: ['', Validators.required],
@@ -65,11 +66,13 @@ export class DeliveryComponent implements OnInit {
   }
 
   listenForNewOrders(): void {
-    this.websocketService.watchOrders().subscribe((message: any) => {
-      const order = JSON.parse(message.body);
-      this.updateOrdersList(order);
-    });
-  }
+  this.websocketService.watchOrders().subscribe((message: any) => {
+    const receivedOrder = JSON.parse(message.body);
+    console.log('Pedido recebido via WebSocket:', receivedOrder);
+    this.orders.sort((a, b) => this.comparePriorities(a.prioridade, b.prioridade));
+    console.log('Lista de pedidos após atualização via WebSocket:', this.orders);
+  });
+}
 
   updateOrdersList(order: orders) {
     const index = this.orders.findIndex(o => o.id === order.id);
@@ -124,7 +127,6 @@ export class DeliveryComponent implements OnInit {
 
   this.orderService.createOrder(newAdverseOrder).subscribe(
     (savedOrder) => {
-      this.selectedOrders.push(savedOrder);
       this.loadOrders();
       this.modalService.dismissAll();
     },
@@ -146,7 +148,6 @@ confirmDelivery(): void {
     return;
   }
 
-  // Obter e normalizar o valor do entregador
   const deliveryPersonRaw = this.deliveryForm.get('deliveryPerson')?.value;
   const deliveryPerson = deliveryPersonRaw
     ?.normalize("NFD") // Decompor caracteres acentuados
@@ -160,6 +161,7 @@ confirmDelivery(): void {
   const customVehicleControl = this.deliveryForm.get('customVehicle');
   const vehicle = vehicleTypeControl?.value === 'Outro' ? customVehicleControl?.value : vehicleTypeControl?.value;
   const currentDateTime = DateTime.now().setZone('America/Sao_Paulo').toJSDate();
+  const recebedor = this.deliveryForm.get('recebedor')?.value;
 
   let status: number;
   if (deliveryType === 'Sair para entrega') {
@@ -177,7 +179,8 @@ confirmDelivery(): void {
       entregador: deliveryPerson,
       status: status,
       dataEntrega: currentDateTime,
-      veiculo: vehicle
+      veiculo: vehicle,
+      recebedor: recebedor,
     };
 
     this.orderService.updateOrder(order.id, updatedOrder).subscribe(

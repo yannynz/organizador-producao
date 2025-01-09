@@ -76,9 +76,4 @@ public class OrderWebSocketController {
         return id;
     }
 
-    @MessageMapping("/orders/clear")
-    @SendTo("/topic/orders")
-    public void clearDatabase() {
-        orderService.deleteAllOrders();
-    }
 }

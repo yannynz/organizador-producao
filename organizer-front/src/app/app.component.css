@@ -3,23 +3,43 @@
 }
 
 .footer {
-  margin-top: auto;
   text-align: center;
   padding: 10px;
   background-color: #212529; /* cor do rodapé */
   color: white;
-  position: relative; /* Para layout correto no mobile */
-  bottom: 0;
-  width: 100%;
+}
+
+.container {
+  flex: 1; /* Faz com que o conteúdo ocupe o espaço restante entre a barra e o rodapé */
+  min-height: 100%;
+  padding: 0.1rem;
+
+  display: flex;
+  flex-direction: column;
 }
 
 body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  margin: 0; /* Remove margens padrão */
 }
 
-.container {
-  flex: 1; /* Faz com que o conteúdo ocupe o espaço restante entre a barra e o rodapé */
+* {
+  word-wrap: break-word; /* Permite quebras em palavras longas */
+  overflow-wrap: break-word; /* Suporte adicional para navegadores modernos */
+}
+
+body, p, span, td, th, div {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%; /* Evita que o conteúdo exceda os limites dos containers */
+}
+
+
+td, th {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
 }
 

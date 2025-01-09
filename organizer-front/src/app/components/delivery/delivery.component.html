@@ -1,56 +1,48 @@
-<div class="container-fluid">
-  <div class="d-flex justify-content-end mb-3 align-items-center align-middle">
-    <div class="search-bar me-2 w-50">
-      <input
-        type="text"
-        class="form-control"
-        placeholder="Pesquise por ID, NR, Cliente, Prioridade ou Status"
-        [(ngModel)]="searchTerm"
-        (input)="filterOrders()"
-      />
-    </div>
-    <button (click)="preConfirmDelivery()" class="btn btn-primary me-2">
-      Confirmar Pedido
-    </button>
-      <button class="btn btn-outline-primary" (click)="openAdverseOutputModal()">
-      Adicionar Saída Adversa
-    </button>
+<div class="container d-flex flex-column justify-content-start align-items-center">
+  <!-- Barra de Pesquisa -->
+  <div class="d-flex justify-content-center mb-3 w-100">
+    <input type="text" class="form-control w-100" placeholder="Pesquise por ID, NR, Cliente, Prioridade ou Status"
+      [(ngModel)]="searchTerm" (input)="filterOrders()" />
+  </div>
 
+    <!-- Botões de Ação -->
+  <div class="d-flex justify-content-center gap-3 mb-3 w-75">
+    <button (click)="preConfirmDelivery()" class="btn btn-primary">Confirmar Pedido</button>
+    <button class="btn btn-outline-primary" (click)="openAdverseOutputModal()">Adicionar Saída Adversa</button>
   </div>
 
   <!-- Tabela de Pedidos -->
-  <table class="table table-striped table-responsive align-middle table-hover">
-    <thead class="table-dark">
-      <tr>
-        <th scope="col">SELECIONE</th>
-        <th scope="col">ID</th>
-        <th scope="col">NR</th>
-        <th scope="col">CLIENTE</th>
-        <th scope="col">PRIORIDADE</th>
-        <th scope="col">DATA DE ENTRADA</th>
-        <th scope="col">OBS</th>
-      </tr>
-    </thead>
-    <tbody>
-     <tr *ngFor="let order of filteredOrders" [id]="'order-' + order.id">
-        <td>
+  <div class="table-responsive w-100">
+    <table class="table table-striped table-hover align-middle">
+      <thead class="table-dark">
+        <tr>
+          <th>SELECIONE</th>
+          <th>NR</th>
+          <th>CLIENTE</th>
+          <th>PRIORIDADE</th>
+          <th>DATA DE ENTRADA</th>
+          <th>OBS</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let order of filteredOrders"[id]="'order-' + order.id">
+          <td>
           <input type="checkbox" (change)="onOrderSelectionChange(order, $event)" />
         </td>
-        <td>{{ order.id }}</td>
-        <td>{{ order.nr }}</td>
-        <td>{{ order.cliente }}</td>
-        <td [ngStyle]="{'background-color': getPriorityColor(order.prioridade)}">
+          <td>{{ order.nr }}</td>
+          <td>{{ order.cliente }}</td>
+          <td [ngStyle]="{'background-color': getPriorityColor(order.prioridade)}">
             {{ order.prioridade }}
-        </td>
-        <td>{{ order.dataH | date: 'dd/MM HH:mm' }}</td>
-        <td>{{ order.observacao || 'Sem Observações' }}</td>
-      </tr>
-    </tbody>
-  </table>
-<div *ngIf="!orders.length" class="text-center py-4">
+          </td>
+          <td>{{ order.dataH | date: 'dd/MM HH:mm' }}</td>
+          <td>{{ order.observacao || 'Sem observações' }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <div *ngIf="!filteredOrders.length" class="text-center py-4">
       <p class="text-muted">Carregando pedidos...</p>
     </div>
-
+  </div>
 </div>
 
 <!-- Modal -->
@@ -66,7 +58,6 @@
         <table class="table table-striped table-responsive">
           <thead>
             <tr>
-              <th scope="col">Id</th>
               <th scope="col">NR</th>
               <th scope="col">Cliente</th>
               <th scope="col">Prioridade</th>
@@ -76,7 +67,6 @@
           </thead>
           <tbody>
             <tr *ngFor="let order of selectedOrders">
-              <td>{{ order.id }}</td>
               <td>{{ order.nr }}</td>
               <td>{{ order.cliente }}</td>
               <td [style.color]="getPriorityColor(order.prioridade)">
@@ -94,13 +84,8 @@
 
         <div class="mb-3">
           <label for="deliveryPerson" class="form-label">Entregador</label>
-          <input
-            type="text"
-            id="deliveryPerson"
-            formControlName="deliveryPerson"
-            class="form-control"
-            placeholder="Nome do entregador"
-          />
+          <input type="text" id="deliveryPerson" formControlName="deliveryPerson" class="form-control"
+            placeholder="Nome do entregador" />
         </div>
 
         <div class="mb-3">
@@ -110,6 +95,12 @@
             <option value="Sair para entrega">Sair para entrega</option>
             <option value="Retirada">Retirada</option>
           </select>
+        </div>
+
+        <div *ngIf="deliveryForm.get('deliveryType')?.value === 'Retirada'" class="mb-3">
+          <label for="recebedor" class="form-label">Pessoa que retirou</label>
+          <input type="text" id="recebedor" formControlName="recebedor" class="form-control"
+            placeholder="Nome do recebedor" />
         </div>
 
         <!-- Campo Tipo de Veículo -->
@@ -127,13 +118,8 @@
         <!-- Campo Veículo Personalizado -->
         <div *ngIf="deliveryForm.get('vehicleType')?.value === 'Outro'" class="mb-3">
           <label for="customVehicle" class="form-label">Veículo Personalizado</label>
-          <input
-            type="text"
-            id="customVehicle"
-            formControlName="customVehicle"
-            class="form-control"
-            placeholder="Digite o veículo"
-          />
+          <input type="text" id="customVehicle" formControlName="customVehicle" class="form-control"
+            placeholder="Digite o veículo" />
         </div>
       </form>
     </div>
@@ -181,38 +167,23 @@
         </select>
       </div>
 
-     <div *ngIf="adverseOutputForm.get('adverseType')?.value === 'Outro'" class="mb-3">
-  <label for="customAdverseType" class="form-label">Tipo de Saída Personalizado</label>
-  <input
-    type="text"
-    id="customAdverseType"
-    formControlName="customAdverseType"
-    class="form-control"
-    placeholder="Digite o tipo de saída"
-  />
-</div>
+      <div *ngIf="adverseOutputForm.get('adverseType')?.value === 'Outro'" class="mb-3">
+        <label for="customAdverseType" class="form-label">Tipo de Saída Personalizado</label>
+        <input type="text" id="customAdverseType" formControlName="customAdverseType" class="form-control"
+          placeholder="Digite o tipo de saída" />
+      </div>
 
       <!-- Nome do Cliente -->
       <div class="mb-3">
         <label for="cliente" class="form-label">Cliente</label>
-        <input
-          type="text"
-          id="cliente"
-          formControlName="cliente"
-          class="form-control"
-          placeholder="Nome do cliente"
-        />
+        <input type="text" id="cliente" formControlName="cliente" class="form-control" placeholder="Nome do cliente" />
       </div>
 
       <!-- Observação -->
       <div class="mb-3">
         <label for="obs" class="form-label">Observação</label>
-        <textarea
-          id="obs"
-          formControlName="observacao"
-          class="form-control"
-          placeholder="Adicione observações (opcional)"
-        ></textarea>
+        <textarea id="obs" formControlName="observacao" class="form-control"
+          placeholder="Adicione observações (opcional)"></textarea>
       </div>
     </form>
   </div>
@@ -221,4 +192,3 @@
     <button type="button" class="btn btn-primary" (click)="addAdverseOutput()">Adicionar</button>
   </div>
 </ng-template>
-

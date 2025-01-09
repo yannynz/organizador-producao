@@ -11,6 +11,7 @@ export class orders {
   isOpen: boolean = false;
   dataHRetorno?: Date;
   veiculo?: string;
+  recebedor?: string;
 }
 
 

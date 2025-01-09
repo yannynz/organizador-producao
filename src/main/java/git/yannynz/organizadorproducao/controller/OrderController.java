@@ -45,7 +45,6 @@ public ResponseEntity<Order> getOrderByNr(@PathVariable String nr) {
     return order.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
 }
 
-
     @PostMapping("/create")
     public ResponseEntity<Order> createOrder(@RequestBody Order order) {
     try {
@@ -71,17 +70,13 @@ public ResponseEntity<Order> getOrderByNr(@PathVariable String nr) {
             order.setEntregador(orderDetails.getEntregador());
             order.setObservacao(orderDetails.getObservacao());
             order.setDataEntrega(orderDetails.getDataEntrega());
+            order.setRecebedor(orderDetails.getRecebedor());
+
 
             return ResponseEntity.ok(orderService.saveOrder(order));
         } else {
             return ResponseEntity.notFound().build();
         }
-    }
-
-    @DeleteMapping("/clear")
-    public ResponseEntity<Void> clearDatabase() {
-        orderService.deleteAllOrders();
-        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/delete/{id}")

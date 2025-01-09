@@ -1,4 +1,141 @@
-
-.container{
-  min-height: 100vh;
+/* Estilo geral */
+body {
+  background-color: #121212;
+  color: #e0e0e0;
+  font-family: 'Arial', sans-serif;
 }
+
+.container {
+  padding: 2rem;
+  max-width: 900px;
+  margin: auto;
+}
+
+/* Formulário */
+.form-container {
+  background: #1e1e1e;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+.form-title {
+  color: #ffffff;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.form-label {
+  color: #ffffff;
+  margin: 0.5rem;
+}
+
+.form-labelModal{
+  color: #1e1e1e;
+  margin: 0.5rem;
+}
+
+.input-group {
+  margin-bottom: 1rem;
+}
+
+.form-controlModal {
+  background: #ffffff;
+  color: #1e1e1e;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 4px;
+}
+
+.form-control {
+  background: #2e2e2e;
+  color: #ffffff;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 4px;
+}
+
+.form-control:focus {
+  outline: 2px solid #00bcd4;
+}
+
+/* Botões */
+.btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: #fff;
+}
+
+.btn-success {
+  background-color: #28a745;
+  color: #fff;
+}
+
+.btn:hover {
+  opacity: 0.9;
+}
+
+.btn-block {
+  display: block;
+  width: 100%;
+}
+
+/* Tabelas */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+
+.table thead {
+  color: #ffffff;
+}
+
+.table tbody tr {
+  background-color: #2e2e2e;
+  border-bottom: 1px solid #444;
+}
+
+.table tbody tr:hover {
+  background-color: #3c3c3c;
+}
+
+.table td,
+.table th {
+  padding: 0.75rem;
+  text-align: left;
+}
+
+.modal {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.modal-body {
+  word-wrap: break-word; /* Permite quebras em palavras longas */
+  overflow-wrap: break-word; /* Suporte para navegadores modernos */
+}
+
+.modal-body table {
+  width: 100%; /* Garante que a tabela ocupe todo o espaço disponível */
+  table-layout: fixed; /* Evita que o conteúdo estenda as colunas */
+}
+
+.modal-body th, .modal-body td {
+  word-wrap: break-word; /* Quebra palavras longas */
+  overflow-wrap: break-word; /* Adicional para navegadores modernos */
+  text-align: left; /* Garante alinhamento uniforme */
+  white-space: pre-wrap; /* Permite múltiplas linhas de texto */
+}
+

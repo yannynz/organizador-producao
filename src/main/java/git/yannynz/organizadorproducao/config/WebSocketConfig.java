@@ -18,7 +18,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws/orders").setAllowedOrigins("http://localhost", "http://frontend-container", "http://nginx-container:80", "http://192.168.0.204", "http://192.168.10.13");
+        registry.addEndpoint("/ws/orders").setAllowedOrigins("http://localhost", "http://frontend-container", "http://nginx-container:80", 
+                "http://192.168.0.116", "http://192.168.10.13", "http://192.168.10.53");
     }
 
 }

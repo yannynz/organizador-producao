@@ -1,5 +1,5 @@
 <div class="container py-4">
- <form [formGroup]="returnForm" (ngSubmit)="filterOrders()" class="d-flex justify-content-center mb-4">
+ <form [formGroup]="returnForm" (ngSubmit)="filterOrders()" class="d-flex justify-content-center align-middle mb-4">
   <div class="input-group" style="max-width: 500px;">
     <input
       type="text"
@@ -31,7 +31,6 @@
   <table class="table table-hover table-striped align-middle">
     <thead class="table-dark">
       <tr>
-        <th scope="col">ID</th>
         <th scope="col">NR</th>
         <th scope="col">CLIENTE</th>
         <th scope="col">PRIORIDADE</th>
@@ -44,14 +43,13 @@
     </thead>
     <tbody>
       <tr *ngFor="let order of orders">
-        <td>{{ order.id }}</td>
         <td>{{ order.nr }}</td>
         <td>{{ order.cliente }}</td>
         <td [style.color]="getPriorityColor(order.prioridade)">{{ order.prioridade }}</td>
         <td>{{ order.dataH | date: 'dd/MM HH:mm' }}</td>
-        <td>{{ order.dataEntrega ? (order.dataEntrega | date: 'dd/MM HH:mm') : "Pedido ainda não foi entregue" }}</td>
+        <td>{{ order.dataEntrega ? (order.dataEntrega | date: 'dd/MM HH:mm') : "Pedido não entregue" }}</td>
         <td>{{ getStatusDescription(order.status) }}</td>
-        <td>{{ order.entregador || "Pedido ainda não foi entregue" }}</td>
+        <td>{{ order.entregador || "Pedido não entregue" }}</td>
         <td>
           <button class="btn btn-outline-info btn-sm" (click)="openOrderDetails(order)">
             Detalhes
@@ -104,6 +102,10 @@
       <table class="table table-bordered">
         <tbody>
           <tr>
+            <th>ID</th>
+            <td>{{ editOrderForm.get('id')?.value }}</td>
+          </tr>
+          <tr>
             <th>NR</th>
             <td>{{ editOrderForm.get('nr')?.value }}</td>
           </tr>
@@ -123,6 +125,16 @@
             </td>
           </tr>
           <tr>
+  <th>Status</th>
+  <td>
+    <select formControlName="status" class="form-control">
+      <option *ngFor="let statusKey of getStatusKeys()" [value]="statusKey">
+        {{ statusDescriptions[statusKey] }}
+      </option>
+    </select>
+  </td>
+</tr>
+    <tr>
             <th>Observações</th>
             <td><textarea formControlName="observacao" class="form-control"></textarea></td>
           </tr>
@@ -140,7 +152,15 @@
           </tr>
           <tr>
             <th>Veiculo</th>
-            <td>{{ editOrderForm.get('veiculo')?.value }}</td>
+            <td *ngIf="selectedOrder">{{ selectedOrder.veiculo || " " }}</td>
+          </tr>
+          <tr>
+            <th>Entregador</th>
+            <td *ngIf="selectedOrder">{{ selectedOrder.entregador || " " }}</td>
+          </tr>
+          <tr>
+            <th>Recebida por:</th>
+            <td *ngIf="selectedOrder">{{ selectedOrder.recebedor || " " }}</td>
           </tr>
         </tbody>
       </table>
