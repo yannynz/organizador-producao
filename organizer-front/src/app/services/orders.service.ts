@@ -3,6 +3,7 @@ import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { orders } from '../models/orders';
 import { environment } from '../enviroment';
+import { HttpParams } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
@@ -38,6 +39,17 @@ export class OrderService {
     params.append('entregador', entregador);
     params.append('observacao', observacao);
     return this.http.put<orders>(`${url}?${params.toString()}`, null);
+  }
+  updateOrderAdm(id: number, order: orders, adminPassword: string): Observable<orders> {
+    const url = `${this.baseUrl}/updateAdm/${id}`;
+    const params = new HttpParams().set('adminPassword', adminPassword);
+    return this.http.put<orders>(url, order, { params });
+  }
+
+  deleteOrderAdm(id: number, adminPassword: string): Observable<void> {
+    const url = `${this.baseUrl}/deleteAdm/${id}`;
+    const params = new HttpParams().set('adminPassword', adminPassword);
+    return this.http.delete<void>(url, { params });
   }
 }
 
