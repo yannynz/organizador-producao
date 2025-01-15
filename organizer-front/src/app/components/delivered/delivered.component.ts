@@ -173,31 +173,48 @@ export class DeliveredComponent implements OnInit {
     });
   }
 
-  updateOrder(): void {
-    if (this.editOrderForm.valid) {
-      const updatedOrder: orders = { ...this.selectedOrder, ...this.editOrderForm.value };
-      this.orderService.updateOrder(updatedOrder.id, updatedOrder).subscribe(() => {
-        this.websocketService.sendUpdateOrder(updatedOrder);
-        const allOrderIndex = this.allOrders.findIndex(order => order.id === updatedOrder.id);
-        if (allOrderIndex !== -1) {
-          this.allOrders[allOrderIndex] = updatedOrder;
+updateOrder(): void {
+  if (this.editOrderForm.valid) {
+    // Cria uma cópia do pedido com os novos dados
+    const updatedOrder: orders = { ...this.selectedOrder, ...this.editOrderForm.value };
+    const currentSearchTerm = this.returnForm.get('search')?.value?.toLowerCase(); // Armazena o termo de pesquisa
+    const currentPage = this.currentPage; // Armazena a página atual
+
+    // Chama o serviço para atualizar o pedido no banco de dados
+    this.orderService.updateOrder(updatedOrder.id, updatedOrder).subscribe(
+      () => {
+        // Atualiza a lista de pedidos locais
+        const orderIndex = this.allOrders.findIndex(order => order.id === updatedOrder.id);
+        if (orderIndex !== -1) {
+          this.allOrders[orderIndex] = updatedOrder;
         } else {
           this.allOrders.push(updatedOrder);
         }
-        const orderIndex = this.orders.findIndex(order => order.id === updatedOrder.id);
-        if (orderIndex !== -1) {
-          this.orders[orderIndex] = updatedOrder;
-        } else {
-          this.orders.push(updatedOrder);
-        }
-        this.filterOrdersByAnyAttribute();
-        this.totalPages = Math.ceil(this.orders.length / this.pageSize);
-        this.updateVisiblePages();
 
+        // Realiza a filtragem novamente com o termo de pesquisa atual
+        this.returnForm.get('search')?.setValue(currentSearchTerm); // Define o termo de pesquisa de volta
+        this.filterOrdersByAnyAttribute(); // Aplica o filtro para o termo de pesquisa
+
+        // Atualiza a paginação
+        this.totalPages = Math.ceil(this.orders.length / this.pageSize); // Recalcula o número de páginas
+        this.updateVisiblePages(); // Atualiza as páginas visíveis
+
+        // Atualiza os pedidos para a página atual
+        this.updateOrdersForCurrentPage();
+
+        // Garante que a página atual seja preservada após a atualização
+        this.currentPage = currentPage;
+
+        // Fecha o modal de edição
         this.closeOrderDetails();
-      });
-    }
+      },
+      (error) => {
+        console.error('Erro ao atualizar o pedido:', error);
+        alert('Erro ao atualizar o pedido.');
+      }
+    );
   }
+}
 
   openOrderDetails(order: orders): void {
     this.selectedOrder = order;
