@@ -29,9 +29,6 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
-    @Autowired
-    private AdminPasswordService adminPasswordService;
-
     @GetMapping
     public List<Order> getAllOrders() {
         return orderService.getAllOrders();
@@ -123,47 +120,4 @@ public ResponseEntity<Order> updateOrderStatus(
         return ResponseEntity.notFound().build();
     }
 }
- @PutMapping("/updateAdm/{id}")
-    public ResponseEntity<Order> adminUpdateOrder(@PathVariable Long id, @RequestBody Order orderDetails, @RequestParam String adminPassword) {
-        // Verificar se a senha do administrador está correta
-        if (!adminPasswordService.validatePassword(adminPassword)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null); // Se a senha estiver incorreta, retorna 403
-        }
-
-        Optional<Order> orderOptional = orderService.getOrderById(id);
-        if (orderOptional.isPresent()) {
-            Order order = orderOptional.get();
-            order.setNr(orderDetails.getNr());
-            order.setCliente(orderDetails.getCliente());
-            order.setPrioridade(orderDetails.getPrioridade());
-            order.setDataH(orderDetails.getDataH());
-            order.setStatus(orderDetails.getStatus());
-            order.setVeiculo(orderDetails.getVeiculo());
-            order.setDataHRetorno(orderDetails.getDataHRetorno());
-            order.setEntregador(orderDetails.getEntregador());
-            order.setObservacao(orderDetails.getObservacao());
-            order.setDataEntrega(orderDetails.getDataEntrega());
-            order.setRecebedor(orderDetails.getRecebedor());
-
-            return ResponseEntity.ok(orderService.saveOrder(order));
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @DeleteMapping("/deleteAdm/{id}")
-    public ResponseEntity<Void> adminDeleteOrder(@PathVariable Long id, @RequestParam String adminPassword) {
-        // Verificar se a senha do administrador está correta
-        if (!adminPasswordService.validatePassword(adminPassword)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // Se a senha estiver incorreta, retorna 403
-        }
-
-        Optional<Order> orderOptional = orderService.getOrderById(id);
-        if (orderOptional.isPresent()) {
-            orderService.deleteOrder(id);
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
 }
