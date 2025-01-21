@@ -134,6 +134,7 @@ public class Order {
                 ", dataEntrega=" + dataEntrega +
                 ", veiculo='" + veiculo + '\'' +
                 ", dataHRetorno=" + dataHRetorno +
+                ", recebedor='" + recebedor + '\'' +
                 '}';
     }
 
