@@ -65,14 +65,24 @@ export class DeliveryComponent implements OnInit {
     }
   }
 
-  listenForNewOrders(): void {
-  this.websocketService.watchOrders().subscribe((message: any) => {
-    const receivedOrder = JSON.parse(message.body);
-    console.log('Pedido recebido via WebSocket:', receivedOrder);
-    this.orders.sort((a, b) => this.comparePriorities(a.prioridade, b.prioridade));
-    console.log('Lista de pedidos após atualização via WebSocket:', this.orders);
-  });
-}
+listenForNewOrders(): void {
+    this.websocketService.watchOrders().subscribe((message: any) => {
+      console.log('Mensagem recebida via WebSocket:', message);
+
+      if (message.type === 'create') {
+        this.orders.push(message.order);
+      } else if (message.type === 'update') {
+        const index = this.orders.findIndex(o => o.id === message.order.id);
+        if (index !== -1) {
+          this.orders[index] = message.order;
+        }
+      }
+
+      // Ordenar e atualizar pedidos filtrados
+      this.orders.sort((a, b) => this.comparePriorities(a.prioridade, b.prioridade));
+      this.filteredOrders = [...this.orders];
+    });
+  }
 
   updateOrdersList(order: orders) {
     const index = this.orders.findIndex(o => o.id === order.id);

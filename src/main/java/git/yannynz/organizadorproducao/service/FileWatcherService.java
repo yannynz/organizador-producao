@@ -88,7 +88,7 @@ public class FileWatcherService {
         order.setStatus(0); // Status inicial para arquivos CL 
 
         Order savedOrder = orderRepository.save(order);
-        messagingTemplate.convertAndSend("/topic/orders", savedOrder);
+        messagingTemplate.convertAndSend("/topic/orders", new WebSocketMessage("create", savedOrder));
         System.out.println("Pedido criado e enviado via WebSocket: " + savedOrder);
     } else if (nrMatcher.matches()) {
         // Processamento para arquivos NR
@@ -112,7 +112,7 @@ public class FileWatcherService {
         order.setStatus(0); // Status inicial para arquivos NR
 
         Order savedOrder = orderRepository.save(order);
-        messagingTemplate.convertAndSend("/topic/orders", savedOrder);
+        messagingTemplate.convertAndSend("/topic/orders", new WebSocketMessage("create", savedOrder));
         System.out.println("Pedido criado e enviado via WebSocket: " + savedOrder);
     } else {
         // Arquivo fora dos padrões esperados
@@ -154,7 +154,8 @@ public class FileWatcherService {
             if (order.getStatus() != newStatus) {
                 order.setStatus(newStatus);
                 orderRepository.save(order);
-                messagingTemplate.convertAndSend("/topic/orders", order);
+                messagingTemplate.convertAndSend("/topic/orders", new WebSocketMessage("update", order));
+
                 System.out.println("Status do pedido " + orderNumber + " atualizado para " + newStatus);
             } else {
                 System.out.println("Status do pedido " + orderNumber + " já está atualizado para " + newStatus);

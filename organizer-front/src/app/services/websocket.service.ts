@@ -3,6 +3,7 @@ import { Observable } from 'rxjs';
 import { RxStompService } from '@stomp/ng2-stompjs';
 import { RxStompConfig } from '@stomp/rx-stomp';
 import { environment } from '../enviroment';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -28,8 +29,18 @@ export class WebsocketService {
     };
   }
 
-  public watchOrders(): Observable<any> {
-    return this.rxStompService.watch('/topic/orders');
+   public watchOrders(): Observable<any> {
+    return this.rxStompService.watch('/topic/orders').pipe(
+      map((message: any) => {
+        const parsedMessage = JSON.parse(message.body); // Parse a mensagem recebida
+        if (parsedMessage.type === 'create') {
+          return { type: 'create', order: parsedMessage.order };  // Trata pedido criado
+        } else if (parsedMessage.type === 'update') {
+          return { type: 'update', order: parsedMessage.order };  // Trata pedido atualizado
+        }
+        return parsedMessage;  // Caso contrário, retorna a mensagem bruta
+      })
+    );
   }
  // Envia um pedido para criação via WebSocket
   public sendCreateOrder(order: any): void {
