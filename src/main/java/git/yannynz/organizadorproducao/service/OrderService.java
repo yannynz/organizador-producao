@@ -50,7 +50,7 @@ public class OrderService {
         orderRepository.deleteAll();
     }
 
-    @Scheduled(fixedRate = 30000) // Executa a cada 10 minutos
+    @Scheduled(fixedRate = 60000) // Executa a cada 1 minutos
 public void updateOrderPriorities() {
     List<Integer> statuses = Arrays.asList(0, 1); // Status relevantes
     List<Order> orders = orderRepository.findByStatusIn(statuses);

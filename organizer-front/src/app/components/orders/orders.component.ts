@@ -111,6 +111,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
         // Caso seja um pedido novo
         if (this.shouldDisplayOrder(receivedOrder)) {
           this.orders.push(receivedOrder);
+          this.loadOrders();
         }
       } else if (message.type === 'update') {
         // Caso seja um pedido atualizado
@@ -118,6 +119,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
         if (existingIndex !== -1) {
           // Atualiza o pedido existente
           this.orders[existingIndex] = receivedOrder;
+          this.loadOrders();
         }
       }
 
