@@ -92,7 +92,7 @@ private void updatePriority(Order order) {
         order.setPrioridade(newPriority);
         orderRepository.save(order);
 
-        messagingTemplate.convertAndSend("/topic/orders", new WebSocketMessage("update", order));
+        messagingTemplate.convertAndSend("/topic/orders",order);
     }
 }
 }
