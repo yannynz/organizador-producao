@@ -71,6 +71,7 @@ export class DeliveryComponent implements OnInit {
     console.log('Pedido recebido via WebSocket:', receivedOrder);
     this.orders.sort((a, b) => this.comparePriorities(a.prioridade, b.prioridade));
     console.log('Lista de pedidos após atualização via WebSocket:', this.orders);
+    window.location.reload();
   });
 }
 

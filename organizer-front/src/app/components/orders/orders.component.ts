@@ -109,8 +109,10 @@ listenForWebSocketUpdates() {
 
     if (existingIndex !== -1) {
       this.orders[existingIndex] = receivedOrder;
+      window.location.reload();
     } else if (this.shouldDisplayOrder(receivedOrder)) {
       this.orders.push(receivedOrder);
+      window.location.reload();
     }
 
     this.loadOrders();
