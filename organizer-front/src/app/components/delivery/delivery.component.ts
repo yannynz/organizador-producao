@@ -52,6 +52,7 @@ export class DeliveryComponent implements OnInit {
   ngOnInit(): void {
     this.loadOrders();
     this.listenForNewOrders();
+    this.listenForNewOrdersPrioridades();
   }
 
   loadOrders(): void {
@@ -74,6 +75,18 @@ export class DeliveryComponent implements OnInit {
     window.location.reload();
   });
 }
+
+  listenForNewOrdersPrioridades(): void {
+  this.websocketService.watchPriorities().subscribe((message: any) => {
+    const receivedOrder = JSON.parse(message.body);
+    console.log('Pedido recebido via WebSocket:', receivedOrder);
+    this.orders.sort((a, b) => this.comparePriorities(a.prioridade, b.prioridade));
+    console.log('Lista de pedidos após atualização via WebSocket:', this.orders);
+    window.location.reload();
+  });
+}
+
+
 
   updateOrdersList(order: orders) {
     const index = this.orders.findIndex(o => o.id === order.id);

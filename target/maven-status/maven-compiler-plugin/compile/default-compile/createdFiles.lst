@@ -9,6 +9,6 @@ git/yannynz/organizadorproducao/repository/OrderRepository.class
 git/yannynz/organizadorproducao/OrganizadorProducao.class
 git/yannynz/organizadorproducao/service/WebSocketMessage.class
 git/yannynz/organizadorproducao/service/OrderService.class
-git/yannynz/organizadorproducao/service/AdminPasswordService.class
+git/yannynz/organizadorproducao/controller/PriorityWebSocketController.class
 git/yannynz/organizadorproducao/model/FileInfo.class
 git/yannynz/organizadorproducao/service/FileWatcherService.class

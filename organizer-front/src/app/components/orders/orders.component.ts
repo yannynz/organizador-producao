@@ -26,7 +26,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
   editingOrder: orders | undefined;
   ordersSubscription: Subscription | undefined;
   selectedOrder: orders | null = null;
-  filteredPriority: string | null=null;
+  filteredPriority: string | null = null;
 
 
   constructor(
@@ -62,68 +62,86 @@ export class OrdersComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.loadOrders();
     this.listenForWebSocketUpdates();
+    this.listenForWebSocketPrioridade();
   }
 
-filterByPriority(priority: string) {
-  this.filteredPriority = priority;
-  this.applyFilter();
-}
+  filterByPriority(priority: string) {
+    this.filteredPriority = priority;
+    this.applyFilter();
+  }
 
-clearPriorityFilter() {
-  this.filteredPriority = null;
-  this.applyFilter();
-}
+  clearPriorityFilter() {
+    this.filteredPriority = null;
+    this.applyFilter();
+  }
 
-applyFilter() {
-  this.loadOrders(); // Recarrega a lista de pedidos
-}
+  applyFilter() {
+    this.loadOrders(); // Recarrega a lista de pedidos
+  }
 
-loadOrders() {
-  this.orderService.getOrders().subscribe((orders: orders[]) => {
-    let filteredOrders = orders.filter(order =>
-      this.shouldDisplayOrder(order)
-    );
-
-    if (this.filteredPriority) {
-      filteredOrders = filteredOrders.filter(
-        order => order.prioridade === this.filteredPriority
+  loadOrders() {
+    this.orderService.getOrders().subscribe((orders: orders[]) => {
+      let filteredOrders = orders.filter(order =>
+        this.shouldDisplayOrder(order)
       );
-    }
 
-    this.orders = filteredOrders.sort((a, b) =>
-      this.comparePriorities(a.prioridade, b.prioridade)
-    );
-  });
-}
+      if (this.filteredPriority) {
+        filteredOrders = filteredOrders.filter(
+          order => order.prioridade === this.filteredPriority
+        );
+      }
 
-shouldDisplayOrder(order: orders): boolean {
+      this.orders = filteredOrders.sort((a, b) =>
+        this.comparePriorities(a.prioridade, b.prioridade)
+      );
+    });
+  }
+
+  shouldDisplayOrder(order: orders): boolean {
     return order.status === 0 || order.status === 1;
   }
 
-listenForWebSocketUpdates() {
-  this.websocketService.watchOrders().subscribe((message: any) => {
-    const receivedOrder = JSON.parse(message.body);
-    console.log('Pedido recebido via WebSocket:', receivedOrder);
+  listenForWebSocketUpdates() {
+    this.websocketService.watchOrders().subscribe((message: any) => {
+      const receivedOrder = JSON.parse(message.body);
+      console.log('Pedido recebido via WebSocket:', receivedOrder);
 
-    const existingIndex = this.orders.findIndex(o => o.id === receivedOrder.id);
+      const existingIndex = this.orders.findIndex(o => o.id === receivedOrder.id);
 
-    if (existingIndex !== -1) {
-      this.orders[existingIndex] = receivedOrder;
-      window.location.reload();
-    } else if (this.shouldDisplayOrder(receivedOrder)) {
-      this.orders.push(receivedOrder);
-      window.location.reload();
-    }
+      if (existingIndex !== -1) {
+        this.orders[existingIndex] = receivedOrder;
+      } else if (this.shouldDisplayOrder(receivedOrder)) {
+        this.orders.push(receivedOrder);
+      }
 
-    this.loadOrders();
+      this.orders = this.orders.filter(order => this.shouldDisplayOrder(order));
 
-    this.orders = this.orders.filter(order => this.shouldDisplayOrder(order));
+      this.orders.sort((a, b) => this.comparePriorities(a.prioridade, b.prioridade));
 
-    this.orders.sort((a, b) => this.comparePriorities(a.prioridade, b.prioridade));
+      console.log('Lista de pedidos após atualização via WebSocket:', this.orders);
+    });
+  }
 
-    console.log('Lista de pedidos após atualização via WebSocket:', this.orders);
-  });
-}
+  listenForWebSocketPrioridade() {
+    this.websocketService.watchPriorities().subscribe((message: any) => {
+      const receivedOrder = JSON.parse(message.body);
+      console.log('Pedido recebido via WebSocket:', receivedOrder);
+
+      const existingIndex = this.orders.findIndex(o => o.id === receivedOrder.id);
+
+      if (existingIndex !== -1) {
+        this.orders[existingIndex] = receivedOrder;
+      } else if (this.shouldDisplayOrder(receivedOrder)) {
+        this.orders.push(receivedOrder);
+      }
+
+      this.orders = this.orders.filter(order => this.shouldDisplayOrder(order));
+
+      this.orders.sort((a, b) => this.comparePriorities(a.prioridade, b.prioridade));
+
+      console.log('Lista de pedidos após atualização via WebSocket:', this.orders);
+    });
+  }
 
   openCreateOrderModal() {
     this.createOrderForm.reset();
@@ -187,20 +205,20 @@ listenForWebSocketUpdates() {
     }
   }
 
-updateOrdersList(order: orders) {
-  const index = this.orders.findIndex(o => o.id === order.id);
+  updateOrdersList(order: orders) {
+    const index = this.orders.findIndex(o => o.id === order.id);
 
-  if (index !== -1) {
-    this.orders[index] = order;
-  } else {
-    if (order.status === 0 || order.status === 1) {
-      this.orders.push(order);
+    if (index !== -1) {
+      this.orders[index] = order;
+    } else {
+      if (order.status === 0 || order.status === 1) {
+        this.orders.push(order);
+      }
     }
+    this.orders = this.orders.filter(o => o.status === 0 || o.status === 1);
+    this.orders.sort((a, b) => this.comparePriorities(a.prioridade, b.prioridade));
+    console.log('Lista de pedidos após atualização:', this.orders);
   }
-  this.orders = this.orders.filter(o => o.status === 0 || o.status === 1);
-  this.orders.sort((a, b) => this.comparePriorities(a.prioridade, b.prioridade));
-  console.log('Lista de pedidos após atualização:', this.orders);
-}
 
   comparePriorities(priorityA: string, priorityB: string) {
     const priorities = ['VERMELHO', 'AMARELO', 'AZUL', 'VERDE'];
@@ -242,12 +260,12 @@ updateOrdersList(order: orders) {
   }
 
   highlightOrder(orderId: number) {
-  const orderElement = document.getElementById(`order-${orderId}`);
-  if (orderElement) {
-    orderElement.classList.add('updated');
-    setTimeout(() => orderElement.classList.remove('updated'), 2000);
+    const orderElement = document.getElementById(`order-${orderId}`);
+    if (orderElement) {
+      orderElement.classList.add('updated');
+      setTimeout(() => orderElement.classList.remove('updated'), 2000);
+    }
   }
-}
 
 
 }

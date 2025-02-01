@@ -29,20 +29,14 @@ export class WebsocketService {
     };
   }
 
-   public watchOrders(): Observable<any> {
-    return this.rxStompService.watch('/topic/orders').pipe(
-      map((message: any) => {
-        const parsedMessage = JSON.parse(message.body); // Parse a mensagem recebida
-        if (parsedMessage.type === 'create') {
-          return { type: 'create', order: parsedMessage.order };  // Trata pedido criado
-        } else if (parsedMessage.type === 'update') {
-          return { type: 'update', order: parsedMessage.order };  // Trata pedido atualizado
-        }
-        return parsedMessage;  // Caso contrário, retorna a mensagem bruta
-      })
-    );
+  public watchOrders(): Observable<any> {
+    return this.rxStompService.watch('/topic/orders');
   }
- // Envia um pedido para criação via WebSocket
+
+  public watchPriorities(): Observable<any> {
+    return this.rxStompService.watch('/topic/prioridades');
+ }
+
   public sendCreateOrder(order: any): void {
     this.rxStompService.publish({ destination: '/app/orders/create', body: JSON.stringify(order) });
   }
