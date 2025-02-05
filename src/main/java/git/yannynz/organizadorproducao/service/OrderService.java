@@ -1,5 +1,6 @@
 package git.yannynz.organizadorproducao.service;
 
+import org.springframework.scheduling.annotation.Async;
 import java.util.List;
 import java.util.Optional;
 import java.util.Arrays;
@@ -50,7 +51,7 @@ public class OrderService {
         orderRepository.deleteAll();
     }
 
-    @Scheduled(fixedRate = 3000) // Executa a cada 10 minutos
+    @Scheduled(fixedRate = 60000) // Executa a cada 10 minutos
 public void updateOrderPriorities() {
     List<Integer> statuses = Arrays.asList(0, 1); // Status relevantes
     List<Order> orders = orderRepository.findByStatusIn(statuses);
@@ -61,7 +62,7 @@ public void updateOrderPriorities() {
         updatePriority(order);
     }
 }
-
+@Async
 private void updatePriority(Order order) {
     if (order.getDataH() == null) {
         System.out.println("Data de criação não encontrada para o pedido: " + order.getId());
