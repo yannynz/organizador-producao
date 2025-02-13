@@ -36,9 +36,7 @@ services:
     depends_on:
       - postgres-container  # Garante que o PostgreSQL esteja pronto antes do backend
       - rabbitmq-container  # Garante que o RabbitMQ esteja pronto antes do backend
-    volumes:
-      - /etc/timezone:/etc/timezone:ro  # Montando o arquivo timezone
-      - /etc/localtime:/etc/localtime:ro  # Montando o arquivo localtime
+    
     networks:
       - organizador-producao-mynetwork
 
