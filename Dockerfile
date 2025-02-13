@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y tzdata && \
     apt-get clean
 WORKDIR /app
 COPY . .
+RUN chmod +x mvnw
 RUN ./mvnw clean install -DskipTests
 FROM openjdk:17-jdk-slim
 WORKDIR /app
