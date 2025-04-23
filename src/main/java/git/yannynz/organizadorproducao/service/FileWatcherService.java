@@ -124,19 +124,19 @@ public class FileWatcherService {
         System.out.println("Processando mensagem simulando arquivo na pasta facasOk: " + fileName);
 
         // Padrão para identificar pedidos gerais (com NR...)
-        Pattern nrPattern = Pattern.compile("NR(\\d+)([\\p{L}\\s\\d]+?)_(VERMELHO|AMARELO|AZUL|VERDE)(?:\\.CNC)?");
+        Pattern nrPattern = Pattern.compile("NR(\\d+).*?_(VERMELHO|AMARELO|AZUL|VERDE)(?:\\.CNC)?");
         // Padrão específico para pedidos de corte a laser (com CL...)
-        Pattern clPattern = Pattern.compile("CL(\\d+)([\\p{L}\\s\\d]+?)_(VERMELHO|AMARELO|AZUL|VERDE)(?:\\.CNC)?");
+        Pattern clPattern = Pattern.compile("CL(\\d+).*?_(VERMELHO|AMARELO|AZUL|VERDE)(?:\\.CNC)?");
 
         Matcher nrMatcher = nrPattern.matcher(fileName);
         Matcher clMatcher = clPattern.matcher(fileName);
 
-        if (clMatcher.matches()) {
+        if (clMatcher.find()) {
             // Pedido de corte a laser (CL...)
             String orderNumber = clMatcher.group(1);
             System.out.println("Pedido de corte a laser identificado. NR=" + orderNumber);
             updateOrderStatus(orderNumber, 2); // Atualizar status para "pronta"
-        } else if (nrMatcher.matches()) {
+        } else if (nrMatcher.find()) {
             // Pedido regular (NR...)
             String orderNumber = nrMatcher.group(1);
             System.out.println("Pedido regular identificado. NR=" + orderNumber);
