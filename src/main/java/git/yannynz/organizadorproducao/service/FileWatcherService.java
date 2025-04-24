@@ -60,8 +60,8 @@ public class FileWatcherService {
     System.out.println("Processando mensagem simulando arquivo na pasta laser: " + fileName);
 
     // Padrões para identificar os tipos de arquivos
-    Pattern nrPattern = Pattern.compile("NR(\\d+)([\\p{L}\\s\\d]+?)_(VERMELHO|AMARELO|AZUL|VERDE)(?:\\.CNC)?");
-    Pattern clPattern = Pattern.compile("CL(\\d+)([\\p{L}\\s\\d]+?)_(VERMELHO|AMARELO|AZUL|VERDE)(?:\\.CNC)?");
+    Pattern nrPattern = Pattern.compile("NR(\\d+).*?_(VERMELHO|AMARELO|AZUL|VERDE)(?:\\.CNC)?");
+    Pattern clPattern = Pattern.compile("CL(\\d+).*?_(VERMELHO|AMARELO|AZUL|VERDE)(?:\\.CNC)?");
 
     Matcher nrMatcher = nrPattern.matcher(fileName);
     Matcher clMatcher = clPattern.matcher(fileName);
