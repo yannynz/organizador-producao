@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  apiUrl: '/api/orders',  // -> apenas caminho relativo, porque o nginx redireciona
-  wsUrl: 'ws://' + window.location.host + '/ws/orders',  // -> WebSocket relativo ao host onde a página foi carregada
+  apiUrl: '/api/orders',
+  wsUrl: typeof window !== 'undefined' ? 'ws://' + window.location.host + '/ws/orders' : '',  // proteção
 };
 
