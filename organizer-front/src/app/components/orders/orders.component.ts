@@ -76,7 +76,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
   }
 
   applyFilter() {
-    this.loadOrders(); // Recarrega a lista de pedidos
+    this.loadOrders();
   }
 
   loadOrders() {
@@ -101,26 +101,26 @@ export class OrdersComponent implements OnInit, OnDestroy {
     return order.status === 0 || order.status === 1;
   }
 
-  listenForWebSocketUpdates() {
-    this.websocketService.watchOrders().subscribe((message: any) => {
-      const receivedOrder = JSON.parse(message.body);
-      console.log('Pedido recebido via WebSocket:', receivedOrder);
+ listenForWebSocketUpdates() {
+  this.websocketService.watchOrders().subscribe((message: any) => {
+    const received: orders = JSON.parse(message.body);
 
-      const existingIndex = this.orders.findIndex(o => o.id === receivedOrder.id);
-
-      if (existingIndex !== -1) {
-        this.orders[existingIndex] = receivedOrder;
-      } else if (this.shouldDisplayOrder(receivedOrder)) {
-        this.orders.push(receivedOrder);
+    if ([3, 4].includes(received.status)) {
+      this.orders = this.orders.filter(o => o.id !== received.id);
+    } else if (this.shouldDisplayOrder(received)) {
+      const idx = this.orders.findIndex(o => o.id === received.id);
+      if (idx !== -1) {
+        this.orders[idx] = received;
+      } else {
+        this.orders = [...this.orders, received];
       }
+    }
 
-      this.orders = this.orders.filter(order => this.shouldDisplayOrder(order));
-
-      this.orders.sort((a, b) => this.comparePriorities(a.prioridade, b.prioridade));
-
-      console.log('Lista de pedidos após atualização via WebSocket:', this.orders);
-    });
-  }
+    this.orders = [...this.orders].sort((a, b) =>
+      this.comparePriorities(a.prioridade, b.prioridade)
+    );
+  });
+}
 
   listenForWebSocketPrioridade() {
     this.websocketService.watchPriorities().subscribe((message: any) => {

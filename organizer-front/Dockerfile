@@ -19,7 +19,7 @@ RUN npm cache clean --force && npm install --legacy-peer-deps
 COPY . .
 
 # Build da aplicação
-RUN npm run build --prod
+RUN npm run build --configuration=production
 
 # Etapa final: Servir com nginx
 FROM nginx:alpine

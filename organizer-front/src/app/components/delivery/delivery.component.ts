@@ -66,27 +66,35 @@ export class DeliveryComponent implements OnInit {
     }
   }
 
-  listenForNewOrders(): void {
-  this.websocketService.watchOrders().subscribe((message: any) => {
-    const receivedOrder = JSON.parse(message.body);
-    console.log('Pedido recebido via WebSocket:', receivedOrder);
-    this.orders.sort((a, b) => this.comparePriorities(a.prioridade, b.prioridade));
-    console.log('Lista de pedidos após atualização via WebSocket:', this.orders);
-    window.location.reload();
+listenForNewOrders(): void {
+  this.websocketService.watchOrders().subscribe(msg => {
+    const received: orders = JSON.parse(msg.body);
+    console.log('[WS] watchOrders:', received);
+    this.handleIncomingDeliveryOrder(received);
   });
 }
 
-  listenForNewOrdersPrioridades(): void {
-  this.websocketService.watchPriorities().subscribe((message: any) => {
-    const receivedOrder = JSON.parse(message.body);
-    console.log('Pedido recebido via WebSocket:', receivedOrder);
-    this.orders.sort((a, b) => this.comparePriorities(a.prioridade, b.prioridade));
-    console.log('Lista de pedidos após atualização via WebSocket:', this.orders);
-    window.location.reload();
+listenForNewOrdersPrioridades(): void {
+  this.websocketService.watchPriorities().subscribe(msg => {
+    const received: orders = JSON.parse(msg.body);
+    console.log('[WS] watchPriorities:', received);
+    this.handleIncomingDeliveryOrder(received);
   });
 }
 
-
+private handleIncomingDeliveryOrder(received: orders) {
+  if (![1,2].includes(received.status)) {
+    this.orders = this.orders.filter(o => o.id !== received.id);
+  } else {
+    const idx = this.orders.findIndex(o => o.id === received.id);
+    if (idx !== -1) this.orders[idx] = received;
+    else this.orders = [...this.orders, received];
+  }
+  this.orders.sort((a, b) =>
+    this.comparePriorities(a.prioridade, b.prioridade)
+  );
+  this.filteredOrders = [...this.orders];
+}
 
   updateOrdersList(order: orders) {
     const index = this.orders.findIndex(o => o.id === order.id);
@@ -141,6 +149,7 @@ export class DeliveryComponent implements OnInit {
 
   this.orderService.createOrder(newAdverseOrder).subscribe(
     (savedOrder) => {
+      this.websocketService.sendCreateOrder(savedOrder);
       this.loadOrders();
       this.modalService.dismissAll();
     },
@@ -211,6 +220,7 @@ confirmDelivery(): void {
 
   this.modalService.dismissAll();
   console.log(deliveryPerson);
+  window.location.reload();
 }
 
   comparePriorities(priorityA: string, priorityB: string) {

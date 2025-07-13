@@ -323,7 +323,7 @@ export class DeliveredComponent implements OnInit {
       nr: selectedAdverseType,
       cliente: this.adverseOutputForm.get('cliente')?.value,
       dataH: DateTime.now().setZone('America/Sao_Paulo').toJSDate(),
-      prioridade: 'VERDE',
+      prioridade: this.adverseOutputForm.get('prioridade')?.value || 'VERDE',
       status: 2,
       observacao: this.adverseOutputForm.get('observacao')?.value || 'Sem observações',
       isOpen: false,
@@ -331,6 +331,7 @@ export class DeliveredComponent implements OnInit {
 
     this.orderService.createOrder(newAdverseOrder).subscribe(
       (savedOrder) => {
+        this.websocketService.sendCreateOrder(savedOrder);
         this.orders.push(savedOrder);
         this.loadOrders();
         this.modalService.dismissAll();
