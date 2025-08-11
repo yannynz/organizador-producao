@@ -128,9 +128,6 @@ export class DeliveredComponent implements OnInit {
   }
 
   filterOrdersByAnyAttribute(): void {
-  }
-
-  filterOrdersByAnyAttribute(): void {
     const searchTerm = this.returnForm.get('search')?.value?.toLowerCase() || '';
 
     if (searchTerm) {
