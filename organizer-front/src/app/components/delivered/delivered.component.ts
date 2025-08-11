@@ -128,6 +128,9 @@ export class DeliveredComponent implements OnInit {
   }
 
   filterOrdersByAnyAttribute(): void {
+  }
+
+  filterOrdersByAnyAttribute(): void {
     const searchTerm = this.returnForm.get('search')?.value?.toLowerCase() || '';
 
     if (searchTerm) {
@@ -183,6 +186,10 @@ export class DeliveredComponent implements OnInit {
       // Chama o serviço para atualizar o pedido no banco de dados
       this.orderService.updateOrder(updatedOrder.id, updatedOrder).subscribe(
         () => {
+
+          // Envia a atualização via WebsocketService
+          this.websocketService.sendUpdateOrder(updatedOrder);
+
           // Atualiza a lista de pedidos locais
           const orderIndex = this.allOrders.findIndex(order => order.id === updatedOrder.id);
           if (orderIndex !== -1) {
@@ -254,6 +261,9 @@ export class DeliveredComponent implements OnInit {
     ) {
       this.orderService.deleteOrder(orderId!).subscribe(
         () => {
+          // Envia a exclusão via websocketService
+          this.websocketService.sendUpdateOrder(updatedOrder);
+
           // Atualiza a lista de pedidos e remove o pedido excluído
           this.orders = this.orders.filter((o) => o.id !== orderId);
           this.allOrders = this.allOrders.filter((o) => o.id !== orderId);
