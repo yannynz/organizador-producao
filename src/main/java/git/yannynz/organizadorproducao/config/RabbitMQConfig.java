@@ -1,8 +1,8 @@
 package git.yannynz.organizadorproducao.config;
 
-import org.springframework.amqp.core.Queue;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.amqp.core.Queue;
 
 @Configuration
 public class RabbitMQConfig {
@@ -18,5 +18,9 @@ public class RabbitMQConfig {
     public Queue facasQueue() {
         return new Queue(QUEUE_FACAS, true);
     }
-}
 
+    @Bean
+    public Queue dobraQueue() {
+        return new Queue("dobra_notifications", true);
+    }
+}

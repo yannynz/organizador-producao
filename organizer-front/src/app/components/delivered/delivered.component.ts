@@ -297,6 +297,7 @@ export class DeliveredComponent implements OnInit {
       case 3: return 'Saiu para Entrega';
       case 4: return 'Retirada';
       case 5: return 'Entregue';
+      case 6: return 'Tirada';
       default: return 'Desconhecido';
     }
   }
