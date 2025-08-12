@@ -98,7 +98,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
   }
 
   shouldDisplayOrder(order: orders): boolean {
-    return order.status === 0 || order.status === 1;
+    return order.status === 0 || order.status === 1 || order.status === 6;
   }
 
  listenForWebSocketUpdates() {
@@ -123,6 +123,13 @@ export class OrdersComponent implements OnInit, OnDestroy {
     );
   });
 }
+
+//listenForWebSocketDelete() {
+  //this.websocketService.watchDeleteOrders().subscribe((message: any) => {
+    //const received: orders = JSON.parse(message.body);
+    //this.orders = this.orders.filter(o => o.id !== received.id);
+  //});
+
 
  listenForWebSocketPrioridade() {
   this.websocketService.watchPriorities().subscribe((message: any) => {

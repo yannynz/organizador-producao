@@ -35,6 +35,7 @@ export class DeliveredComponent implements OnInit {
   statusDescriptions: { [key: number]: string } = {
     0: 'Em Produção',
     1: 'Cortada',
+    6: 'Tirada',
     2: 'Pronto para Entrega',
     3: 'Saiu para Entrega',
     4: 'Retirada',
@@ -259,7 +260,7 @@ export class DeliveredComponent implements OnInit {
       this.orderService.deleteOrder(orderId!).subscribe(
         () => {
           // Envia a exclusão via websocketService
-          this.websocketService.sendUpdateOrder(orderId);
+          this.websocketService.sendDeleteOrder(orderId);
 
           // Atualiza a lista de pedidos e remove o pedido excluído
           this.orders = this.orders.filter((o) => o.id !== orderId);
