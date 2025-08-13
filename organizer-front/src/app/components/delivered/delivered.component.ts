@@ -36,6 +36,7 @@ export class DeliveredComponent implements OnInit {
     0: 'Em Produção',
     1: 'Cortada',
     6: 'Tirada',
+    7: 'Montada',
     2: 'Pronto para Entrega',
     3: 'Saiu para Entrega',
     4: 'Retirada',
@@ -63,6 +64,8 @@ export class DeliveredComponent implements OnInit {
       dataHRetorno: [''],
       veiculo: [''],
       recebedor: [''],
+      montador: [''],
+      dataMontagem: [''],
     });
     this.returnForm = this.fb.group({
       search: ['']
@@ -146,7 +149,9 @@ export class DeliveredComponent implements OnInit {
           (order.observacao && order.observacao.toLowerCase().includes(searchTerm)) || // Observação
           (order.veiculo && order.veiculo.toLowerCase().includes(searchTerm)) || // Veículo
           creationDate.includes(searchTerm) || // Data de criação
-          deliveryDate.includes(searchTerm) // Data de entrega
+          deliveryDate.includes(searchTerm) || // Data de entrega
+          order.montador?.toLowerCase().includes(searchTerm) || // montador
+          (order.dataMontagem ? format(new Date(order.dataMontagem), 'dd/MM/yyyy').includes(searchTerm) : false) // dataMontagem
         );
       });
       this.totalPages = Math.ceil(this.orders.length / this.pageSize); // Atualiza número de páginas após o filtro
@@ -235,6 +240,8 @@ export class DeliveredComponent implements OnInit {
       dataHRetorno: order.dataHRetorno,
       veiculo: order.veiculo,
       recebedor: order.recebedor,
+      montador: order.montador,
+      dataMontagem: order.dataMontagem,
     });
 
     this.modalService.open(this.orderDetailsModal, { centered: true });
@@ -299,6 +306,7 @@ export class DeliveredComponent implements OnInit {
       case 4: return 'Retirada';
       case 5: return 'Entregue';
       case 6: return 'Tirada';
+      case 7: return 'Montada';
       default: return 'Desconhecido';
     }
   }

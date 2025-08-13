@@ -57,7 +57,7 @@ export class DeliveryComponent implements OnInit {
 
   loadOrders(): void {
     this.orderService.getOrders().subscribe((orders) => {
-      this.orders = orders.filter(order => [1, 2, 6].includes(order.status))
+      this.orders = orders.filter(order => [1, 2, 6, 7].includes(order.status))
         .sort((a, b) => this.comparePriorities(a.prioridade, b.prioridade));
       this.filteredOrders = [...this.orders];
     });
@@ -83,7 +83,7 @@ listenForNewOrdersPrioridades(): void {
 }
 
 private handleIncomingDeliveryOrder(received: orders) {
-  if (![1,2,6].includes(received.status)) {
+  if (![1,2,6,7].includes(received.status)) {
     this.orders = this.orders.filter(o => o.id !== received.id);
   } else {
     const idx = this.orders.findIndex(o => o.id === received.id);

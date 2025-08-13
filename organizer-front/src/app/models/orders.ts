@@ -12,6 +12,8 @@ export class orders {
   dataHRetorno?: Date;
   veiculo?: string;
   recebedor?: string;
+  montador?: string;
+  dataMontagem?: Date;
 }
 
 

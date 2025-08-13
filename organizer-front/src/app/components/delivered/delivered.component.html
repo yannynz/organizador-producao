@@ -143,6 +143,14 @@
             <td>{{ editOrderForm.get('dataH')?.value | date:'dd/MM/yyyy HH:mm' }}</td>
           </tr>
           <tr>
+            <th>Montador</th>
+            <td *ngIf="selectedOrder">{{ selectedOrder.montador || " " }}</td>
+          </tr>
+          <tr>
+            <th>Data de Montagem</th>
+            <td>{{ editOrderForm.get('dataMontagem')?.value | date:'dd/MM/yyyy HH:mm' }}</td>
+          </tr>
+          <tr>
             <th>Data de Saída</th>
             <td>{{ editOrderForm.get('dataEntrega')?.value | date:'dd/MM/yyyy HH:mm' }}</td>
           </tr>
