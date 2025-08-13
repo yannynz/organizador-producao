@@ -23,6 +23,8 @@ public class Order {
     private String veiculo;  
     private ZonedDateTime dataHRetorno;  
     private String recebedor;
+    private String montador;
+    private ZonedDateTime dataMontagem;
 
     public Order() {}
 
@@ -120,6 +122,22 @@ public class Order {
 
     public void setObservacao(String observacao) {
         this.observacao = observacao;
+    }
+    
+    public String getMontador() {
+        return montador;
+    }
+
+    public void setMontador(String montador) {
+        this.montador = montador;
+    }
+
+    public ZonedDateTime getDataMontagem() {
+        return dataMontagem;
+    }
+    
+    public void setDataMontagem(ZonedDateTime dataMontagem) {
+        this.dataMontagem = dataMontagem;
     }
 
   @Override

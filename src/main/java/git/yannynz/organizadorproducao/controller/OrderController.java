@@ -71,6 +71,8 @@ public ResponseEntity<Order> getOrderByNr(@PathVariable String nr) {
             order.setObservacao(orderDetails.getObservacao());
             order.setDataEntrega(orderDetails.getDataEntrega());
             order.setRecebedor(orderDetails.getRecebedor());
+            order.setMontador(orderDetails.getMontador());
+            order.setDataMontagem(orderDetails.getDataMontagem());
 
 
             return ResponseEntity.ok(orderService.saveOrder(order));

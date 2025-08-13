@@ -9,6 +9,7 @@
 /home/ynz/Documentos/organizador-producao/src/main/java/git/yannynz/organizadorproducao/model/FileInfo.java
 /home/ynz/Documentos/organizador-producao/src/main/java/git/yannynz/organizadorproducao/model/Order.java
 /home/ynz/Documentos/organizador-producao/src/main/java/git/yannynz/organizadorproducao/repository/OrderRepository.java
+/home/ynz/Documentos/organizador-producao/src/main/java/git/yannynz/organizadorproducao/service/DobrasFileService.java
 /home/ynz/Documentos/organizador-producao/src/main/java/git/yannynz/organizadorproducao/service/FileWatcherService.java
 /home/ynz/Documentos/organizador-producao/src/main/java/git/yannynz/organizadorproducao/service/OrderService.java
 /home/ynz/Documentos/organizador-producao/src/main/java/git/yannynz/organizadorproducao/service/WebSocketMessage.java
