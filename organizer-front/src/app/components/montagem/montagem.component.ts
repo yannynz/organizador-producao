@@ -165,5 +165,20 @@ export class MontagemComponent implements OnInit {
   }
 
   trackById = (_: number, o: orders) => o.id;
+
+  getPriorityColor(prioridade: string): string {
+    switch (prioridade) {
+      case 'VERMELHO':
+        return 'red';
+      case 'AMARELO':
+        return 'yellow';
+      case 'AZUL':
+        return 'blue';
+      case 'VERDE':
+        return 'green';
+      default:
+        return 'black';
+    }
+  }
 }
 

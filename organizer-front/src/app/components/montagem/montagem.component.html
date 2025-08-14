@@ -50,7 +50,9 @@
             <tr *ngFor="let p of tiradas; trackBy: trackById">
               <td class="fw-semibold">{{ p.nr }}</td>
               <td>{{ p.cliente }}</td>
-              <td>{{ p.prioridade }}</td>
+              <td [ngStyle]="{'background-color': getPriorityColor(p.prioridade)}">
+            {{ p.prioridade }}
+          </td>
               <td>{{ p.dataH | date:'dd/MM HH:mm' }}</td>
               <td>
                 <button class="btn btn-success btn-sm" (click)="montarRapido(p.nr)" [disabled]="loading">
