@@ -6,6 +6,8 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { orders } from '../../models/orders';
 import { CommonModule } from '@angular/common';
 import { DateTime } from 'luxon';
+import { forkJoin } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-delivery',
@@ -21,6 +23,7 @@ export class DeliveryComponent implements OnInit {
   filteredOrders: orders[] = [];
   searchTerm: string = '';
   adverseOutputForm: FormGroup;
+  selectedIds = new Set<number>();
 
   @ViewChild('deliveryModal', { static: false }) deliveryModal!: TemplateRef<any>;
   @ViewChild('thankYouModal', { static: false }) thankYouModal!: TemplateRef<any>;
@@ -56,15 +59,18 @@ export class DeliveryComponent implements OnInit {
   }
 
   loadOrders(): void {
-    this.orderService.getOrders().subscribe((orders) => {
-      this.orders = orders.filter(order => [1, 2, 6, 7].includes(order.status))
+  this.orderService.getOrders().subscribe({
+    next: (orders) => {
+      this.orders = orders
+        .filter(order => [1, 2, 6, 7].includes(order.status))
         .sort((a, b) => this.comparePriorities(a.prioridade, b.prioridade));
       this.filteredOrders = [...this.orders];
-    });
-    (error: any) => {
+    },
+    error: (error) => {
       alert('Erro ao carregar os pedidos: ' + error.message);
     }
-  }
+  });
+}
 
 listenForNewOrders(): void {
   this.websocketService.watchOrders().subscribe(msg => {
@@ -107,13 +113,11 @@ private handleIncomingDeliveryOrder(received: orders) {
     this.selectedOrders = [];
   }
 
-  onOrderSelectionChange(order: orders, event: any): void {
-    if (event.target.checked) {
-      this.selectedOrders.push(order);
-    } else {
-      this.selectedOrders = this.selectedOrders.filter(o => o !== order);
-    }
-  }
+  onOrderSelectionChange(order: orders, checked: boolean): void {
+  if (checked) this.selectedIds.add(order.id);
+  else this.selectedIds.delete(order.id);
+  this.selectedOrders = this.orders.filter(o => this.selectedIds.has(o.id));
+}
 
   preConfirmDelivery(): void {
     this.deliveryForm.reset(); // Resetar formulário
@@ -166,63 +170,60 @@ private handleIncomingDeliveryOrder(received: orders) {
 
 
 confirmDelivery(): void {
-  if (this.deliveryForm.invalid) {
-    alert('Preencha todos os campos obrigatórios.');
+  if (this.deliveryForm.invalid || this.selectedOrders.length === 0) {
+    alert('Preencha os campos obrigatórios e selecione ao menos 1 pedido.');
     return;
   }
 
-  const deliveryPersonRaw = this.deliveryForm.get('deliveryPerson')?.value;
-  const deliveryPerson = deliveryPersonRaw
-    ?.normalize("NFD") // Decompor caracteres acentuados
-    .replace(/[\u0300-\u036f]/g, "") // Remover marcas diacríticas
-    .replace(/\s+/g, " ") // Substituir múltiplos espaços por um único espaço
-    .trim() // Remover espaços no início e no final
-    .toLowerCase(); // Converter para letras minúsculas
+  const deliveryPerson = this.deliveryForm.get('deliveryPerson')?.value
+    ?.normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
 
   const deliveryType = this.deliveryForm.get('deliveryType')?.value;
-  const vehicleTypeControl = this.deliveryForm.get('vehicleType');
-  const customVehicleControl = this.deliveryForm.get('customVehicle');
-  const vehicle = vehicleTypeControl?.value === 'Outro' ? customVehicleControl?.value : vehicleTypeControl?.value;
-  const currentDateTime = DateTime.now().setZone('America/Sao_Paulo').toJSDate();
+  const vehicleType = this.deliveryForm.get('vehicleType')?.value;
+  const customVehicle = this.deliveryForm.get('customVehicle')?.value;
+  const vehicle = vehicleType === 'Outro' ? customVehicle : vehicleType;
+
   const recebedor = this.deliveryForm.get('recebedor')?.value;
+  const currentDateTime = DateTime.now().setZone('America/Sao_Paulo').toJSDate();
 
   let status: number;
-  if (deliveryType === 'Sair para entrega') {
-    status = 3;
-  } else if (deliveryType === 'Retirada') {
-    status = 4;
-  } else {
+  if (deliveryType === 'Sair para entrega') status = 3;
+  else if (deliveryType === 'Retirada') status = 4;
+  else {
     alert('Tipo de entrega inválido.');
     return;
   }
 
-  this.selectedOrders.forEach((order) => {
+  const updates$ = this.selectedOrders.map(order => {
     const updatedOrder = {
       ...order,
       entregador: deliveryPerson,
-      status: status,
+      status,
       dataEntrega: currentDateTime,
       veiculo: vehicle,
-      recebedor: recebedor,
+      recebedor,
     };
-
-    this.orderService.updateOrder(order.id, updatedOrder).subscribe(
-      () => {
-        this.websocketService.sendUpdateOrder(updatedOrder);
-
-        this.loadOrders();
-      },
-      (error) => {
-        alert(`Erro ao atualizar o pedido ${order.nr}: ${error}`);
-      }
+    return this.orderService.updateOrder(order.id, updatedOrder).pipe(
+      // Só envia o WS depois que o backend confirmou a atualização
+      tap(() => this.websocketService.sendUpdateOrder(updatedOrder))
     );
   });
 
-  this.modalService.dismissAll();
-  console.log(deliveryPerson);
-  window.location.reload();
+  forkJoin(updates$).subscribe({
+    next: () => {
+      this.loadOrders();            // atualiza a lista uma vez
+      this.selectedOrders = [];     // limpa seleção
+      this.modalService.dismissAll();
+    },
+    error: (err) => {
+      alert('Erro ao atualizar pedidos: ' + (err?.message || err));
+    }
+  });
 }
-
   comparePriorities(priorityA: string, priorityB: string) {
     const priorities = ['VERMELHO', 'AMARELO', 'AZUL', 'VERDE'];
     return priorities.indexOf(priorityA) - priorities.indexOf(priorityB);

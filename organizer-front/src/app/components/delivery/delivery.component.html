@@ -27,7 +27,12 @@
       <tbody>
         <tr *ngFor="let order of filteredOrders"[id]="'order-' + order.id">
           <td>
-          <input type="checkbox" (change)="onOrderSelectionChange(order, $event)" />
+          <input
+  type="checkbox"
+  [ngModel]="selectedIds.has(order.id)"
+  (ngModelChange)="onOrderSelectionChange(order, $event)"
+  [ngModelOptions]="{ standalone: true }"
+/>
         </td>
           <td>{{ order.nr }}</td>
           <td>{{ order.cliente }}</td>

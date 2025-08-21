@@ -42,9 +42,8 @@ export class MontagemComponent implements OnInit {
   private carregarTiradas(): void {
     this.orderService.getOrders().subscribe({
       next: (lista) => {
-        // status 6 = Tirada
         this.tiradas = lista
-          .filter(o => o.status === 6)
+          .filter(o => [6, 2].includes(o.status))
           .sort((a, b) => {
             const ta = a.dataH ? new Date(a.dataH).getTime() : 0;
             const tb = b.dataH ? new Date(b.dataH).getTime() : 0;
@@ -58,31 +57,33 @@ export class MontagemComponent implements OnInit {
   }
 
   private ouvirWebsocket(): void {
-    this.ws.watchOrders().subscribe(msg => {
-      // suporta payload puro (Order) ou wrapper {type, payload}
-      let received: any;
-      try { received = JSON.parse(msg.body); } catch { return; }
-      const order: orders = (received && received.payload) ? received.payload : received;
+  this.ws.watchOrders().subscribe(msg => {
+    let received: any;
+    try { received = JSON.parse(msg.body); } catch { return; }
+    const order: orders = received?.payload ?? received;
+    if (!order || typeof order !== 'object') return;
 
-      if (!order || typeof order !== 'object') return;
+    const idx = this.tiradas.findIndex(o => o.id === order.id);
+    const deveManter = [2, 6].includes(order.status);
 
-      // Se virou status 6, coloca/atualiza na lista. Se saiu do 6, remove.
-      const idx = this.tiradas.findIndex(o => o.id === order.id);
-      if (order.status === 6) {
-        if (idx === -1) this.tiradas = [order, ...this.tiradas];
-        else this.tiradas[idx] = order;
-        // mantém ordenação por data
-        this.tiradas.sort((a, b) => {
-          const ta = a.dataH ? new Date(a.dataH).getTime() : 0;
-          const tb = b.dataH ? new Date(b.dataH).getTime() : 0;
-          return tb - ta;
-        });
-      } else if (idx !== -1) {
-        this.tiradas.splice(idx, 1);
-        this.tiradas = [...this.tiradas];
+    if (deveManter) {
+      if (idx === -1) this.tiradas = [order, ...this.tiradas];
+      else {
+        this.tiradas[idx] = order;
+        this.tiradas = [...this.tiradas]; // garante detecção de mudança
       }
-    });
-  }
+      // mantém ordenação por data (mais novas primeiro)
+      this.tiradas.sort((a, b) => {
+        const ta = a.dataH ? new Date(a.dataH).getTime() : 0;
+        const tb = b.dataH ? new Date(b.dataH).getTime() : 0;
+        return tb - ta;
+      });
+    } else if (idx !== -1) {
+      this.tiradas.splice(idx, 1);
+      this.tiradas = [...this.tiradas];
+    }
+  });
+}
 
   limpar(): void {
     this.form.reset();
