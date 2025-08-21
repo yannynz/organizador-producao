@@ -1,4 +1,3 @@
-import { NgbConfig } from '../ngb-config';
 import * as i0 from "@angular/core";
 /**
  * A configuration service for the [NgbAlert](#/components/alert/api#NgbAlert) component.
@@ -8,10 +7,9 @@ import * as i0 from "@angular/core";
  */
 export declare class NgbAlertConfig {
     private _ngbConfig;
+    private _animation;
     dismissible: boolean;
     type: string;
-    private _animation;
-    constructor(_ngbConfig: NgbConfig);
     get animation(): boolean;
     set animation(animation: boolean);
     static ɵfac: i0.ɵɵFactoryDeclaration<NgbAlertConfig, never>;

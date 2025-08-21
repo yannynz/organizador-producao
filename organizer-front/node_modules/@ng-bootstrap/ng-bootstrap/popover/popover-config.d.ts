@@ -1,5 +1,4 @@
 import { PlacementArray } from '../util/positioning';
-import { NgbConfig } from '../ngb-config';
 import { Options } from '@popperjs/core';
 import * as i0 from "@angular/core";
 /**
@@ -10,6 +9,7 @@ import * as i0 from "@angular/core";
  */
 export declare class NgbPopoverConfig {
     private _ngbConfig;
+    private _animation;
     autoClose: boolean | 'inside' | 'outside';
     placement: PlacementArray;
     popperOptions: (options: Partial<Options>) => Partial<Options>;
@@ -19,8 +19,6 @@ export declare class NgbPopoverConfig {
     popoverClass: string;
     openDelay: number;
     closeDelay: number;
-    private _animation;
-    constructor(_ngbConfig: NgbConfig);
     get animation(): boolean;
     set animation(animation: boolean);
     static ɵfac: i0.ɵɵFactoryDeclaration<NgbPopoverConfig, never>;

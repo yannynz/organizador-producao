@@ -1,4 +1,3 @@
-import { NgbConfig } from '../ngb-config';
 import * as i0 from "@angular/core";
 /**
  * A configuration service for the [`NgbNav`](#/components/nav/api#NgbNav) component.
@@ -10,12 +9,11 @@ import * as i0 from "@angular/core";
  */
 export declare class NgbNavConfig {
     private _ngbConfig;
+    private _animation;
     destroyOnHide: boolean;
     orientation: 'horizontal' | 'vertical';
     roles: 'tablist' | false;
     keyboard: boolean | 'changeWithArrows';
-    private _animation;
-    constructor(_ngbConfig: NgbConfig);
     get animation(): boolean;
     set animation(animation: boolean);
     static ɵfac: i0.ɵɵFactoryDeclaration<NgbNavConfig, never>;

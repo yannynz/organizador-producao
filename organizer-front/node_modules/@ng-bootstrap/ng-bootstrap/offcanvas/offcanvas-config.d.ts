@@ -1,5 +1,4 @@
 import { Injector } from '@angular/core';
-import { NgbConfig } from '../ngb-config';
 import * as i0 from "@angular/core";
 /**
  * Options available when opening new offcanvas windows with `NgbOffcanvas.open()` method.
@@ -80,6 +79,7 @@ export interface NgbOffcanvasOptions {
  */
 export declare class NgbOffcanvasConfig implements Required<NgbOffcanvasOptions> {
     private _ngbConfig;
+    private _animation;
     ariaDescribedBy: string;
     ariaLabelledBy: string;
     backdrop: boolean | 'static';
@@ -91,8 +91,6 @@ export declare class NgbOffcanvasConfig implements Required<NgbOffcanvasOptions>
     panelClass: string;
     position: 'start' | 'end' | 'top' | 'bottom';
     scroll: boolean;
-    private _animation;
-    constructor(_ngbConfig: NgbConfig);
     get animation(): boolean;
     set animation(animation: boolean);
     static ɵfac: i0.ɵɵFactoryDeclaration<NgbOffcanvasConfig, never>;

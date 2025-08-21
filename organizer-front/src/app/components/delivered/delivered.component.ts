@@ -87,6 +87,8 @@ export class DeliveredComponent implements OnInit {
     });
   }
 
+  ngO
+
   loadOrders(): void {
     this.orderService.getOrders().subscribe((orders) => {
       this.allOrders = orders.sort((a, b) => {
