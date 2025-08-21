@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@ng-bootstrap/ng-bootstrap": "^15.1.2",
     "luxon": "^3.5.0"
   }
 }
