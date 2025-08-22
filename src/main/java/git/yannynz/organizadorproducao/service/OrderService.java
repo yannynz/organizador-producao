@@ -12,6 +12,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import git.yannynz.organizadorproducao.config.pagination.CursorStrategy;
+import git.yannynz.organizadorproducao.model.dto.OrderSearchDTO;
+import git.yannynz.organizadorproducao.config.pagination.CursorPaging;
 import git.yannynz.organizadorproducao.model.Order;
 import git.yannynz.organizadorproducao.repository.OrderRepository;
 
@@ -49,6 +52,15 @@ public class OrderService {
     public void deleteAllOrders() {
         orderRepository.deleteAll();
     }
+
+    public SearchResult<Order> searchDeliveredByCursor(
+        OrderSearchDTO filters,
+        int pageSize,
+        CursorPaging.Key after,
+        CursorStrategy strategy
+) {
+    return orderRepository.searchDeliveredByCursor(filters, pageSize, after, strategy);
+}
 
     @Scheduled(fixedRate = 60000) // Executa a cada 10 minutos
 public void updateOrderPriorities() {

@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
+import git.yannynz.organizadorproducao.config.pagination.CursorPaging;
 import git.yannynz.organizadorproducao.model.Order;
 import git.yannynz.organizadorproducao.service.OrderService;
 
@@ -121,4 +122,37 @@ public ResponseEntity<Order> updateOrderStatus(
         return ResponseEntity.notFound().build();
     }
 }
+
+@PostMapping("/search-cursor")
+public ResponseEntity<?> searchDeliveredCursor(
+        @RequestParam(name = "limit", defaultValue = "50") int limit,
+        @RequestParam(name = "cursor", required = false) String cursor,
+        @RequestParam(name = "strategy", required = false) String strategyParam,
+        @RequestBody(required = false) git.yannynz.organizadorproducao.model.dto.OrderSearchDTO filters
+) {
+    int pageSize = Math.max(1, Math.min(limit, 200));
+
+    git.yannynz.organizadorproducao.config.pagination.CursorStrategy strategy =
+            git.yannynz.organizadorproducao.config.pagination.CursorStrategy.ID;
+    if (strategyParam != null) {
+        try { strategy = git.yannynz.organizadorproducao.config.pagination.CursorStrategy.valueOf(strategyParam.toUpperCase()); }
+        catch (IllegalArgumentException ignore) {}
+    }
+
+    // decode com tratamento
+    git.yannynz.organizadorproducao.config.pagination.CursorPaging.Key after;
+    try {
+        after = git.yannynz.organizadorproducao.config.pagination.CursorPaging.decode(cursor);
+    } catch (IllegalArgumentException ex) {
+        return ResponseEntity.badRequest().body("cursor inválido (use exatamente o 'nextCursor' retornado pela API)");
+    }
+
+    var result = orderService.searchDeliveredByCursor(filters, pageSize, after, strategy);
+    String nextCursor = (result.lastKey() == null) ? null : git.yannynz.organizadorproducao.config.pagination.CursorPaging.encode(result.lastKey());
+    var envelope = new git.yannynz.organizadorproducao.config.pagination.CursorPaging.PageEnvelope<>(result.items(), nextCursor, result.hasMore());
+    return ResponseEntity.ok(envelope);
+}
+
+
+
 }

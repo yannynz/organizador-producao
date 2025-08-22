@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.List;
 
 @Repository
-public interface OrderRepository extends JpaRepository<Order, Long> {
+public interface OrderRepository extends JpaRepository<Order, Long>, OrderRepositoryCustom {
         Optional<Order> findByNr(String nr);
         List<Order> findByStatusIn(List<Integer> statuses);
 }
