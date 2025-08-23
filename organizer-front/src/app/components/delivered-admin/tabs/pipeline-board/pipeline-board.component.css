@@ -1,0 +1,83 @@
+:host {
+  display: block;
+}
+
+/* --- MOBILE FIRST: carrossel horizontal de colunas --- */
+.pipeline {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 8px 2px 16px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.pipeline::-webkit-scrollbar {
+  height: 8px;
+}
+
+.col {
+  flex: 0 0 280px;           /* largura mínima da coluna no celular */
+  max-width: 90vw;           /* evita estourar lateral */
+  scroll-snap-align: start;
+  background: transparent;
+}
+
+@media (min-width: 576px) {
+  .col { flex-basis: 320px; }
+}
+
+/* Cabeçalho da coluna fixo enquanto rola a lista de cards */
+.col-header{
+  position: sticky;
+  top: 0;              /* desktop ajusta abaixo */
+  z-index: 3;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:8px 10px;margin-bottom:8px;
+  border-radius:10px;background:#212529;color:#fff;
+}
+
+/* MOBILE: sem sticky para não “comer” o card */
+@media (max-width: 991.98px){
+  .col-header{ position: static; top: auto; }
+}
+
+/* DESKTOP: grid de 6 colunas e sticky ok */
+@media (min-width: 992px){
+  .pipeline{
+    overflow: visible;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 16px;
+  }
+  .col-header{ top: 0; } /* se tiver barra fixa, ajuste aqui */
+}
+
+/* espaço entre header e o 1º card */
+.col-body{ display:grid; gap:10px; }
+
+
+/* Cartão do pedido */
+.card-order {
+  border: 1px solid rgba(0,0,0,.08);
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(0,0,0,.04);
+  background: #fff;
+}
+.card-order .card-body {
+  padding: 10px 12px;
+}
+
+/* Linha de badges acima do board: permitir quebra/rolagem confortável */
+.d-flex.gap-2.flex-wrap.mt-3 {
+  row-gap: 6px;
+}
+
+
+/* Melhorar área clicável nos botões em telas de toque */
+@media (hover: none) {
+  .btn.btn-sm {
+    padding: .5rem .6rem;
+  }
+}
+

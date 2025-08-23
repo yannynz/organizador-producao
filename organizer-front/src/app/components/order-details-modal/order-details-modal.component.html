@@ -1,0 +1,56 @@
+<div class="modal-backdrop" *ngIf="open" (click)="onClose()"></div>
+<div class="modal show d-block" tabindex="-1" *ngIf="open">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Detalhes do Pedido</h5>
+        <button type="button" class="btn-close" (click)="onClose()"></button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="form">
+          <table class="table table-bordered align-middle">
+            <tbody>
+              <tr><th>ID</th><td>{{ form.get('id')?.value }}</td></tr>
+              <tr><th>NR</th><td>{{ form.get('nr')?.value }}</td></tr>
+              <tr><th>Cliente</th><td>{{ form.get('cliente')?.value }}</td></tr>
+              <tr>
+                <th>Prioridade</th>
+                <td>
+                  <select formControlName="prioridade" class="form-control">
+                    <option value="VERMELHO">Vermelho</option>
+                    <option value="AMARELO">Amarelo</option>
+                    <option value="AZUL">Azul</option>
+                    <option value="VERDE">Verde</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <th>Status</th>
+                <td>
+                  <select formControlName="status" class="form-control">
+                    <option *ngFor="let k of (statusDescriptions | keyvalue)" [value]="k.key">{{ k.value }}</option>
+                  </select>
+                </td>
+              </tr>
+              <tr><th>Observações</th><td><textarea formControlName="observacao" class="form-control"></textarea></td></tr>
+              <tr><th>Entrada</th><td>{{ form.get('dataH')?.value | date:'dd/MM/yyyy HH:mm' }}</td></tr>
+              <tr><th>Montador</th><td>{{ form.get('montador')?.value }}</td></tr>
+              <tr><th>Data de Montagem</th><td>{{ form.get('dataMontagem')?.value | date:'dd/MM/yyyy HH:mm' }}</td></tr>
+              <tr><th>Saída</th><td>{{ form.get('dataEntrega')?.value | date:'dd/MM/yyyy HH:mm' }}</td></tr>
+              <tr><th>Retorno</th><td>{{ form.get('dataHRetorno')?.value | date:'dd/MM/yyyy HH:mm' }}</td></tr>
+              <tr><th>Veículo</th><td>{{ form.get('veiculo')?.value }}</td></tr>
+              <tr><th>Entregador</th><td>{{ form.get('entregador')?.value }}</td></tr>
+              <tr><th>Recebida por</th><td>{{ form.get('recebedor')?.value }}</td></tr>
+            </tbody>
+          </table>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-danger" (click)="onDelete()">Deletar</button>
+        <button class="btn btn-secondary" (click)="onClose()">Fechar</button>
+        <button class="btn btn-primary" (click)="onSave()">Atualizar</button>
+      </div>
+    </div>
+  </div>
+</div>
+

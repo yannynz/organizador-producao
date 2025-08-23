@@ -1,0 +1,12 @@
+/* Cards mais “tocáveis” no mobile */
+.delivered-card {
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(0,0,0,.05);
+}
+
+/* Ajustes de fontes em telas pequenas */
+@media (max-width: 575.98px) {
+  .delivered-card .small { font-size: .92rem; }
+  .btn.btn-sm { padding: .45rem .6rem; }
+}
+

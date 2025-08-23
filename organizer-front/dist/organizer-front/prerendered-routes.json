@@ -1,5 +1,6 @@
 {
   "routes": [
+    "/admin",
     "/entrega",
     "/entregaVolta",
     "/entregues",

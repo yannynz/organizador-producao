@@ -1,0 +1,17 @@
+/* Abas fixas no topo em mobile */
+.nav.nav-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #f8f9fa;
+  padding-top: 6px;
+}
+
+/* Botões menores em telas bem pequenas */
+@media (max-width: 576px) {
+  .nav.nav-tabs .nav-link {
+    padding: .5rem .75rem;
+    font-size: .9rem;
+  }
+}
+

@@ -130,28 +130,56 @@ public ResponseEntity<?> searchDeliveredCursor(
         @RequestParam(name = "strategy", required = false) String strategyParam,
         @RequestBody(required = false) git.yannynz.organizadorproducao.model.dto.OrderSearchDTO filters
 ) {
+    // 1) Limita o page size (1..200)
     int pageSize = Math.max(1, Math.min(limit, 200));
 
+    // 2) Strategy com tolerância a nulos/brancos e case-insensitive
     git.yannynz.organizadorproducao.config.pagination.CursorStrategy strategy =
             git.yannynz.organizadorproducao.config.pagination.CursorStrategy.ID;
-    if (strategyParam != null) {
-        try { strategy = git.yannynz.organizadorproducao.config.pagination.CursorStrategy.valueOf(strategyParam.toUpperCase()); }
-        catch (IllegalArgumentException ignore) {}
+    if (strategyParam != null && !strategyParam.isBlank()) {
+        try {
+            strategy = git.yannynz.organizadorproducao.config.pagination.CursorStrategy
+                    .valueOf(strategyParam.trim().toUpperCase());
+        } catch (IllegalArgumentException ignore) {
+            // fica no default ID
+        }
     }
 
-    // decode com tratamento
+    // 3) Normaliza o cursor: trata "null"/"undefined"/vazio como null
+    String normalizedCursor = (cursor == null) ? null : cursor.trim();
+    if (normalizedCursor != null &&
+        (normalizedCursor.isEmpty()
+         || "null".equalsIgnoreCase(normalizedCursor)
+         || "undefined".equalsIgnoreCase(normalizedCursor))) {
+        normalizedCursor = null;
+    }
+
+    // 4) Decodifica o cursor (gera 400 apenas se realmente for inválido)
     git.yannynz.organizadorproducao.config.pagination.CursorPaging.Key after;
     try {
-        after = git.yannynz.organizadorproducao.config.pagination.CursorPaging.decode(cursor);
+        after = git.yannynz.organizadorproducao.config.pagination.CursorPaging.decode(normalizedCursor);
     } catch (IllegalArgumentException ex) {
-        return ResponseEntity.badRequest().body("cursor inválido (use exatamente o 'nextCursor' retornado pela API)");
+        return ResponseEntity.badRequest()
+                .body("cursor inválido (use exatamente o 'nextCursor' retornado pela API)");
     }
 
+    // 5) Assegura filters != null
+    if (filters == null) {
+        filters = new git.yannynz.organizadorproducao.model.dto.OrderSearchDTO();
+    }
+
+    // 6) Executa a busca e monta o envelope
     var result = orderService.searchDeliveredByCursor(filters, pageSize, after, strategy);
-    String nextCursor = (result.lastKey() == null) ? null : git.yannynz.organizadorproducao.config.pagination.CursorPaging.encode(result.lastKey());
-    var envelope = new git.yannynz.organizadorproducao.config.pagination.CursorPaging.PageEnvelope<>(result.items(), nextCursor, result.hasMore());
+    String nextCursor = (result.lastKey() == null)
+            ? null
+            : git.yannynz.organizadorproducao.config.pagination.CursorPaging.encode(result.lastKey());
+
+    var envelope = new git.yannynz.organizadorproducao.config.pagination.CursorPaging.PageEnvelope<>(
+            result.items(), nextCursor, result.hasMore());
+
     return ResponseEntity.ok(envelope);
 }
+
 
 
 

@@ -1,0 +1,11 @@
+.filters-wrap { display: grid; gap: .75rem; }
+.filters-wrap.compact .advanced { margin-top: .5rem; }
+.advanced { padding: .75rem; background: #f8f9fa; border: 1px solid #e9ecef; border-radius: .5rem; }
+.grid { display: grid; gap: .5rem; grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 1200px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+.grid label { font-size: .85rem; color: #495057; }
+.dates { display: grid; gap: .75rem; grid-template-columns: repeat(2, 1fr); margin-top: .5rem; }
+@media (max-width: 992px) { .dates { grid-template-columns: 1fr; } }
+.date-group { display: grid; gap: .35rem; }
+

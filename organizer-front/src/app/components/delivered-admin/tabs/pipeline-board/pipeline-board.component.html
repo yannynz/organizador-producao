@@ -1,0 +1,49 @@
+<app-advanced-filters
+  [statuses]="statusList"
+  (apply)="onApplyFilters($event)"
+  (clear)="onClearFilters()">
+</app-advanced-filters>
+
+<div class="d-flex align-items-center gap-2 flex-wrap mt-3">
+  <span class="badge bg-dark">Em Produção: {{ counts[0] || 0 }}</span>
+  <span class="badge bg-secondary">Cortada: {{ counts[1] || 0 }}</span>
+  <span class="badge bg-light text-dark">Tirada: {{ counts[6] || 0 }}</span>
+  <span class="badge bg-info text-dark">Montada: {{ counts[7] || 0 }}</span>
+  <span class="badge bg-primary">Pronto p/ Entrega: {{ counts[2] || 0 }}</span>
+  <span class="badge bg-warning text-dark">Saiu p/ Entrega: {{ counts[3] || 0 }}</span>
+</div>
+
+<div class="pipeline mt-3">
+  <div class="col" *ngFor="let c of cols">
+    <div class="col-header">
+      <span>{{ c.label }}</span>
+      <span class="badge bg-light text-dark">{{ counts[c.key] || 0 }}</span>
+    </div>
+    <div class="col-body">
+      <div class="card card-order" *ngFor="let o of (data[c.key] || [])">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <strong>{{ o.nr }}</strong>
+            <span [style.color]="getPriorityColor(o.prioridade)">{{ o.prioridade }}</span>
+          </div>
+          <div class="small text-muted">{{ o.cliente }}</div>
+          <div class="small">Entrada: {{ o.dataH | date:'dd/MM HH:mm' }}</div>
+          <div class="small" *ngIf="o.dataEntrega">Saída: {{ o.dataEntrega | date:'dd/MM HH:mm' }}</div>
+          <div class="mt-2">
+            <button class="btn btn-outline-info btn-sm" (click)="open(o)">Detalhes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-order-details-modal
+  [statusDescriptions]="statusDescriptions"
+  [selectedOrder]="selectedOrder"
+  [open]="detailsOpen"
+  (close)="close()"
+  (update)="handleUpdate($event)"
+  (remove)="handleDelete($event)">
+</app-order-details-modal>
+

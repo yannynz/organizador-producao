@@ -1,0 +1,93 @@
+<form class="filters-wrap" [class.compact]="compact" [formGroup]="form">
+  <div class="d-flex gap-2 flex-wrap align-items-center">
+    <input class="form-control flex-grow-1"
+           placeholder="Busca rápida (q: qualquer campo)"
+           formControlName="q">
+    <button type="button" class="btn btn-outline-secondary" (click)="open=!open">
+      {{ open ? 'Ocultar Filtros' : 'Filtros Avançados' }}
+    </button>
+    <button type="button" class="btn btn-primary" (click)="onApply()">Aplicar</button>
+    <button type="button" class="btn btn-link" (click)="onClear()">Limpar Filtros</button>
+  </div>
+
+  <div class="advanced" *ngIf="open">
+    <div class="grid">
+      <div><label>ID</label><input class="form-control" formControlName="id"></div>
+      <div><label>NR</label><input class="form-control" formControlName="nr"></div>
+      <div><label>Cliente</label><input class="form-control" formControlName="cliente"></div>
+      <div>
+        <label>Prioridade</label>
+        <select class="form-select" formControlName="prioridade">
+          <option value="">Todas</option>
+          <option value="VERMELHO">Vermelho</option>
+          <option value="AMARELO">Amarelo</option>
+          <option value="AZUL">Azul</option>
+          <option value="VERDE">Verde</option>
+        </select>
+      </div>
+      <div>
+        <label>Status</label>
+        <select class="form-select" multiple formControlName="status">
+          <option *ngFor="let s of statuses" [value]="s.key">{{ s.label }}</option>
+        </select>
+      </div>
+      <div><label>Entregador/Motorista</label><input class="form-control" formControlName="entregador"></div>
+      <div><label>Veículo</label><input class="form-control" formControlName="veiculo"></div>
+      <div><label>Recebedor</label><input class="form-control" formControlName="recebedor"></div>
+      <div><label>Montador</label><input class="form-control" formControlName="montador"></div>
+      <div><label>Observação contém</label><input class="form-control" formControlName="observacao"></div>
+      <div>
+        <label>Aberto?</label>
+        <select class="form-select" formControlName="isOpen">
+          <option value="any">Qualquer</option>
+          <option value="true">Sim</option>
+          <option value="false">Não</option>
+        </select>
+      </div>
+      <div>
+        <label>Ordenação</label>
+        <select class="form-select" formControlName="sort">
+          <option value="dataEntrega,desc,id,desc">Saída ↓</option>
+          <option value="dataEntrega,asc,id,asc">Saída ↑</option>
+          <option value="dataH,desc,id,desc">Entrada ↓</option>
+          <option value="dataH,asc,id,asc">Entrada ↑</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="dates">
+      <div class="date-group">
+        <strong>Data/Hora de Entrada</strong>
+        <div class="d-flex gap-2">
+          <input ngbDatepicker class="form-control" formControlName="dataHFrom" placeholder="De" #d1="ngbDatepicker">
+          <input ngbDatepicker class="form-control" formControlName="dataHTo"   placeholder="Até" #d2="ngbDatepicker">
+        </div>
+      </div>
+
+      <div class="date-group">
+        <strong>Data/Hora Saída p/ Entrega</strong>
+        <div class="d-flex gap-2">
+          <input ngbDatepicker class="form-control" formControlName="dataEntregaFrom" placeholder="De"  #d3="ngbDatepicker">
+          <input ngbDatepicker class="form-control" formControlName="dataEntregaTo"   placeholder="Até" #d4="ngbDatepicker">
+        </div>
+      </div>
+
+      <div class="date-group">
+        <strong>Data/Hora Retorno d/ Motorista</strong>
+        <div class="d-flex gap-2">
+          <input ngbDatepicker class="form-control" formControlName="dataHRetornoFrom" placeholder="De"  #d5="ngbDatepicker">
+          <input ngbDatepicker class="form-control" formControlName="dataHRetornoTo"   placeholder="Até" #d6="ngbDatepicker">
+        </div>
+      </div>
+
+      <div class="date-group">
+        <strong>Data/Hora d/ Montagem</strong>
+        <div class="d-flex gap-2">
+          <input ngbDatepicker class="form-control" formControlName="dataMontagemFrom" placeholder="De"  #d7="ngbDatepicker">
+          <input ngbDatepicker class="form-control" formControlName="dataMontagemTo"   placeholder="Até" #d8="ngbDatepicker">
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
