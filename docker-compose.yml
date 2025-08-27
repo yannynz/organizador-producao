@@ -3,16 +3,16 @@ services:
     image: postgres:latest
     container_name: postgres-container
     environment:
-      TZ: America/Sao_Paulo  # Configurando o fuso horário
+      TZ: America/Sao_Paulo # Configurando o fuso horário
       POSTGRES_DB: teste01
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1234
     ports:
-      - "5433:5432"  # Mapeando a porta do banco de dados para a máquina local
+      - "5433:5432" # Mapeando a porta do banco de dados para a máquina local
     volumes:
-      - pgdata:/var/lib/postgresql/data  # Persistência de dados
-      - /etc/timezone:/etc/timezone:ro  # Montando o arquivo timezone
-      - /etc/localtime:/etc/localtime:ro  # Montando o arquivo localtime para configurar o fuso horário
+      - pgdata:/var/lib/postgresql/data # Persistência de dados
+      - /etc/timezone:/etc/timezone:ro # Montando o arquivo timezone
+      - /etc/localtime:/etc/localtime:ro # Montando o arquivo localtime para configurar o fuso horário
     networks:
       - organizador-producao-mynetwork
     healthcheck:
@@ -26,27 +26,46 @@ services:
     build: .
     container_name: backend-container
     ports:
-      - "8080:8080"  # Mapeando a porta 8080 do backend para a máquina local
+      - "8080:8080" 
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-container:5432/teste01  # Conexão com o banco
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-container:5432/teste01 # Conexão com o banco
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: 1234
+
+      # RabbitMQ (propriedades oficiais spring.rabbitmq.*)
+      SPRING_RABBITMQ_HOST: rabbitmq-container
+      SPRING_RABBITMQ_PORT: "5672"
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
+
+      # SMBJ (vira app.smb.* no Spring Boot – externalized config)
+      APP_SMB_DOMAIN: ""
+      APP_SMB_USERNAME: smb_reader
+      APP_SMB_PASSWORD: ${SMB_PASSWORD:-}
+
+      # (opcional) fuso horário explícito da JVM
+      JAVA_TOOL_OPTIONS: "-Duser.timezone=America/Sao_Paulo"
+      
     depends_on:
-      - postgres-container  # Garante que o PostgreSQL esteja pronto antes do backend
-      - rabbitmq-container  # Garante que o RabbitMQ esteja pronto antes do backend
-    
+      - postgres-container # Garante que o PostgreSQL esteja pronto antes do backend
+      - rabbitmq-container # Garante que o RabbitMQ esteja pronto antes do backend
+
+    # docker-compose.yml - backend-container:
+    volumes:
+      - /tmp/nr:/tmp/nr:ro
+
     networks:
       - organizador-producao-mynetwork
 
   frontend-container:
     build:
-      context: ./organizer-front  # Diretório onde está o código do seu front-end Angular
+      context: ./organizer-front # Diretório onde está o código do seu front-end Angular
       dockerfile: Dockerfile
     container_name: frontend-container
     volumes:
-      - ./organizer-front/dist:/usr/share/nginx/html  # Diretório do build do Angular
-      - /etc/timezone:/etc/timezone:ro  # Montando o arquivo timezone
-      - /etc/localtime:/etc/localtime:ro  # Montando o arquivo localtime
+      - ./organizer-front/dist:/usr/share/nginx/html # Diretório do build do Angular
+      - /etc/timezone:/etc/timezone:ro # Montando o arquivo timezone
+      - /etc/localtime:/etc/localtime:ro # Montando o arquivo localtime
     depends_on:
       - backend-container
     networks:
@@ -56,14 +75,14 @@ services:
     image: nginx:latest
     container_name: nginx-container
     ports:
-      - "80:80"  # Porta 80 do Nginx para acesso local
+      - "80:80" # Porta 80 do Nginx para acesso local
     depends_on:
       - frontend-container
     volumes:
-      - ./organizer-front/dist/organizer-front/browser:/usr/share/nginx/html:ro  # Mapeando o diretório correto de build para o Nginx
-      - ./nginx/organizador.conf:/etc/nginx/nginx.conf:ro  # Usando o arquivo correto de configuração
-      - /etc/timezone:/etc/timezone:ro  # Montando o arquivo timezone
-      - /etc/localtime:/etc/localtime:ro  # Montando o arquivo localtime
+      - ./organizer-front/dist/organizer-front/browser:/usr/share/nginx/html:ro # Mapeando o diretório correto de build para o Nginx
+      - ./nginx/organizador.conf:/etc/nginx/nginx.conf:ro # Usando o arquivo correto de configuração
+      - /etc/timezone:/etc/timezone:ro # Montando o arquivo timezone
+      - /etc/localtime:/etc/localtime:ro # Montando o arquivo localtime
     networks:
       - organizador-producao-mynetwork
 
@@ -71,15 +90,15 @@ services:
     image: rabbitmq:management
     container_name: rabbitmq-container
     ports:
-      - "5672:5672"  # Porta do RabbitMQ
-      - "15672:15672"  # Porta para acessar o painel de administração
+      - "5672:5672" # Porta do RabbitMQ
+      - "15672:15672" # Porta para acessar o painel de administração
     environment:
-      TZ: America/Sao_Paulo  # Configurando o fuso horário
+      TZ: America/Sao_Paulo # Configurando o fuso horário
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
     volumes:
-      - /etc/timezone:/etc/timezone:ro  # Montando o arquivo timezone
-      - /etc/localtime:/etc/localtime:ro  # Montando o arquivo localtime
+      - /etc/timezone:/etc/timezone:ro # Montando o arquivo timezone
+      - /etc/localtime:/etc/localtime:ro # Montando o arquivo localtime
     networks:
       - organizador-producao-mynetwork
 
@@ -90,4 +109,3 @@ networks:
 volumes:
   pgdata:
     driver: local
-

@@ -1,6 +1,5 @@
 package git.yannynz.organizadorproducao.model;
 
-import java.time.LocalDateTime;
 import java.util.Objects;
 import jakarta.persistence.*;
 import java.time.ZonedDateTime;

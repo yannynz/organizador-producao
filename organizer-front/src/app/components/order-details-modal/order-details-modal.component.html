@@ -46,6 +46,15 @@
         </form>
       </div>
       <div class="modal-footer">
+       <a
+    *ngIf="form.get('nr')?.value"
+    [href]="opUrl"
+    target="_blank"
+    rel="noopener"
+    class="btn btn-outline-primary"
+    title="Abrir OP (PDF)">
+    Abrir OP
+  </a>
         <button class="btn btn-danger" (click)="onDelete()">Deletar</button>
         <button class="btn btn-secondary" (click)="onClose()">Fechar</button>
         <button class="btn btn-primary" (click)="onSave()">Atualizar</button>

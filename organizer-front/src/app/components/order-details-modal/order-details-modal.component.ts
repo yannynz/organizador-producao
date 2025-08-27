@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { OpService } from '../../services/op.service';
 import { orders } from '../../models/orders';
 
 
@@ -22,7 +23,7 @@ export class OrderDetailsModalComponent {
 
   form: FormGroup;
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder, private opService: OpService) {
     this.form = this.fb.group({
       id: [''],
       nr: ['', Validators.required],
@@ -45,5 +46,9 @@ export class OrderDetailsModalComponent {
   onClose() { this.close.emit(); }
   onDelete() { if (this.selectedOrder?.id) this.remove.emit(this.selectedOrder.id); }
   onSave() { this.update.emit({ ...this.selectedOrder!, ...this.form.value }); }
+  get opUrl(): string {
+    const nr = this.form.get('nr')?.value as string | null;
+    return nr ? this.opService.getOpUrl(nr) : '#';
+  }
 }
 
