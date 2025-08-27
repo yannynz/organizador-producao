@@ -24,7 +24,8 @@ public class Order {
     private String recebedor;
     private String montador;
     private ZonedDateTime dataMontagem;
-
+    private String borrachador;
+    private ZonedDateTime dataBorracha;
     public Order() {}
 
     public String getRecebedor() {
@@ -138,6 +139,23 @@ public class Order {
     public void setDataMontagem(ZonedDateTime dataMontagem) {
         this.dataMontagem = dataMontagem;
     }
+
+    public String getBorrachador() {
+        return borrachador;
+    }
+
+    public void setBorrachador(String borrachador) {
+        this.borrachador = borrachador;
+    }
+
+    public ZonedDateTime getDataBorracha() {
+        return dataBorracha;
+    }
+
+    public void setDataBorracha(ZonedDateTime dataBorracha) {
+        this.dataBorracha = dataBorracha;
+    }
+    
 
   @Override
     public String toString() {

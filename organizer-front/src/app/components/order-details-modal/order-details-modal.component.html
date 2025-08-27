@@ -36,10 +36,12 @@
               <tr><th>Entrada</th><td>{{ form.get('dataH')?.value | date:'dd/MM/yyyy HH:mm' }}</td></tr>
               <tr><th>Montador</th><td>{{ form.get('montador')?.value }}</td></tr>
               <tr><th>Data de Montagem</th><td>{{ form.get('dataMontagem')?.value | date:'dd/MM/yyyy HH:mm' }}</td></tr>
-              <tr><th>Saída</th><td>{{ form.get('dataEntrega')?.value | date:'dd/MM/yyyy HH:mm' }}</td></tr>
-              <tr><th>Retorno</th><td>{{ form.get('dataHRetorno')?.value | date:'dd/MM/yyyy HH:mm' }}</td></tr>
+              <tr><th>Emborrachador</th><td>{{ form.get('borrachador')?.value}}</td></tr>
+              <tr><th>Data de Emborrachamento</th><td>{{ form.get('dataEmborrachamento')?.value | date:'dd/MM/yyyy HH:mm' }}</td></tr>
               <tr><th>Veículo</th><td>{{ form.get('veiculo')?.value }}</td></tr>
               <tr><th>Entregador</th><td>{{ form.get('entregador')?.value }}</td></tr>
+              <tr><th>Saída</th><td>{{ form.get('dataEntrega')?.value | date:'dd/MM/yyyy HH:mm' }}</td></tr>
+              <tr><th>Retorno</th><td>{{ form.get('dataHRetorno')?.value | date:'dd/MM/yyyy HH:mm' }}</td></tr>
               <tr><th>Recebida por</th><td>{{ form.get('recebedor')?.value }}</td></tr>
             </tbody>
           </table>

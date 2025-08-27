@@ -14,6 +14,8 @@ export class orders {
   recebedor?: string;
   montador?: string;
   dataMontagem?: Date;
+  borrachador?: string;
+  dataBorracha?: Date | string;
 }
 
 

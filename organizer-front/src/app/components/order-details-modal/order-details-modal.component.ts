@@ -38,7 +38,9 @@ export class OrderDetailsModalComponent {
       recebedor: [''],
       montador: [''],
       dataMontagem: [''],
-      entregador: ['']
+      entregador: [''],
+      borrachador: [''],
+      dataBorracha: [''],
     });
   }
 

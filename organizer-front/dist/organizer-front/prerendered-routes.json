@@ -1,6 +1,7 @@
 {
   "routes": [
     "/admin",
+    "/borracha",
     "/entrega",
     "/entregaVolta",
     "/montagem",
