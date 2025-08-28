@@ -1,0 +1,81 @@
+<div class="container py-4" style="max-width: 720px;">
+  <h3 class="mb-3">Emborrachamento</h3>
+
+  <div *ngIf="msg.type" class="alert" [ngClass]="{'alert-success': msg.type==='success','alert-danger': msg.type==='danger'}">
+    {{ msg.text }}
+  </div>
+
+  <!-- Formulário -->
+  <form (ngSubmit)="confirmar()" [formGroup]="form" novalidate class="mb-4">
+    <div class="row g-3 align-items-end">
+      <div class="col-sm-4">
+        <label class="form-label">NR da faca</label>
+        <input type="number" class="form-control" formControlName="nr" inputmode="numeric" autofocus>
+      </div>
+      <div class="col-sm-5">
+        <label class="form-label">Nome do emborrachador</label>
+        <input type="text" class="form-control" formControlName="borrachador" autocomplete="name">
+      </div>
+      <div class="col-sm-3 d-flex gap-2">
+        <button type="button" class="btn btn-warning" (click)="limpar()" [disabled]="loading">Limpar</button>
+        <button type="submit" class="btn btn-primary" [disabled]="loading">Confirmar</button>
+      </div>
+    </div>
+  </form>
+
+  <!-- Lista das facas montadas que precisam de borracha -->
+  <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <strong>Facas montadas p/ borracha</strong>
+      <small class="text-muted" *ngIf="paraBorracha?.length"> {{ paraBorracha.length }} item(ns)</small>
+    </div>
+
+    <div class="card-body p-0">
+      <div *ngIf="!paraBorracha || paraBorracha.length === 0" class="p-3 text-muted">
+        Nenhuma faca pendente de borracha no momento.
+      </div>
+
+      <div *ngIf="paraBorracha?.length" class="table-responsive">
+        <table class="table table-sm mb-0 align-middle">
+          <thead class="table-light">
+            <tr>
+              <th style="width: 90px;">NR</th>
+              <th>Cliente</th>
+              <th style="width: 120px;">Prioridade</th>
+              <th style="width: 160px;">Montada</th>
+              <th style="width: 140px;">Ação</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of paraBorracha; trackBy: trackById">
+              <td class="fw-semibold">{{ p.nr }}</td>
+              <td>{{ p.cliente }}</td>
+              <td [ngStyle]="{'background-color': getPriorityColor(p.prioridade)}">
+                {{ p.prioridade }}
+              </td>
+              <td>
+                <!-- tenta mostrar dataMontagem se existir; senão dataH -->
+                <ng-container *ngIf="$any(p).dataMontagem as dm; else criado">
+    {{ dm | date:'dd/MM HH:mm' }}
+  </ng-container>
+  <ng-template #criado>
+    {{ p.dataH | date:'dd/MM HH:mm' }}
+  </ng-template>              </td>
+              <td>
+                <button class="btn btn-success btn-sm" (click)="borrachaRapido(p.nr)" [disabled]="loading">
+                  Dar baixa (pronta)
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Feedback do último pedido baixado -->
+  <div *ngIf="pedidoAtualizado" class="mt-3 small text-muted">
+    <div><strong>Último:</strong> NR {{ pedidoAtualizado.nr }} → <strong>Pronta p/ entrega</strong></div>
+  </div>
+</div>
+

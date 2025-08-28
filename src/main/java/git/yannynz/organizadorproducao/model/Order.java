@@ -25,8 +25,25 @@ public class Order {
     private String recebedor;
     private String montador;
     private ZonedDateTime dataMontagem;
-
+    private String emborrachador;
+    private ZonedDateTime dataEmborrachamento;
     public Order() {}
+
+    public String getEmborrachador() {
+        return emborrachador;
+    }
+
+    public void setEmborrachador(String emborrachador) {
+        this.emborrachador = emborrachador;
+    }
+
+    public ZonedDateTime getDataEmborrachamento() {
+        return dataEmborrachamento;
+    }
+
+    public void setDataEmborrachamento(ZonedDateTime dataEmborrachamento) {
+        this.dataEmborrachamento = dataEmborrachamento;
+    }
 
     public String getRecebedor() {
         return recebedor;
