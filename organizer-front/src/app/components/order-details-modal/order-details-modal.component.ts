@@ -37,7 +37,7 @@ form: FormGroup;
       montador: [''],
       dataMontagem: [''],
       entregador: [''],
-      Emborrechador: [''],
+      Emborrachador: [''],
       dataEmborrachamento: [''],
     });
   }
