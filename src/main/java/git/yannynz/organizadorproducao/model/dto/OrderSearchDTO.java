@@ -20,11 +20,12 @@ public class OrderSearchDTO {
     private String veiculo;
     private String recebedor;
     private String montador;
-
+    private String emborrachador;
     private Range dataH;
     private Range dataEntrega;
     private Range dataHRetorno;
     private Range dataMontagem;
+    private ZonedDateTime dataEmborrachamento;
 
     public static class Range {
         private ZonedDateTime from;
@@ -36,6 +37,13 @@ public class OrderSearchDTO {
     }
 
     // getters/setters
+    
+    public String getEmborrachador() { return emborrachador; }
+    public void setEmborrachador(String emborrachador) { this.emborrachador = emborrachador; }
+
+    public ZonedDateTime getDataEmborrachamento() { return dataEmborrachamento; }
+    public void setDataEmborrachamento(ZonedDateTime dataEmborrachamento) { this.dataEmborrachamento = dataEmborrachamento; }
+
     public String getQ() { return q; }
     public void setQ(String q) { this.q = q; }
 
