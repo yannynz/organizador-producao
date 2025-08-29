@@ -144,9 +144,8 @@ export class RubberComponent implements OnInit {
         const atualizado: orders = {
           ...alvo,
           status: 2, // Pronta p/ entrega
-          // campos (opcionais) novos para trilha de borracha:
-          ...( { borrachador: raw.borrachador.trim() } as any ),
-          ...( { dataBorracha: DateTime.now().setZone('America/Sao_Paulo').toJSDate() } as any ),
+          ...( { Emborrachador: raw.borrachador.trim() } as any ),
+          ...( { dataEmborrachamento: DateTime.now().setZone('America/Sao_Paulo').toJSDate() } as any ),
         };
 
         this.orderService.updateOrder((alvo as any).id, atualizado).subscribe({
