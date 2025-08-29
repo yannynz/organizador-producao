@@ -60,6 +60,8 @@ public class OrderWebSocketController {
             updatedOrder.setRecebedor(order.getRecebedor());
             updatedOrder.setMontador(order.getMontador());
             updatedOrder.setDataMontagem(order.getDataMontagem());
+            updatedOrder.setEmborrachador(order.getEmborrachador());
+            updatedOrder.setDataEmborrachamento(order.getDataEmborrachamento());
 
             Order savedOrder = orderService.saveOrder(updatedOrder);
             System.out.println("Pedido atualizado: " + savedOrder);
