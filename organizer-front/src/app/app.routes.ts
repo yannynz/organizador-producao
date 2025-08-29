@@ -6,6 +6,7 @@ import { DeliveryReturnComponent } from './components/delivery-return/delivery-r
 import { MontagemComponent } from "./components/montagem/montagem.component";
 import { DeliveredAdminComponent } from './components/delivered-admin/delivered-admin.component';
 import { RubberComponent } from './components/rubber/rubber.component';
+import { OpComponent } from './components/op/op.component';
 
 export const routes: Routes = [
   { path: 'pedidos', component: OrdersComponent },
@@ -15,5 +16,6 @@ export const routes: Routes = [
   { path: 'montagem', component: MontagemComponent },
   { path: 'admin', component: DeliveredAdminComponent },
   { path: 'borracha', component: RubberComponent },
+  { path: 'op', component: OpComponent },
   { path: '', redirectTo: '/pedidos', pathMatch: 'full' },
 ];

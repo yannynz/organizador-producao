@@ -17,6 +17,8 @@ import git.yannynz.organizadorproducao.model.dto.OrderSearchDTO;
 import git.yannynz.organizadorproducao.config.pagination.CursorPaging;
 import git.yannynz.organizadorproducao.model.Order;
 import git.yannynz.organizadorproducao.repository.OrderRepository;
+import git.yannynz.organizadorproducao.config.AsyncConfig;
+import git.yannynz.organizadorproducao.service.OpImportService;
 
 @Service
 public class OrderService {
@@ -27,12 +29,16 @@ public class OrderService {
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
 
+    @Autowired
+    private OpImportService opImportService;
+
     public List<Order> getAllOrders() {
         return orderRepository.findAll();
     }
 
     public Order saveOrder(Order order) {
         Order savedOrder = orderRepository.save(order);
+          opImportService.tryLinkAsync(savedOrder.getNr(), savedOrder.getId());
         return savedOrder;
     }
 

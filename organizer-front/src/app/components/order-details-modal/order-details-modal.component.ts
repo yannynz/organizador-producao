@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { orders } from '../../models/orders';
+import { OpService } from '../../services/op.service';
 
 
 @Component({
@@ -19,10 +20,8 @@ export class OrderDetailsModalComponent {
   @Output() close = new EventEmitter<void>();
   @Output() update = new EventEmitter<orders>();
   @Output() remove = new EventEmitter<number>();
-
-  form: FormGroup;
-
-  constructor(private fb: FormBuilder) {
+form: FormGroup;
+  constructor(private fb: FormBuilder, private opService: OpService) {
     this.form = this.fb.group({
       id: [''],
       nr: ['', Validators.required],
@@ -37,7 +36,9 @@ export class OrderDetailsModalComponent {
       recebedor: [''],
       montador: [''],
       dataMontagem: [''],
-      entregador: ['']
+      entregador: [''],
+      Emborrechador: [''],
+      dataEmborrachamento: [''],
     });
   }
 
@@ -45,5 +46,10 @@ export class OrderDetailsModalComponent {
   onClose() { this.close.emit(); }
   onDelete() { if (this.selectedOrder?.id) this.remove.emit(this.selectedOrder.id); }
   onSave() { this.update.emit({ ...this.selectedOrder!, ...this.form.value }); }
+
+  onOpenOp() {
+    const nr = this.form.get('nr')?.value as string;
+    if (nr) this.opService.openOpPdf(nr);
+  }
 }
 

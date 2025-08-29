@@ -1,0 +1,25 @@
+<table class="table">
+  <thead>
+    <tr>
+      <th>NR</th>
+      <th>Cliente</th>
+      <th>Prioridade</th>
+      <th>Status</th>
+      <th>OP</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let o of orders">
+      <td>{{ o.nr }}</td>
+      <td>{{ o.cliente }}</td>
+      <td>{{ o.prioridade }}</td>
+      <td>{{ o.status }}</td>
+      <td>
+        <button class="btn btn-outline-primary btn-sm" (click)="abrirOp(o.nr)">
+          Abrir OP
+        </button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
