@@ -25,7 +25,7 @@ export class RubberComponent implements OnInit {
 
   form = this.fb.group({
     nr: [null as unknown as number, [Validators.required]],
-    borrachador: ['', [Validators.required, Validators.minLength(2)]],
+    Emborrachador: ['', [Validators.required, Validators.minLength(2)]],
   });
 
   constructor(
@@ -103,8 +103,8 @@ export class RubberComponent implements OnInit {
 
   // Ação rápida: usa o borrachador preenchido e confirma a linha
   borrachaRapido(nrValue: string | number): void {
-    const borrachador = this.form.get('borrachador')?.value?.toString().trim();
-    if (!borrachador) {
+    const Emborrachador = this.form.get('Emborrachador')?.value?.toString().trim();
+    if (!Emborrachador) {
       this.msg = { type: 'danger', text: 'Informe o nome do emborrachador para dar baixa rapidamente.' };
       return;
     }
@@ -123,7 +123,7 @@ export class RubberComponent implements OnInit {
     this.msg = { type: null, text: '' };
     this.pedidoAtualizado = null;
 
-    const raw = this.form.getRawValue() as { nr: number; borrachador: string };
+    const raw = this.form.getRawValue() as { nr: number; Emborrachador: string };
     const nrNum = Number(raw.nr);
 
     if (!Number.isFinite(nrNum)) {
@@ -144,7 +144,7 @@ export class RubberComponent implements OnInit {
         const atualizado: orders = {
           ...alvo,
           status: 2, // Pronta p/ entrega
-          ...( { Emborrachador: raw.borrachador.trim() } as any ),
+          ...( { Emborrachador: raw.Emborrachador.trim() } as any ),
           ...( { dataEmborrachamento: DateTime.now().setZone('America/Sao_Paulo').toJSDate() } as any ),
         };
 
