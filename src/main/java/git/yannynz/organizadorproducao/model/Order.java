@@ -26,7 +26,18 @@ public class Order {
     private ZonedDateTime dataMontagem;
     private String emborrachador;
     private ZonedDateTime dataEmborrachamento;
+    private boolean emborrachada;
+
     public Order() {}
+
+
+    public boolean isEmborrachada() {
+        return emborrachada;
+    }
+
+    public void setEmborrachada(boolean emborrachada) {
+        this.emborrachada = emborrachada;
+    }
 
     public String getEmborrachador() {
         return emborrachador;

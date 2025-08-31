@@ -74,6 +74,7 @@ public ResponseEntity<Order> getOrderByNr(@PathVariable String nr) {
             order.setDataMontagem(orderDetails.getDataMontagem());
             order.setEmborrachador(orderDetails.getEmborrachador());
             order.setDataEmborrachamento(orderDetails.getDataEmborrachamento());
+            order.setEmborrachada(orderDetails.isEmborrachada());
 
 
             return ResponseEntity.ok(orderService.saveOrder(order));

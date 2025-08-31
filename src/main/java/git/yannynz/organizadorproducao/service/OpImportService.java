@@ -13,6 +13,10 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 
+import java.util.Locale;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+
 @Service
 public class OpImportService {
 
@@ -28,59 +32,104 @@ public class OpImportService {
     this.ws = ws;
   }
 
-@Transactional
-public void importar(OpImportRequestDTO req) {
-  if (req.getNumeroOp() == null || req.getNumeroOp().isBlank()) return;
+  // ---------------------------
+  // Helpers
+  // ---------------------------
 
-  OpImport op = repo.findByNumeroOp(req.getNumeroOp()).orElseGet(OpImport::new);
-  op.setNumeroOp(req.getNumeroOp());
-  op.setSharePath(req.getSharePath());
-  op.setEmborrachada(Boolean.TRUE.equals(req.getEmborrachada()));
+  /** Acrescenta "emborrachada" em observacao, sem duplicar, e envia WS. */
+  @Transactional
+  protected boolean markOrderAsEmborrachada(Order f) {
+    if (f == null) return false;
 
-  if (req.getDataOp()!=null && !req.getDataOp().isBlank()) {
-    op.setDataOp(java.time.LocalDate.parse(req.getDataOp()));
-  }
-  if (req.getMateriais()!=null) {
-    op.setMateriais(mapper.valueToTree(req.getMateriais())); // ArrayNode
-  }
+    String obs = Optional.ofNullable(f.getObservacao()).orElse("").trim();
+    String obsLower = obs.toLowerCase(Locale.ROOT);
 
-  // >>> não reatribua 'op' depois; crie uma referência 'saved' e use ela no lambda
-  final OpImport saved = repo.save(op);
-
-  orderRepo.findTopByNrOrderByIdDesc(req.getNumeroOp()).ifPresent(f -> {
-    boolean changed = false;
-
-    if (saved.getFacaId() == null || !saved.getFacaId().equals(f.getId())) {
-      saved.setFacaId(f.getId());
-      repo.save(saved);
+    if (!obsLower.contains("emborrachada")) {
+      String nova = obs.isBlank() ? "emborrachada" : obs + "; emborrachada";
+      f.setObservacao(nova);
+      orderRepo.save(f);
+      ws.convertAndSend("/topic/orders", new WebSocketMessage("update", f));
+      return true;
     }
+    return false;
+  }
 
-    if (Boolean.TRUE.equals(req.getEmborrachada())) {
-      String obs = java.util.Optional.ofNullable(f.getObservacao()).orElse("");
-      if (!obs.toLowerCase().contains("emborrachada")) {
-        f.setObservacao(obs.isBlank() ? "emborrachada" : obs + "; emborrachada");
-        orderRepo.save(f);
-        changed = true;
+  /** Tenta localizar pedido por NR e aplicar marcação; retorna true se aplicou. */
+  @Transactional
+  protected boolean tryPropagateToOrder(String numeroOp, boolean emborrachada) {
+    if (!emborrachada || numeroOp == null || numeroOp.isBlank()) return false;
+
+    return orderRepo.findTopByNrOrderByIdDesc(numeroOp)
+        .map(this::markOrderAsEmborrachada)
+        .orElse(false);
+  }
+
+  /** Re-tenta de forma assíncrona (backoff simples) sem bloquear a thread do listener. */
+  @Async("opExecutor")
+  protected void schedulePropagationRetries(String numeroOp, boolean emborrachada) {
+    if (!emborrachada || numeroOp == null || numeroOp.isBlank()) return;
+
+    int attempts = 3;
+    long waitMs = 1500L;
+
+    for (int i = 0; i < attempts; i++) {
+      try {
+        TimeUnit.MILLISECONDS.sleep(waitMs);
+      } catch (InterruptedException ie) {
+        Thread.currentThread().interrupt();
+        return;
       }
+      boolean applied = tryPropagateToOrder(numeroOp, emborrachada);
+      if (applied) return;
+      waitMs *= 2; // backoff exponencial simples: 1.5s, 3s, 6s
+    }
+    // Se ainda não aplicou, o agendador periódico (reconcileOpsSemFaca) fará o restante.
+  }
+
+  // ---------------------------
+  // Importação de OP
+  // ---------------------------
+  @Transactional
+  public void importar(OpImportRequestDTO req) {
+    if (req.getNumeroOp() == null || req.getNumeroOp().isBlank()) return;
+
+    OpImport op = repo.findByNumeroOp(req.getNumeroOp()).orElseGet(OpImport::new);
+    op.setNumeroOp(req.getNumeroOp());
+    op.setSharePath(req.getSharePath());
+    op.setEmborrachada(Boolean.TRUE.equals(req.getEmborrachada()));
+
+    if (req.getDataOp() != null && !req.getDataOp().isBlank()) {
+      op.setDataOp(java.time.LocalDate.parse(req.getDataOp()));
+    }
+    if (req.getMateriais() != null) {
+      op.setMateriais(mapper.valueToTree(req.getMateriais())); // ArrayNode
     }
 
-    if (changed) {
-      ws.convertAndSend("/topic/orders",
-        new git.yannynz.organizadorproducao.service.WebSocketMessage("update", f));
+    final OpImport saved = repo.save(op);
+
+    // 1) Tenta vincular OP->Pedido (facaId) e propagar imediatamente
+    orderRepo.findTopByNrOrderByIdDesc(req.getNumeroOp()).ifPresent(f -> {
+      if (saved.getFacaId() == null || !saved.getFacaId().equals(f.getId())) {
+        saved.setFacaId(f.getId());
+        repo.save(saved);
+      }
+      if (Boolean.TRUE.equals(req.getEmborrachada())) {
+        markOrderAsEmborrachada(f); // atualiza observacao + WS
+      }
+    });
+
+    // 2) Se ainda não existia Pedido correspondente, agenda re-tentativas assíncronas
+    if (Boolean.TRUE.equals(req.getEmborrachada())) {
+      schedulePropagationRetries(req.getNumeroOp(), true);
     }
-  });
 
-  // Notifica sempre que importar a OP
-  ws.convertAndSend("/topic/ops", java.util.Map.of(
-    "type", "imported",
-    "numeroOp", req.getNumeroOp(),
-    "emborrachada", Boolean.TRUE.equals(req.getEmborrachada()),
-    "sharePath", req.getSharePath()
-  ));
-}
+    // 3) (Opcional) — Removido o streaming direto de OPs para o front
+    // ws.convertAndSend("/topic/ops", Map.of(...));
+  }
 
-
-
+  // ---------------------------
+  // Faca montada
+  // ---------------------------
   @Transactional
   public void onFacaMontada(Long facaId) {
     boolean emborrachada = repo.findTopByFacaIdOrderByCreatedAtDesc(facaId)
@@ -92,48 +141,65 @@ public void importar(OpImportRequestDTO req) {
       f.setStatus(2); // Prontas p/ Entrega
       orderRepo.save(f);
     }
-
   }
 
-@RabbitListener(queues = "op.imported")
-public void onMessage(String json) throws Exception {
-  var req = mapper.readValue(json, OpImportRequestDTO.class);
-  importarAsync(req); // dispara assíncrono
-}
+  // ---------------------------
+  // RabbitMQ
+  // ---------------------------
+  @RabbitListener(queues = "op.imported")
+  public void onMessage(String json) throws Exception {
+    var req = mapper.readValue(json, OpImportRequestDTO.class);
+    importarAsync(req); // dispara assíncrono
+  }
 
+  @Async("opExecutor")
+  @Transactional
+  public void importarAsync(OpImportRequestDTO req) { importar(req); }
 
-@Async("opExecutor")
-@Transactional
-public void importarAsync(OpImportRequestDTO req) { importar(req); }
+  // ---------------------------
+  // Link do Pedido recém-criado com a OP (quando o Pedido nasce depois)
+  // ---------------------------
+  @Async("opExecutor")
+  @Transactional
+  public void tryLinkAsync(String nr, Long facaId) {
+    if (nr == null || nr.isBlank() || facaId == null) return;
 
+    repo.findByNumeroOp(nr).ifPresent(op -> {
+      boolean dirty = false;
+      if (op.getFacaId() == null || !op.getFacaId().equals(facaId)) {
+        op.setFacaId(facaId);
+        dirty = true;
+      }
+      if (dirty) repo.save(op);
 
-@Async("opExecutor")
-@Transactional
-public void tryLinkAsync(String nr, Long facaId) {
-  if (nr == null || nr.isBlank() || facaId == null) return;
+      // Propaga "emborrachada" para o Pedido agora que ele existe
+      if (op.isEmborrachada()) {
+        orderRepo.findById(facaId).ifPresent(this::markOrderAsEmborrachada);
+      }
+    });
+  }
 
-  repo.findByNumeroOp(nr).ifPresent(op -> {
-    if (op.getFacaId()==null || !op.getFacaId().equals(facaId)) {
-      op.setFacaId(facaId);
-      repo.save(op);
-    }
-  });
-}
+  // ---------------------------
+  // Reconciliação periódica: liga OPs sem faca e propaga "emborrachada"
+  // ---------------------------
+  @Scheduled(fixedDelay = 50_000) // 1.5 min
+  @Transactional
+  public void reconcileOpsSemFaca() {
+    repo.findAll().stream()
+        .filter(o -> o.getNumeroOp() != null && !o.getNumeroOp().isBlank())
+        .forEach(o -> orderRepo.findTopByNrOrderByIdDesc(o.getNumeroOp()).ifPresent(f -> {
+          boolean dirty = false;
 
-@Scheduled(fixedDelay = 300_000) // 5 min
-public void reconcileOpsSemFaca() {
-  repo.findAll().stream()
-      .filter(o -> o.getFacaId() == null && o.getNumeroOp()!=null && !o.getNumeroOp().isBlank())
-      .forEach(o ->
-          orderRepo.findTopByNrOrderByIdDesc(o.getNumeroOp()).ifPresent(f -> {
+          if (o.getFacaId() == null || !o.getFacaId().equals(f.getId())) {
             o.setFacaId(f.getId());
-            repo.save(o);
-          })
-      );
-}
+            dirty = true;
+          }
+          if (dirty) repo.save(o);
 
-
-
-
+          if (o.isEmborrachada()) {
+            markOrderAsEmborrachada(f); // idempotente
+          }
+        }));
+  }
 }
 
