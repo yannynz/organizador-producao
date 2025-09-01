@@ -85,7 +85,23 @@
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
     </dependency>
+
+  <!-- Flyway (engine) -->
+<dependency>
+  <groupId>org.flywaydb</groupId>
+  <artifactId>flyway-core</artifactId>
+  <version>11.11.2</version>
+</dependency>
+
+<!-- Suporte ao PostgreSQL (obrigatório desde o Flyway 10) -->
+<dependency>
+  <groupId>org.flywaydb</groupId>
+  <artifactId>flyway-database-postgresql</artifactId>
+  <version>11.11.2</version>
+</dependency>
   </dependencies>
+
+
 
   <build>
     <plugins>

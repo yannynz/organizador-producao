@@ -182,7 +182,7 @@ public class OpImportService {
   // ---------------------------
   // Reconciliação periódica: liga OPs sem faca e propaga "emborrachada"
   // ---------------------------
-  @Scheduled(fixedDelay = 50_000) // 1.5 min
+  @Scheduled(fixedDelay = 50_000) // 0.9 min
   @Transactional
   public void reconcileOpsSemFaca() {
     repo.findAll().stream()

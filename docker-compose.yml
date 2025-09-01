@@ -31,18 +31,12 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-container:5432/teste01  # Conexão com o banco
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: 1234
-       SPRING_JPA_HIBERNATE_DDL_AUTO=update  # Atualiza o esquema do banco automaticamente
 
     # RabbitMQ (propriedades oficiais spring.rabbitmq.*)
       SPRING_RABBITMQ_HOST: rabbitmq-container
       SPRING_RABBITMQ_PORT: "5672"
       SPRING_RABBITMQ_USERNAME: guest
       SPRING_RABBITMQ_PASSWORD: guest
-
-      # SMBJ (vira app.smb.* no Spring Boot – externalized config)
-      APP_SMB_DOMAIN:  "${SMB_DOMAIN:-}"
-      APP_SMB_USERNAME: "${SMB_USERNAME:-smb_reader}"
-      APP_SMB_PASSWORD: "${SMB_PASSWORD:-}"
 
     depends_on:
       - postgres-container  # Garante que o PostgreSQL esteja pronto antes do backend
