@@ -50,7 +50,7 @@ export class RubberComponent implements OnInit {
     this.orderService.getOrders().subscribe({
       next: (lista) => {
         this.paraBorracha = lista
-          .filter(o => o.status === 7 && this.precisaDeBorracha(o))
+          .filter(o => o.status === 7)
           .sort((a, b) => {
             // prioriza mais recentes pela data de montagem (fallbacks para dataH)
             const ta = (a as any).dataMontagem ? new Date((a as any).dataMontagem).getTime() :
