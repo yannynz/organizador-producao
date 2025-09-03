@@ -1,6 +1,12 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <div class="container-fluid">
-    <a class="navbar-brand" href="#" id="nameBar">Organizador</a>
+    <a class="navbar-brand d-flex align-items-center" href="#" id="nameBar" title="{{ tooltip }}">
+  Organizador
+  <span class="badge ms-2 {{ badgeClass }}">
+    {{ status?.online === true ? 'ONLINE' : (status?.online === false ? 'OFFLINE' : '...') }}
+  </span>
+</a>
+
     <button
       class="navbar-toggler"
       type="button"
