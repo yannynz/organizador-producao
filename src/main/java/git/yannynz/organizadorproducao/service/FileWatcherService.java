@@ -34,7 +34,7 @@ public class FileWatcherService {
      * Ouve mensagens da fila RabbitMQ associada à pasta /laser.
      * A mensagem contém informações simulando o "arquivo" ou seus dados.
      */
-    @RabbitListener(queues = "laser_notifications")
+    @RabbitListener(queues = "laser_notifications", containerFactory = "stringListenerFactory")
     public void handleLaserQueue(String message) {
         System.out.println("Mensagem recebida na fila 'laserQueue': " + message);
         try {
@@ -48,7 +48,7 @@ public class FileWatcherService {
         }
     }
 
-    @RabbitListener(queues = "facas_notifications")
+    @RabbitListener(queues = "facas_notifications", containerFactory = "stringListenerFactory")
     public void handleFacasOkQueue(String message) {
         System.out.println("Mensagem recebida na fila 'facasOkQueue': " + message);
         try {

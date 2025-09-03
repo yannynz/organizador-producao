@@ -51,7 +51,7 @@ public class DobrasFileService {
         this.messagingTemplate = messagingTemplate;
     }
 
-    @RabbitListener(queues = QUEUE_NAME)
+        @RabbitListener(queues = QUEUE_NAME, containerFactory = "stringListenerFactory")
     public void handleDobrasQueue(String message) {
         try {
             if (message == null || message.isBlank()) {
