@@ -39,6 +39,8 @@ form: FormGroup;
       entregador: [''],
       emborrachador: [''],
       dataEmborrachamento: [''],
+      dataCortada: [''],
+      dataTirada: [''],
     });
   }
 

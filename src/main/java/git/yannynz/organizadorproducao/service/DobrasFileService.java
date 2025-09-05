@@ -10,6 +10,8 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -103,6 +105,9 @@ public class DobrasFileService {
             int current = order.getStatus();
             if (current != STATUS_TIRADA) {
                 order.setStatus(STATUS_TIRADA);
+                if (order.getDataTirada() == null) {
+                order.setDataTirada(ZonedDateTime.now(ZoneId.of("America/Sao_Paulo")));
+            }
                 orderRepository.save(order);
                 messagingTemplate.convertAndSend("/topic/orders", order);
                 log.info("[DOBRAS] Status do pedido {} atualizado de {} para {}", orderNumber, current, STATUS_TIRADA);

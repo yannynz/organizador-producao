@@ -17,6 +17,8 @@ export class orders {
   emborrachador?: string;
   dataEmborrachamento?: Date;
   emborrachada?: boolean = false;
+  dataCortada?: Date;
+  dataTirada?: Date;
   }
 
 

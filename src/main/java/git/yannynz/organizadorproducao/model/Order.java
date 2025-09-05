@@ -27,27 +27,20 @@ public class Order {
     private String emborrachador;
     private ZonedDateTime dataEmborrachamento;
     private boolean emborrachada;
-    // private ZonedDateTime dataCortada;
-    // private ZonedDateTime dataTirada;
+    private ZonedDateTime dataCortada;
+    private ZonedDateTime dataTirada;
 
 
     public Order() {}
 
-    // public ZonedDateTime getDataTirada() {
-    //     return dataTirada;
-    // }
-    //
-    // public void setDateTirada() {
-    //     this.dataTirada = ZonedDateTime.now();
-    // }
-    //
-    // public ZonedDateTime getDataCortada() {
-    //     return dataCortada;
-    // }
-    //
-    // public void setDataCortada(){
-    //     this.dataCortada = ZonedDateTime.now();
-    // }
+    public ZonedDateTime getDataCortada() { return dataCortada; }
+
+    public void setDataCortada(ZonedDateTime dataCortada) { this.dataCortada = dataCortada; }
+
+    public ZonedDateTime getDataTirada() { return dataTirada; }
+    
+    public void setDataTirada(ZonedDateTime dataTirada) { this.dataTirada = dataTirada; }
+
 
     public boolean isEmborrachada() {
         return emborrachada;

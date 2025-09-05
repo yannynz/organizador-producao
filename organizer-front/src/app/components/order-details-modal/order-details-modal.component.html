@@ -34,6 +34,8 @@
               </tr>
               <tr><th>Observações</th><td><textarea formControlName="observacao" class="form-control"></textarea></td></tr>
               <tr><th>Entrada</th><td>{{ form.get('dataH')?.value | date:'dd/MM/yyyy HH:mm' }}</td></tr>
+              <tr><th>Data de Corte</th><td>{{ form.get('dataCortada')?.value | date:'dd/MM/yyyy HH:mm' }}</td></tr>
+              <tr><th>Data de Tiragem</th><td>{{ form.get('dataTirada')?.value | date:'dd/MM/yyyy HH:mm' }}</td></tr>
               <tr><th>Montador</th><td>{{ form.get('montador')?.value }}</td></tr>
               <tr><th>Data de Montagem</th><td>{{ form.get('dataMontagem')?.value | date:'dd/MM/yyyy HH:mm' }}</td></tr>
               <tr><th>Emborrachador</th><td>{{ form.get('emborrachador')?.value }}</td></tr>

@@ -159,6 +159,11 @@ public class FileWatcherService {
             Order order = orderOpt.get();
             if (order.getStatus() != newStatus) {
                 order.setStatus(newStatus);
+                if (newStatus == 1 || newStatus == 2) { // 1=cortada, 2=pronta (CL)
+                if (order.getDataCortada() == null) {
+                    order.setDataCortada(ZonedDateTime.now(ZoneId.of("America/Sao_Paulo")));
+                }
+            }
                 orderRepository.save(order);
                 messagingTemplate.convertAndSend("/topic/orders", order);
                 System.out.println("Status do pedido " + orderNumber + " atualizado para " + newStatus);
