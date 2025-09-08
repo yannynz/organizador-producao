@@ -32,9 +32,39 @@ public class OpImportService {
     this.ws = ws;
   }
 
-  // ---------------------------
-  // Helpers
-  // ---------------------------
+  // ---- WS helpers ----
+private void notifyOrder(Order order) {
+  ws.convertAndSend("/topic/orders", order);
+}
+
+private void notifyOpImported(OpImport saved, OpImportRequestDTO req, boolean linkedNow) {
+  var payload = new java.util.LinkedHashMap<String, Object>();
+
+  payload.put("numeroOp", saved.getNumeroOp());                              // assumindo não-nulo
+  payload.put("emborrachada", saved.isEmborrachada());
+
+  // Só adiciona se não for nulo
+  if (saved.getSharePath() != null && !saved.getSharePath().isBlank())
+    payload.put("sharePath", saved.getSharePath());
+
+  if (saved.getDataOp() != null)
+    payload.put("dataOp", saved.getDataOp().toString());
+
+  if (saved.getFacaId() != null)
+    payload.put("facaId", saved.getFacaId());
+
+  payload.put("linkedNow", linkedNow);
+
+  // Conta materiais com null-safe
+  int materiaisCount = (saved.getMateriais() == null || saved.getMateriais().isNull())
+      ? 0
+      : saved.getMateriais().size();
+  payload.put("materiaisCount", materiaisCount);
+
+  ws.convertAndSend("/topic/ops", payload);
+}
+
+
 
   /** Acrescenta "emborrachada" em observacao, sem duplicar, e envia WS. */
   @Transactional
@@ -48,7 +78,8 @@ public class OpImportService {
       String nova = obs.isBlank() ? "emborrachada" : obs + "; emborrachada";
       f.setObservacao(nova);
       orderRepo.save(f);
-      ws.convertAndSend("/topic/orders", new WebSocketMessage("update", f));
+
+      notifyOrder(f);
       return true;
     }
     return false;
@@ -90,42 +121,46 @@ public class OpImportService {
   // Importação de OP
   // ---------------------------
   @Transactional
-  public void importar(OpImportRequestDTO req) {
-    if (req.getNumeroOp() == null || req.getNumeroOp().isBlank()) return;
+public void importar(OpImportRequestDTO req) {
+  if (req.getNumeroOp() == null || req.getNumeroOp().isBlank()) return;
 
-    OpImport op = repo.findByNumeroOp(req.getNumeroOp()).orElseGet(OpImport::new);
-    op.setNumeroOp(req.getNumeroOp());
-    op.setSharePath(req.getSharePath());
-    op.setEmborrachada(Boolean.TRUE.equals(req.getEmborrachada()));
+  OpImport op = repo.findByNumeroOp(req.getNumeroOp()).orElseGet(OpImport::new);
+  op.setNumeroOp(req.getNumeroOp());
+  op.setSharePath(req.getSharePath());
+  op.setEmborrachada(Boolean.TRUE.equals(req.getEmborrachada()));
 
-    if (req.getDataOp() != null && !req.getDataOp().isBlank()) {
-      op.setDataOp(java.time.LocalDate.parse(req.getDataOp()));
-    }
-    if (req.getMateriais() != null) {
-      op.setMateriais(mapper.valueToTree(req.getMateriais())); // ArrayNode
-    }
-
-    final OpImport saved = repo.save(op);
-
-    // 1) Tenta vincular OP->Pedido (facaId) e propagar imediatamente
-    orderRepo.findTopByNrOrderByIdDesc(req.getNumeroOp()).ifPresent(f -> {
-      if (saved.getFacaId() == null || !saved.getFacaId().equals(f.getId())) {
-        saved.setFacaId(f.getId());
-        repo.save(saved);
-      }
-      if (Boolean.TRUE.equals(req.getEmborrachada())) {
-        markOrderAsEmborrachada(f); // atualiza observacao + WS
-      }
-    });
-
-    // 2) Se ainda não existia Pedido correspondente, agenda re-tentativas assíncronas
-    if (Boolean.TRUE.equals(req.getEmborrachada())) {
-      schedulePropagationRetries(req.getNumeroOp(), true);
-    }
-
-    // 3) (Opcional) — Removido o streaming direto de OPs para o front
-    // ws.convertAndSend("/topic/ops", Map.of(...));
+  if (req.getDataOp() != null && !req.getDataOp().isBlank()) {
+    op.setDataOp(java.time.LocalDate.parse(req.getDataOp()));
   }
+  if (req.getMateriais() != null) {
+    op.setMateriais(mapper.valueToTree(req.getMateriais())); // ArrayNode
+  }
+
+  final OpImport saved = repo.save(op);
+
+  // tenta linkar com pedido e já propagar 'emborrachada'
+  final boolean[] linkedNow = { false };
+  orderRepo.findTopByNrOrderByIdDesc(req.getNumeroOp()).ifPresent(f -> {
+    if (saved.getFacaId() == null || !saved.getFacaId().equals(f.getId())) {
+      saved.setFacaId(f.getId());
+      repo.save(saved);
+      linkedNow[0] = true;
+    }
+    if (Boolean.TRUE.equals(req.getEmborrachada())) {
+      // atualiza observação no pedido + WS /topic/orders
+      markOrderAsEmborrachada(f);
+    }
+  });
+
+  // se ainda não tinha pedido, agenda re-tentativa
+  if (Boolean.TRUE.equals(req.getEmborrachada())) {
+    schedulePropagationRetries(req.getNumeroOp(), true);
+  }
+
+  // WS da própria OP (para um painel/toast no front)
+  notifyOpImported(saved, req, linkedNow[0]);
+}
+
 
   // ---------------------------
   // Faca montada
@@ -140,13 +175,14 @@ public class OpImportService {
       Order f = orderRepo.findById(facaId).orElseThrow();
       f.setStatus(2); // Prontas p/ Entrega
       orderRepo.save(f);
+      notifyOrder(f);
     }
   }
 
   // ---------------------------
   // RabbitMQ
   // ---------------------------
-  @RabbitListener(queues = "op.imported")
+  @RabbitListener(queues = "op.imported", containerFactory = "stringListenerFactory")
   public void onMessage(String json) throws Exception {
     var req = mapper.readValue(json, OpImportRequestDTO.class);
     importarAsync(req); // dispara assíncrono

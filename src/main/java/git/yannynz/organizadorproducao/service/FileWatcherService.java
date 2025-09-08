@@ -5,7 +5,6 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.time.ZoneId;
-import java.util.Date;
 
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +15,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import git.yannynz.organizadorproducao.model.Order;
 import git.yannynz.organizadorproducao.repository.OrderRepository;
-import git.yannynz.organizadorproducao.service.DestacadorMonitorService;
 
 @Service
 public class FileWatcherService {
