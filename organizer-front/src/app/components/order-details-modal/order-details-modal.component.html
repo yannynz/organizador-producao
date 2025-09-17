@@ -32,7 +32,58 @@
                   </select>
                 </td>
               </tr>
-              <tr><th>Observações</th><td><textarea formControlName="observacao" class="form-control"></textarea></td></tr>
+              <tr><th>Observações</th><td><textarea formControlName="observacao" class="form-control" placeholder="Compartilhe observações relevantes para a equipe"></textarea></td></tr>
+              <tr>
+                <th>Emborrachada</th>
+                <td><input type="checkbox" formControlName="emborrachada" /></td>
+              </tr>
+              <tr>
+                <th>Destacador</th>
+                <td>
+                  <select formControlName="destacador" class="form-control">
+                    <option value="">Selecione o destacador</option>
+                    <option value="M">M</option>
+                    <option value="F">F</option>
+                    <option value="MF">M/F</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <th>Modalidade</th>
+                <td>
+                  <select formControlName="modalidadeEntrega" class="form-control">
+                    <option value="">Selecione a modalidade</option>
+                    <option value="RETIRADA">Retirada</option>
+                    <option value="A ENTREGAR">A entregar</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <th>Data requerida</th>
+                <td>
+                  <div class="d-flex flex-column gap-2">
+                    <input #dateTimeInput
+                           type="text"
+                           class="form-control"
+                           formControlName="dataRequeridaEntrega"
+                           placeholder="Clique para escolher data e hora requeridas"
+                           autocomplete="off" />
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <th>Desenhista</th>
+                <td><input type="text" class="form-control" formControlName="usuarioImportacao" placeholder="Nome do desenhista responsavel" /></td>
+              </tr>
+              <tr>
+                <th>Materiais</th>
+                <td>
+                  <label class="me-3"><input type="checkbox" formControlName="pertinax"/> Pertinax</label>
+                  <label class="me-3"><input type="checkbox" formControlName="poliester"/> Poliéster</label>
+                  <label><input type="checkbox" formControlName="papelCalibrado"/> Papel Calibrado</label>
+                  <small class="text-muted d-block mt-2">Marque os materiais adicionais que acompanham o pedido.</small>
+                </td>
+              </tr>
               <tr><th>Entrada</th><td>{{ form.get('dataH')?.value | date:'dd/MM/yyyy HH:mm' }}</td></tr>
               <tr><th>Data de Corte</th><td>{{ form.get('dataCortada')?.value | date:'dd/MM/yyyy HH:mm' }}</td></tr>
               <tr><th>Data de Tiragem</th><td>{{ form.get('dataTirada')?.value | date:'dd/MM/yyyy HH:mm' }}</td></tr>
@@ -60,4 +111,3 @@
     </div>
   </div>
 </div>
-

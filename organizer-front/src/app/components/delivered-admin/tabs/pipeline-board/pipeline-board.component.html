@@ -29,6 +29,15 @@
           <div class="small text-muted">{{ o.cliente }}</div>
           <div class="small">Entrada: {{ o.dataH | date:'dd/MM HH:mm' }}</div>
           <div class="small" *ngIf="o.dataEntrega">Saída: {{ o.dataEntrega | date:'dd/MM HH:mm' }}</div>
+          <div class="small" *ngIf="o.dataRequeridaEntrega">Entrega requerida: {{ o.dataRequeridaEntrega | date:'dd/MM HH:mm' }}</div>
+          <div class="mt-1 d-flex flex-wrap gap-1">
+            <span class="badge bg-success" *ngIf="o.emborrachada">Emborrachada</span>
+            <span class="badge bg-secondary" *ngIf="o.destacador">Dest: {{ o.destacador }}</span>
+            <span class="badge bg-dark" *ngIf="o.modalidadeEntrega">{{ o.modalidadeEntrega }}</span>
+            <span class="badge bg-info text-dark" *ngIf="o.pertinax">Pertinax</span>
+            <span class="badge bg-info text-dark" *ngIf="o.poliester">Poliéster</span>
+            <span class="badge bg-info text-dark" *ngIf="o.papelCalibrado">Papel cal.</span>
+          </div>
           <div class="mt-2">
             <button class="btn btn-outline-info btn-sm" (click)="open(o)">Detalhes</button>
           </div>
@@ -46,4 +55,3 @@
   (update)="handleUpdate($event)"
   (remove)="handleDelete($event)">
 </app-order-details-modal>
-

@@ -9,15 +9,21 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitListenerStringConfig {
 
-   @Bean
-    public SimpleRabbitListenerContainerFactory stringListenerFactory(ConnectionFactory cf) {
-        var f = new SimpleRabbitListenerContainerFactory();
-        f.setConnectionFactory(cf);
-        f.setMessageConverter(new SimpleMessageConverter());
-        // (opcional) tuning:
-        // f.setConcurrentConsumers(1);
-        // f.setMaxConcurrentConsumers(4);
-        return f;
+    // Default factory used by @RabbitListener without explicit containerFactory
+    @Bean(name = "rabbitListenerContainerFactory")
+    public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(ConnectionFactory connectionFactory) {
+        SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
+        factory.setConnectionFactory(connectionFactory);
+        factory.setMessageConverter(new SimpleMessageConverter()); // deliver raw body as String when possible
+        return factory;
+    }
+
+    // Explicit factory referenced by FileWatcher listeners
+    @Bean
+    public SimpleRabbitListenerContainerFactory stringListenerFactory(ConnectionFactory connectionFactory) {
+        SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
+        factory.setConnectionFactory(connectionFactory);
+        factory.setMessageConverter(new SimpleMessageConverter());
+        return factory;
     }
 }
-

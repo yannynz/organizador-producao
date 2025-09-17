@@ -1,4 +1,3 @@
-import { NgbConfig } from '../ngb-config';
 import * as i0 from "@angular/core";
 /**
  * Interface used to type all toast config options. See `NgbToastConfig`.
@@ -33,11 +32,10 @@ export interface NgbToastOptions {
  */
 export declare class NgbToastConfig implements NgbToastOptions {
     private _ngbConfig;
+    private _animation;
     autohide: boolean;
     delay: number;
     ariaLive: 'polite' | 'alert';
-    private _animation;
-    constructor(_ngbConfig: NgbConfig);
     get animation(): boolean;
     set animation(animation: boolean);
     static ɵfac: i0.ɵɵFactoryDeclaration<NgbToastConfig, never>;

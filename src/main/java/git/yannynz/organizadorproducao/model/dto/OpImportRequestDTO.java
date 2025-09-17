@@ -12,9 +12,33 @@ public class OpImportRequestDTO {
   private Boolean emborrachada;
   private String sharePath;
 
+  private String destacador;         
+  private String modalidadeEntrega;   
+  private String dataRequeridaEntrega;          // "yyyy-MM-dd"
+  private String usuarioImportacao;
+
+  private Boolean pertinax;
+  private Boolean poliester;
+  private Boolean papelCalibrado;
+
+
   public OpImportRequestDTO() {}
 
   // getters/setters
+  public String getUsuarioImportacao() { return usuarioImportacao; }
+  public void setUsuarioImportacao(String usuarioImportacao) { this.usuarioImportacao = usuarioImportacao; }
+  public Boolean getPertinax() { return pertinax; }
+  public void setPertinax(Boolean pertinax) { this.pertinax = pertinax; }
+  public Boolean getPoliester() { return poliester; }
+  public void setPoliester(Boolean poliester) { this.poliester = poliester; }
+  public Boolean getPapelCalibrado() { return papelCalibrado; }
+  public void setPapelCalibrado(Boolean papelCalibrado) { this.papelCalibrado = papelCalibrado; }
+  public String getDataRequeridaEntrega() { return dataRequeridaEntrega; }
+  public void setDataRequeridaEntrega(String dataRequeridaEntrega) { this.dataRequeridaEntrega = dataRequeridaEntrega; }
+  public String getDestacador() { return destacador; }
+  public void setDestacador(String destacador) { this.destacador = destacador; }
+  public String getModalidadeEntrega() { return modalidadeEntrega; }
+  public void setModalidadeEntrega(String modalidadeEntrega) { this.modalidadeEntrega = modalidadeEntrega; }
   public String getNumeroOp() { return numeroOp; }
   public void setNumeroOp(String numeroOp) { this.numeroOp = numeroOp; }
   public String getCodigoProduto() { return codigoProduto; }
@@ -32,4 +56,3 @@ public class OpImportRequestDTO {
   public String getSharePath() { return sharePath; }
   public void setSharePath(String sharePath) { this.sharePath = sharePath; }
 }
-

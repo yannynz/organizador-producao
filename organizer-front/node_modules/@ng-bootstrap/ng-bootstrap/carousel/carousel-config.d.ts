@@ -1,4 +1,3 @@
-import { NgbConfig } from '../ngb-config';
 import * as i0 from "@angular/core";
 /**
  * A configuration service for the [NgbCarousel](#/components/carousel/api#NgbCarousel) component.
@@ -8,6 +7,7 @@ import * as i0 from "@angular/core";
  */
 export declare class NgbCarouselConfig {
     private _ngbConfig;
+    private _animation;
     interval: number;
     wrap: boolean;
     keyboard: boolean;
@@ -15,8 +15,6 @@ export declare class NgbCarouselConfig {
     pauseOnFocus: boolean;
     showNavigationArrows: boolean;
     showNavigationIndicators: boolean;
-    private _animation;
-    constructor(_ngbConfig: NgbConfig);
     get animation(): boolean;
     set animation(animation: boolean);
     static ɵfac: i0.ɵɵFactoryDeclaration<NgbCarouselConfig, never>;

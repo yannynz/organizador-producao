@@ -1,7 +1,5 @@
-import { Injector } from '@angular/core';
-import { NgbOffcanvasConfig, NgbOffcanvasOptions } from './offcanvas-config';
+import { NgbOffcanvasOptions } from './offcanvas-config';
 import { NgbOffcanvasRef } from './offcanvas-ref';
-import { NgbOffcanvasStack } from './offcanvas-stack';
 import * as i0 from "@angular/core";
 /**
  * A service for opening an offcanvas.
@@ -15,7 +13,6 @@ export declare class NgbOffcanvas {
     private _injector;
     private _offcanvasStack;
     private _config;
-    constructor(_injector: Injector, _offcanvasStack: NgbOffcanvasStack, _config: NgbOffcanvasConfig);
     /**
      * Opens a new offcanvas panel with the specified content and supplied options.
      *

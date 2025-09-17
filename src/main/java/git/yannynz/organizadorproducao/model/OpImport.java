@@ -5,8 +5,8 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;  // <<<
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+import java.time.ZonedDateTime;
 
-import java.time.LocalDate;
 import java.time.OffsetDateTime;
 
 @Entity
@@ -30,7 +30,7 @@ public class OpImport {
   private String cliente;
 
   @Column(name = "data_op")
-  private LocalDate dataOp;
+  private ZonedDateTime dataOp;
 
   @Column(name = "emborrachada", nullable = false)
   private boolean emborrachada;
@@ -42,16 +42,85 @@ public class OpImport {
   @Column(columnDefinition = "jsonb")
   private JsonNode materiais;
 
+  // NOVOS CAMPOS
+  @Column(name = "destacador")
+  private String destacador;  // "M", "F", "MF", etc
+
+  @Column(name = "modalidade_entrega")
+  private String modalidadeEntrega;  // "RETIRADA" ou "A ENTREGAR"
+
   @Column(name = "faca_id")
   private Long facaId;
 
-  @CreationTimestamp                                     // <<< preenche no INSERT
+  @CreationTimestamp
   @Column(name = "created_at", nullable = false)
   private OffsetDateTime createdAt;
+
+  @Column(name = "data_requerida_entrega")
+  private ZonedDateTime dataRequeridaEntrega;
+
+  @Column(name = "usuario_importacao")
+  private String usuarioImportacao;
+
+  // Materiais especiais (podem ser nulos quando não informados)
+  @Column(name = "pertinax")
+  private Boolean pertinax;
+
+  @Column(name = "poliester")
+  private Boolean poliester;
+
+  @Column(name = "papel_calibrado")
+  private Boolean papelCalibrado;
+
+  @Column(name = "manual_lock_emborrachada", nullable = false)
+  private boolean manualLockEmborrachada;
+
+  @Column(name = "manual_lock_pertinax", nullable = false)
+  private boolean manualLockPertinax;
+
+  @Column(name = "manual_lock_poliester", nullable = false)
+  private boolean manualLockPoliester;
+
+  @Column(name = "manual_lock_papel_calibrado", nullable = false)
+  private boolean manualLockPapelCalibrado;
+
 
   public OpImport() {}
 
   // ---- getters/setters ----
+  public String getUsuarioImportacao() { return usuarioImportacao; }
+  public void setUsuarioImportacao(String usuarioImportacao) { this.usuarioImportacao = usuarioImportacao; }
+  public Boolean getPertinax() { return pertinax; }
+  public void setPertinax(Boolean pertinax) { this.pertinax = pertinax; }
+  public Boolean getPoliester() { return poliester; }
+  public void setPoliester(Boolean poliester) { this.poliester = poliester; }
+  public Boolean getPapelCalibrado() { return papelCalibrado; }
+  public void setPapelCalibrado(Boolean papelCalibrado) { this.papelCalibrado = papelCalibrado; }
+
+  public boolean isManualLockEmborrachada() { return manualLockEmborrachada; }
+  public void setManualLockEmborrachada(boolean manualLockEmborrachada) { this.manualLockEmborrachada = manualLockEmborrachada; }
+
+  public boolean isManualLockPertinax() { return manualLockPertinax; }
+  public void setManualLockPertinax(boolean manualLockPertinax) { this.manualLockPertinax = manualLockPertinax; }
+
+  public boolean isManualLockPoliester() { return manualLockPoliester; }
+  public void setManualLockPoliester(boolean manualLockPoliester) { this.manualLockPoliester = manualLockPoliester; }
+
+  public boolean isManualLockPapelCalibrado() { return manualLockPapelCalibrado; }
+  public void setManualLockPapelCalibrado(boolean manualLockPapelCalibrado) { this.manualLockPapelCalibrado = manualLockPapelCalibrado; }
+
+  public ZonedDateTime getDataOp() { return dataOp; }
+  public void setDataOp(ZonedDateTime dataOp) { this.dataOp = dataOp; }
+
+  public ZonedDateTime getDataRequeridaEntrega() { return dataRequeridaEntrega; }
+  public void setDataRequeridaEntrega(ZonedDateTime dataRequeridaEntrega) { this.dataRequeridaEntrega = dataRequeridaEntrega; }
+
+  public String getDestacador() { return destacador; }
+  public void setDestacador(String destacador) { this.destacador = destacador; }
+
+  public String getModalidadeEntrega() { return modalidadeEntrega; }
+  public void setModalidadeEntrega(String modalidadeEntrega) { this.modalidadeEntrega = modalidadeEntrega; }
+
   public Long getId() { return id; }
   public void setId(Long id) { this.id = id; }
 
@@ -66,9 +135,6 @@ public class OpImport {
 
   public String getCliente() { return cliente; }
   public void setCliente(String cliente) { this.cliente = cliente; }
-
-  public LocalDate getDataOp() { return dataOp; }
-  public void setDataOp(LocalDate dataOp) { this.dataOp = dataOp; }
 
   public boolean isEmborrachada() { return emborrachada; }
   public void setEmborrachada(boolean emborrachada) { this.emborrachada = emborrachada; }
@@ -85,4 +151,3 @@ public class OpImport {
   public OffsetDateTime getCreatedAt() { return createdAt; }
   public void setCreatedAt(OffsetDateTime createdAt) { this.createdAt = createdAt; }
 }
-

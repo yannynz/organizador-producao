@@ -1,7 +1,5 @@
-import { Injector } from '@angular/core';
-import { NgbModalOptions, NgbModalConfig } from './modal-config';
+import { NgbModalOptions } from './modal-config';
 import { NgbModalRef } from './modal-ref';
-import { NgbModalStack } from './modal-stack';
 import * as i0 from "@angular/core";
 /**
  * A service for opening modal windows.
@@ -13,7 +11,6 @@ export declare class NgbModal {
     private _injector;
     private _modalStack;
     private _config;
-    constructor(_injector: Injector, _modalStack: NgbModalStack, _config: NgbModalConfig);
     /**
      * Opens a new modal window with the specified content and supplied options.
      *

@@ -1,5 +1,4 @@
-import { ApplicationRef, EventEmitter, Injector, NgZone } from '@angular/core';
-import { ScrollBar } from '../util/scrollbar';
+import { EventEmitter, Injector } from '@angular/core';
 import { NgbOffcanvasRef } from './offcanvas-ref';
 import { NgbOffcanvasOptions } from './offcanvas-config';
 import * as i0 from "@angular/core";
@@ -8,7 +7,6 @@ export declare class NgbOffcanvasStack {
     private _injector;
     private _document;
     private _scrollBar;
-    private _ngZone;
     private _activePanelCmptHasChanged;
     private _scrollBarRestoreFn;
     private _backdropAttributes;
@@ -16,7 +14,7 @@ export declare class NgbOffcanvasStack {
     private _panelAttributes;
     private _panelCmpt?;
     private _activeInstance;
-    constructor(_applicationRef: ApplicationRef, _injector: Injector, _document: any, _scrollBar: ScrollBar, _ngZone: NgZone);
+    constructor();
     private _restoreScrollBar;
     private _hideScrollBar;
     open(contentInjector: Injector, content: any, options: NgbOffcanvasOptions): NgbOffcanvasRef;

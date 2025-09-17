@@ -33,6 +33,7 @@ class OpImportedListener {
 
     private final OpImportService service;
     private final ObjectMapper mapper = new ObjectMapper();
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(OpImportedListener.class);
 
     public OpImportedListener(OpImportService service) {
         this.service = service;
@@ -40,8 +41,15 @@ class OpImportedListener {
 
     @RabbitListener(queues = "op.imported")
     public void onMessage(String json) throws Exception {
-        var req = mapper.readValue(json, OpImportRequestDTO.class);
-        service.importar(req);
+        log.info("[AMQP] op.imported received bytes={} payloadSample={}...",
+            (json == null ? 0 : json.length()), (json == null ? null : json.substring(0, Math.min(120, json.length()))));
+        try {
+            var req = mapper.readValue(json, OpImportRequestDTO.class);
+            log.info("[AMQP] parsed: numeroOp={}, dataOp={}", req.getNumeroOp(), req.getDataOp());
+            service.importar(req);
+        } catch (Exception ex) {
+            log.error("[AMQP] error parsing/dispatching message: {}", ex.getMessage(), ex);
+            throw ex;
+        }
     }
 }
-

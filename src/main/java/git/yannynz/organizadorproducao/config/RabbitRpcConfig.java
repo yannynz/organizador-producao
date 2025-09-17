@@ -8,6 +8,7 @@ import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 @Configuration
 public class RabbitRpcConfig {
@@ -29,6 +30,7 @@ public class RabbitRpcConfig {
     }
 
     @Bean
+    @Primary
     public Jackson2JsonMessageConverter jackson2JsonMessageConverter() {
         return new Jackson2JsonMessageConverter();
     }
@@ -38,8 +40,10 @@ public class RabbitRpcConfig {
                                          Jackson2JsonMessageConverter converter) {
         RabbitTemplate template = new RabbitTemplate(connectionFactory);
         template.setMessageConverter(converter);
+        // Use temporary reply queues to avoid noisy DirectReplyTo container
+        // logs when the responder is offline or slow.
+        template.setUseTemporaryReplyQueues(true);
         template.setReplyTimeout(replyTimeoutMs);
         return template;
     }
 }
-

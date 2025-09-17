@@ -41,7 +41,7 @@
             <tr>
               <th style="width: 90px;">NR</th>
               <th>Cliente</th>
-              <th style="width: 120px;">Prioridade</th>
+              <th style="width: 120px;">Montador</th>
               <th style="width: 160px;">Montada</th>
               <th style="width: 140px;">Ação</th>
             </tr>
@@ -50,8 +50,8 @@
             <tr *ngFor="let p of paraBorracha; trackBy: trackById">
               <td class="fw-semibold">{{ p.nr }}</td>
               <td>{{ p.cliente }}</td>
-              <td [ngStyle]="{'background-color': getPriorityColor(p.prioridade)}">
-                {{ p.prioridade }}
+              <td>
+                {{ p.montador }}
               </td>
               <td>
                 <!-- tenta mostrar dataMontagem se existir; senão dataH -->

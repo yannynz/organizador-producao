@@ -44,7 +44,7 @@ export class DeliveredListComponent implements OnInit, OnDestroy {
   // server-mode (cursor)
   private pageCursors: (string | null)[] = [null]; // page 1 começa com cursor null
   public pageCache: Record<number, orders[]> = {};
-  public pageMeta: Record<number, { nextCursor: string | null; hasMore: boolean }> = {};
+  public pageMeta: Record<number, { nextCursor: string | null; hasMore: boolean } | undefined> = {};
   currentPage = 1;
   pagesToShow: number[] = [1];
   public Math = Math;
@@ -305,4 +305,3 @@ export class DeliveredListComponent implements OnInit, OnDestroy {
     return 'black';
   }
 }
-

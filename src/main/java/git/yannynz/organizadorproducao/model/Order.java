@@ -29,9 +29,36 @@ public class Order {
     private boolean emborrachada;
     private ZonedDateTime dataCortada;
     private ZonedDateTime dataTirada;
+    private String destacador;
+    private String modalidadeEntrega;
+    private ZonedDateTime dataRequeridaEntrega;
+    private String usuarioImportacao;
+    private boolean pertinax;
+    private boolean poliester;
+    private boolean papelCalibrado;
 
 
     public Order() {}
+
+    public String getModalidadeEntrega() { return modalidadeEntrega; }
+    public void setModalidadeEntrega(String modalidadeEntrega) { this.modalidadeEntrega = modalidadeEntrega; }
+
+    public String getUsuarioImportacao() { return usuarioImportacao; }
+    public void setUsuarioImportacao(String usuarioImportacao) { this.usuarioImportacao = usuarioImportacao; }
+
+    public boolean isPertinax() { return pertinax; }
+    public void setPertinax(boolean pertinax) { this.pertinax = pertinax; }
+    public boolean isPoliester() { return poliester; }
+    public void setPoliester(boolean poliester) { this.poliester = poliester; }
+    public boolean isPapelCalibrado() { return papelCalibrado; }
+    public void setPapelCalibrado(boolean papelCalibrado) { this.papelCalibrado = papelCalibrado; }
+
+    public ZonedDateTime getDataRequeridaEntrega() { return dataRequeridaEntrega; }
+    public void setDataRequeridaEntrega(ZonedDateTime dataRequeridaEntrega){ this.dataRequeridaEntrega = dataRequeridaEntrega; }
+
+    public String getDestacador() { return destacador; }
+    public void setDestacador(String destacador) { this.destacador = destacador; }
+
 
     public ZonedDateTime getDataCortada() { return dataCortada; }
 

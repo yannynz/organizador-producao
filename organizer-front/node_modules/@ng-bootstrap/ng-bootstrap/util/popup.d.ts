@@ -1,4 +1,4 @@
-import { ApplicationRef, ComponentRef, Injector, NgZone, Renderer2, TemplateRef, Type, ViewContainerRef, ViewRef } from '@angular/core';
+import { ComponentRef, TemplateRef, Type, ViewRef } from '@angular/core';
 import { Observable } from 'rxjs';
 export declare class ContentRef {
     nodes: Node[][];
@@ -8,14 +8,14 @@ export declare class ContentRef {
 }
 export declare class PopupService<T> {
     private _componentType;
-    private _injector;
-    private _viewContainerRef;
-    private _renderer;
-    private _ngZone;
-    private _applicationRef;
     private _windowRef;
     private _contentRef;
-    constructor(_componentType: Type<any>, _injector: Injector, _viewContainerRef: ViewContainerRef, _renderer: Renderer2, _ngZone: NgZone, _applicationRef: ApplicationRef);
+    private _document;
+    private _applicationRef;
+    private _injector;
+    private _viewContainerRef;
+    private _ngZone;
+    constructor(_componentType: Type<T>);
     open(content?: string | TemplateRef<any>, templateContext?: any, animation?: boolean): {
         windowRef: ComponentRef<T>;
         transition$: Observable<void>;

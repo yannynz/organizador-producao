@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import git.yannynz.organizadorproducao.model.Order;
 import git.yannynz.organizadorproducao.service.OrderService;
+import git.yannynz.organizadorproducao.service.OpImportService;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -26,6 +27,9 @@ public class OrderController {
 
     @Autowired
     private OrderService orderService;
+
+    @Autowired
+    private OpImportService opImportService;
 
     @GetMapping
     public List<Order> getAllOrders() {
@@ -59,6 +63,10 @@ public ResponseEntity<Order> getOrderByNr(@PathVariable String nr) {
         Optional<Order> orderOptional = orderService.getOrderById(id);
         if (orderOptional.isPresent()) {
             Order order = orderOptional.get();
+            boolean prevEmborrachada = order.isEmborrachada();
+            boolean prevPertinax = order.isPertinax();
+            boolean prevPoliester = order.isPoliester();
+            boolean prevPapelCalibrado = order.isPapelCalibrado();
             order.setNr(orderDetails.getNr());
             order.setCliente(orderDetails.getCliente());
             order.setPrioridade(orderDetails.getPrioridade());
@@ -77,6 +85,21 @@ public ResponseEntity<Order> getOrderByNr(@PathVariable String nr) {
             order.setEmborrachada(orderDetails.isEmborrachada());
             order.setDataCortada(orderDetails.getDataCortada());
             order.setDataTirada(orderDetails.getDataTirada());
+            // extras
+            if (orderDetails.getDestacador() != null) order.setDestacador(orderDetails.getDestacador());
+            if (orderDetails.getModalidadeEntrega() != null) order.setModalidadeEntrega(orderDetails.getModalidadeEntrega());
+            if (orderDetails.getDataRequeridaEntrega() != null) order.setDataRequeridaEntrega(orderDetails.getDataRequeridaEntrega());
+            if (orderDetails.getUsuarioImportacao() != null) order.setUsuarioImportacao(orderDetails.getUsuarioImportacao());
+            order.setPertinax(orderDetails.isPertinax());
+            order.setPoliester(orderDetails.isPoliester());
+            order.setPapelCalibrado(orderDetails.isPapelCalibrado());
+
+            opImportService.applyManualLocksForOrder(
+                order,
+                prevEmborrachada,
+                prevPertinax,
+                prevPoliester,
+                prevPapelCalibrado);
 
             return ResponseEntity.ok(orderService.saveOrder(order));
         } else {

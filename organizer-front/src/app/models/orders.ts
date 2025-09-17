@@ -19,6 +19,12 @@ export class orders {
   emborrachada?: boolean = false;
   dataCortada?: Date;
   dataTirada?: Date;
+  destacador?: string;              // "M", "F", "MF"
+  modalidadeEntrega?: string;       // "RETIRADA" | "A ENTREGAR"
+  dataRequeridaEntrega?: Date;
+  usuarioImportacao?: string;
+  pertinax?: boolean;
+  poliester?: boolean;
+  papelCalibrado?: boolean;
   }
-
 

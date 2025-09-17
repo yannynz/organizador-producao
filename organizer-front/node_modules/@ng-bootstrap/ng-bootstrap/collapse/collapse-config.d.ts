@@ -1,4 +1,3 @@
-import { NgbConfig } from '../ngb-config';
 import * as i0 from "@angular/core";
 /**
  * A configuration service for the [NgbCollapse](#/components/collapse/api#NgbCollapse) component.
@@ -10,7 +9,6 @@ export declare class NgbCollapseConfig {
     private _ngbConfig;
     private _animation;
     horizontal: boolean;
-    constructor(_ngbConfig: NgbConfig);
     get animation(): boolean;
     set animation(animation: boolean);
     static ɵfac: i0.ɵɵFactoryDeclaration<NgbCollapseConfig, never>;

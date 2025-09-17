@@ -62,6 +62,15 @@ public class OrderWebSocketController {
             updatedOrder.setDataMontagem(order.getDataMontagem());
             updatedOrder.setEmborrachador(order.getEmborrachador());
             updatedOrder.setDataEmborrachamento(order.getDataEmborrachamento());
+            updatedOrder.setEmborrachada(order.isEmborrachada());
+            // extras
+            if (order.getDestacador() != null) updatedOrder.setDestacador(order.getDestacador());
+            if (order.getModalidadeEntrega() != null) updatedOrder.setModalidadeEntrega(order.getModalidadeEntrega());
+            if (order.getDataRequeridaEntrega() != null) updatedOrder.setDataRequeridaEntrega(order.getDataRequeridaEntrega());
+            if (order.getUsuarioImportacao() != null) updatedOrder.setUsuarioImportacao(order.getUsuarioImportacao());
+            updatedOrder.setPertinax(order.isPertinax());
+            updatedOrder.setPoliester(order.isPoliester());
+            updatedOrder.setPapelCalibrado(order.isPapelCalibrado());
 
             Order savedOrder = orderService.saveOrder(updatedOrder);
             System.out.println("Pedido atualizado: " + savedOrder);
