@@ -13,6 +13,36 @@
   overflow-x: auto;
 }
 
+.orders-table th,
+.orders-table td {
+  vertical-align: middle;
+  padding: 0.75rem;
+}
+
+.orders-table th:not(.cliente-col):not(.observacao-col),
+.orders-table td:not(.cliente-col):not(.observacao-col) {
+  white-space: nowrap;
+}
+
+.orders-table .attributes-cell {
+  min-width: 180px;
+}
+
+.orders-table .attributes-cell .badge {
+  font-size: 0.75rem;
+}
+
+@media (max-width: 768px) {
+  .orders-table th,
+  .orders-table td {
+    white-space: normal;
+  }
+
+  .orders-table .attributes-cell {
+    min-width: auto;
+  }
+}
+
 @media (max-width: 576px) {
   .btn {
     font-size: 0.8rem;
@@ -32,4 +62,3 @@
     background-color: transparent;
   }
 }
-

@@ -27,29 +27,29 @@
 
   <!-- Tabela de Pedidos -->
   <div class="table-responsive ">
-    <table class="table table-striped table-hover table-striped align-middle">
+    <table class="table table-striped table-hover align-middle orders-table">
       <thead class="table-dark">
         <tr>
-          <th>NR</th>
-          <th>CLIENTE</th>
-          <th>PRIORIDADE</th>
-          <th>DATA DE ENTRADA</th>
-          <th>STATUS</th>
-          <th class="text-center">ATRIBUTOS</th>
-          <th>DESENHISTAS</th>
-          <th>OBS</th>
+          <th class="text-nowrap">NR</th>
+          <th class="cliente-col">CLIENTE</th>
+          <th class="text-nowrap">PRIORIDADE</th>
+          <th class="text-nowrap">DATA DE ENTRADA</th>
+          <th class="text-nowrap">STATUS</th>
+          <th class="text-center text-nowrap">ATRIBUTOS</th>
+          <th class="text-nowrap">DESENHISTAS</th>
+          <th class="observacao-col">OBS</th>
         </tr>
       </thead>
       <tbody>
        <tr *ngFor="let order of orders">
-          <td>{{ order.nr }}</td>
-          <td>{{ order.cliente }}</td>
-          <td [ngStyle]="{'background-color': getPriorityColor(order.prioridade)}">
+          <td class="text-nowrap">{{ order.nr }}</td>
+          <td class="cliente-col">{{ order.cliente }}</td>
+          <td class="text-nowrap" [ngStyle]="{'background-color': getPriorityColor(order.prioridade)}">
             {{ order.prioridade }}
           </td>
-          <td>{{ order.dataH | date: 'dd/MM HH:mm' }}</td>
-          <td>{{ getStatusDescription(order.status) }}</td>
-          <td>
+          <td class="text-nowrap">{{ order.dataH | date: 'dd/MM HH:mm' }}</td>
+          <td class="text-nowrap">{{ getStatusDescription(order.status) }}</td>
+          <td class="attributes-cell">
             <div class="d-flex flex-wrap gap-1" *ngIf="order.emborrachada || order.destacador || order.pertinax || order.poliester || order.papelCalibrado">
               <span class="badge bg-success" *ngIf="order.emborrachada">Emborrachada</span>
               <span class="badge bg-secondary" *ngIf="order.destacador">Dest: {{ order.destacador }}</span>
@@ -58,8 +58,8 @@
               <span class="badge bg-info text-dark" *ngIf="order.papelCalibrado">Papel cal.</span>
             </div>
           </td>
-          <td>{{ order.usuario?.trim() || order.usuarioImportacao?.trim() }}</td>
-          <td>{{ order.observacao || 'Sem observações' }}</td>
+          <td class="text-nowrap">{{ order.usuarioImportacao?.trim() || '-'}}</td>
+          <td class="observacao-col">{{ order.observacao || 'Sem observações' }}</td>
         </tr>
       </tbody>
     </table>
@@ -69,4 +69,3 @@
 
   </div>
 </div>
-
