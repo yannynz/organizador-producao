@@ -72,34 +72,18 @@ private void notifyOpImported(OpImport saved, OpImportRequestDTO req, boolean li
 
 
 
-  /** Acrescenta "emborrachada" em observacao, sem duplicar, e respeita travas manuais. */
+  /** Marca pedido como emborrachada respeitando travas manuais, sem tocar na observação. */
   @Transactional
   protected boolean markOrderAsEmborrachada(Order f, Optional<OpImport> maybeOp) {
     if (f == null) return false;
 
     boolean manualLock = maybeOp.map(OpImport::isManualLockEmborrachada).orElse(false);
-    boolean changed = false;
+    if (manualLock || f.isEmborrachada()) return false;
 
-    String obs = Optional.ofNullable(f.getObservacao()).orElse("").trim();
-    String obsLower = obs.toLowerCase(Locale.ROOT);
-
-    if (!obsLower.contains("emborrachada")) {
-      String nova = obs.isBlank() ? "emborrachada" : obs + "; emborrachada";
-      f.setObservacao(nova);
-      changed = true;
-    }
-
-    if (!manualLock && !f.isEmborrachada()) {
-      f.setEmborrachada(true);
-      changed = true;
-    }
-
-    if (changed) {
-      orderRepo.save(f);
-      notifyOrder(f);
-    }
-
-    return changed;
+    f.setEmborrachada(true);
+    orderRepo.save(f);
+    notifyOrder(f);
+    return true;
   }
 
   /** Tenta localizar pedido por NR e aplicar marcação; retorna true se aplicou. */
