@@ -17,10 +17,9 @@ export class RubberComponent implements OnInit {
   loading = false;
   msg: { type: 'success' | 'danger' | null, text: string } = { type: null, text: '' };
 
-  // Lista de facas montadas que precisam ir para borracha (status 7 + observação contendo "emborrach")
+  // Lista de facas montadas marcadas para borracha (status 7 + flag emborrachada true)
   paraBorracha: orders[] = [];
 
-  // Último pedido processado (apenas feedback)
   pedidoAtualizado: orders | null = null;
 
   form = this.fb.group({
@@ -40,19 +39,15 @@ export class RubberComponent implements OnInit {
   }
 
   private precisaDeBorracha(o: orders): boolean {
-    const obs = (o as any).observacoes ?? (o as any).observacao ?? '';
-    const t = String(obs).toLowerCase();
-    // cobre "emborrachada", "emborrachado", "emborrachamento" etc. e menções claras a "borracha"
-    return t.includes('emborrach');
+    return o.emborrachada === true;
   }
 
   private carregarParaBorracha(): void {
     this.orderService.getOrders().subscribe({
       next: (lista) => {
         this.paraBorracha = lista
-          .filter(o => o.status === 7)
+          .filter(o => o.status === 7 && this.precisaDeBorracha(o))
           .sort((a, b) => {
-            // prioriza mais recentes pela data de montagem (fallbacks para dataH)
             const ta = (a as any).dataMontagem ? new Date((a as any).dataMontagem).getTime() :
                       a.dataH ? new Date(a.dataH).getTime() : 0;
             const tb = (b as any).dataMontagem ? new Date((b as any).dataMontagem).getTime() :
@@ -88,7 +83,6 @@ export class RubberComponent implements OnInit {
           return tb - ta;
         });
       } else if (idx !== -1) {
-        // se mudou status ou tiraram a marcação de borracha, some da lista
         this.paraBorracha.splice(idx, 1);
         this.paraBorracha = [...this.paraBorracha];
       }
@@ -101,7 +95,6 @@ export class RubberComponent implements OnInit {
     this.pedidoAtualizado = null;
   }
 
-  // Ação rápida: usa o borrachador preenchido e confirma a linha
   borrachaRapido(nrValue: string | number): void {
     const emborrachador = this.form.get('emborrachador')?.value?.toString().trim();
     if (!emborrachador) {
@@ -156,7 +149,6 @@ export class RubberComponent implements OnInit {
             this.form.patchValue({ nr: null }); // mantém o nome para o próximo
             this.pedidoAtualizado = saved;
 
-            // remove da lista
             this.paraBorracha = this.paraBorracha.filter(o => o.id !== saved.id);
           },
           error: (err) => {
@@ -185,4 +177,3 @@ export class RubberComponent implements OnInit {
     }
   }
 }
-
