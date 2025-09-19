@@ -122,7 +122,7 @@ export class MontagemComponent implements OnInit {
       return;
     }
 
-    // Busca, atualiza para status 7 e notifica WS
+    // Busca, ajusta o status conforme necessidade de borracha e notifica WS
     this.orderService.getOrders().subscribe({
       next: (lista: orders[]) => {
         const alvo = lista.find(o => Number((o as any).nr) === nrNum);
@@ -132,9 +132,12 @@ export class MontagemComponent implements OnInit {
           return;
         }
 
+        const requerBorracha = alvo.emborrachada === true;
+        const novoStatus = requerBorracha ? 7 : 2; // 7 = Montada, 2 = Pronta p/ entrega
+
         const atualizado: orders = {
           ...alvo,
-          status: 7, // Montada
+          status: novoStatus,
           montador: raw.montador.trim(),
           dataMontagem: DateTime.now().setZone('America/Sao_Paulo').toJSDate(),
         };
@@ -143,7 +146,7 @@ export class MontagemComponent implements OnInit {
           next: (saved: orders) => {
             try { this.ws.sendUpdateOrder(saved); } catch {}
             this.loading = false;
-            this.msg = { type: 'success', text: 'Montagem registrada com sucesso.' };
+            this.msg = { type: 'success', text: requerBorracha ? 'Montagem registrada com sucesso.' : 'Montagem registrada e pedido pronto para entrega.' };
             this.form.patchValue({ nr: null }); // mantém o nome pro próximo
             this.pedidoEncontrado = saved;
 
@@ -181,4 +184,3 @@ export class MontagemComponent implements OnInit {
     }
   }
 }
-
