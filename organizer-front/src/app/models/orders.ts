@@ -22,9 +22,9 @@ export class orders {
   destacador?: string;              // "M", "F", "MF"
   modalidadeEntrega?: string;       // "RETIRADA" | "A ENTREGAR"
   dataRequeridaEntrega?: Date;
+  usuario?: string;
   usuarioImportacao?: string;
   pertinax?: boolean;
   poliester?: boolean;
   papelCalibrado?: boolean;
   }
-

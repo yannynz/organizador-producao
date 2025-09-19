@@ -35,6 +35,8 @@
           <th>PRIORIDADE</th>
           <th>DATA DE ENTRADA</th>
           <th>STATUS</th>
+          <th class="text-center">ATRIBUTOS</th>
+          <th>DESENHISTAS</th>
           <th>OBS</th>
         </tr>
       </thead>
@@ -47,6 +49,16 @@
           </td>
           <td>{{ order.dataH | date: 'dd/MM HH:mm' }}</td>
           <td>{{ getStatusDescription(order.status) }}</td>
+          <td>
+            <div class="d-flex flex-wrap gap-1" *ngIf="order.emborrachada || order.destacador || order.pertinax || order.poliester || order.papelCalibrado">
+              <span class="badge bg-success" *ngIf="order.emborrachada">Emborrachada</span>
+              <span class="badge bg-secondary" *ngIf="order.destacador">Dest: {{ order.destacador }}</span>
+              <span class="badge bg-info text-dark" *ngIf="order.pertinax">Pertinax</span>
+              <span class="badge bg-info text-dark" *ngIf="order.poliester">Poliéster</span>
+              <span class="badge bg-info text-dark" *ngIf="order.papelCalibrado">Papel cal.</span>
+            </div>
+          </td>
+          <td>{{ order.usuario?.trim() || order.usuarioImportacao?.trim() }}</td>
           <td>{{ order.observacao || 'Sem observações' }}</td>
         </tr>
       </tbody>
@@ -57,6 +69,4 @@
 
   </div>
 </div>
-
-
 
