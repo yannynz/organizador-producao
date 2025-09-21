@@ -13,7 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
+import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,10 +37,14 @@ public class DobrasFileService {
 
     private static final Logger log = LoggerFactory.getLogger(DobrasFileService.class);
 
-    // ^NR\s*(\d+)\.(M\.DXF|DXF\.FCD)$ (case-insensitive, unicode-aware)
-    private static final Pattern DOBRAS_PATTERN = Pattern.compile(
-            "^NR\\s*(\\d+)\\.(?:M\\.DXF|DXF\\.FCD)$",
+    private static final Pattern DOBRAS_NR_PATTERN = Pattern.compile(
+            "NR\\s*(\\d+)",
             Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE
+    );
+
+    private static final Set<String> DOBRAS_SUFFIXES = Set.of(
+            ".M.DXF",
+            ".DXF.FCD"
     );
 
     private final ObjectMapper objectMapper;
@@ -88,10 +94,34 @@ public class DobrasFileService {
      * Extrai o NR do nome do arquivo, se casar com o padrão esperado.
      */
     private Optional<String> extractOrderNumber(String fileName) {
-        Matcher m = DOBRAS_PATTERN.matcher(fileName.trim());
-        if (m.matches()) {
-            return Optional.of(m.group(1)); // grupo 1 = número do pedido
+        if (fileName == null) {
+            return Optional.empty();
         }
+
+        String trimmed = fileName.trim();
+        if (trimmed.isEmpty()) {
+            return Optional.empty();
+        }
+
+        String upper = trimmed.toUpperCase(Locale.ROOT);
+
+        boolean hasValidSuffix = false;
+        for (String suffix : DOBRAS_SUFFIXES) {
+            if (upper.endsWith(suffix)) {
+                hasValidSuffix = true;
+                break;
+            }
+        }
+
+        if (!hasValidSuffix) {
+            return Optional.empty();
+        }
+
+        Matcher matcher = DOBRAS_NR_PATTERN.matcher(upper);
+        if (matcher.find()) {
+            return Optional.of(matcher.group(1));
+        }
+
         return Optional.empty();
     }
 
@@ -103,18 +133,17 @@ public class DobrasFileService {
     protected void updateOrderStatusToTirada(String orderNumber) {
         orderRepository.findByNr(orderNumber).ifPresentOrElse(order -> {
             int current = order.getStatus();
+            ZonedDateTime agora = ZonedDateTime.now(ZoneId.of("America/Sao_Paulo"));
+            order.setStatus(STATUS_TIRADA);
+            order.setDataTirada(agora);
+            orderRepository.save(order);
+            messagingTemplate.convertAndSend("/topic/orders", order);
+
             if (current != STATUS_TIRADA) {
-                order.setStatus(STATUS_TIRADA);
-                if (order.getDataTirada() == null) {
-                order.setDataTirada(ZonedDateTime.now(ZoneId.of("America/Sao_Paulo")));
-            }
-                orderRepository.save(order);
-                messagingTemplate.convertAndSend("/topic/orders", order);
                 log.info("[DOBRAS] Status do pedido {} atualizado de {} para {}", orderNumber, current, STATUS_TIRADA);
             } else {
-                log.debug("[DOBRAS] Pedido {} já está no status {}", orderNumber, STATUS_TIRADA);
+                log.info("[DOBRAS] Pedido {} reforçado como tirado (reprocessamento)", orderNumber);
             }
         }, () -> log.warn("[DOBRAS] Pedido não encontrado (NR={})", orderNumber));
     }
 }
-
