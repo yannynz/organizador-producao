@@ -1,6 +1,6 @@
 services:
   postgres-container:
-    image: postgres:latest
+    image: public.ecr.aws/docker/library/postgres:latest
     container_name: postgres-container
     environment:
       TZ: America/Sao_Paulo  # Configurando o fuso horário
@@ -63,7 +63,7 @@ services:
       - organizador-producao-mynetwork
 
   nginx-container:
-    image: nginx:latest
+    image: public.ecr.aws/docker/library/nginx:latest
     container_name: nginx-container
     ports:
       - "80:80"  # Porta 80 do Nginx para acesso local
@@ -78,7 +78,7 @@ services:
       - organizador-producao-mynetwork
 
   rabbitmq-container:
-    image: rabbitmq:management
+    image: public.ecr.aws/docker/library/rabbitmq:management
     container_name: rabbitmq-container
     ports:
       - "5672:5672"  # Porta do RabbitMQ
@@ -100,4 +100,3 @@ networks:
 volumes:
   pgdata:
     driver: local
-

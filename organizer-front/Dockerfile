@@ -1,4 +1,4 @@
-FROM node:18-alpine AS build
+FROM public.ecr.aws/docker/library/node:18-alpine AS build
 
 # Configurar o fuso horário para São Paulo
 ENV TZ=America/Sao_Paulo
@@ -22,7 +22,6 @@ COPY . .
 RUN npm run build --configuration=production
 
 # Etapa final: Servir com nginx
-FROM nginx:alpine
+FROM public.ecr.aws/docker/library/nginx:alpine
 COPY --from=build /app/dist/ /usr/share/nginx/html
 CMD ["nginx", "-g", "daemon off;"]
-

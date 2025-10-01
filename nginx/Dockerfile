@@ -1,5 +1,5 @@
 # Use a imagem oficial do Nginx
-FROM nginx:alpine
+FROM public.ecr.aws/docker/library/nginx:alpine
 
 ENV TZ=America/Sao_Paulo
 RUN apk add --no-cache tzdata && \
@@ -15,4 +15,3 @@ COPY ../organizer-front/dist/ /usr/share/nginx/html/
 
 # Exponha a porta 80
 EXPOSE 80
-

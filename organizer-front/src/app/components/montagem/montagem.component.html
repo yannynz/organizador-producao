@@ -14,7 +14,6 @@
       </div>
       <div class="col-sm-3 d-flex gap-2">
         <button type="button" class="btn btn-warning" (click)="limpar()" [disabled]="loading">Limpar</button>
-        <button type="submit" class="btn btn-primary" [disabled]="loading">Confirmar</button>
       </div>
     </div>
   </form>
@@ -37,6 +36,8 @@
             <tr>
               <th style="width: 90px;">NR</th>
               <th>Cliente</th>
+              <th>Atributos</th>
+              <th>Obs</th>
               <th style="width: 160px;">Criado</th>
               <th style="width: 120px;">Ação</th>
             </tr>
@@ -45,6 +46,16 @@
             <tr *ngFor="let p of tiradas; trackBy: trackById">
               <td class="fw-semibold">{{ p.nr }}</td>
               <td>{{ p.cliente }}</td>
+              <td class="attributes-cell">
+            <div class="d-flex flex-wrap gap-1" *ngIf="p.emborrachada || p.destacador || p.pertinax || p.poliester || p.papelCalibrado">
+              <span class="badge bg-success" *ngIf="p.emborrachada">Emborrachada</span>
+              <span class="badge bg-secondary" *ngIf="p.destacador">Dest: {{ p.destacador }}</span>
+              <span class="badge bg-info text-dark" *ngIf="p.pertinax">Pertinax</span>
+              <span class="badge bg-info text-dark" *ngIf="p.poliester">Poliéster</span>
+              <span class="badge bg-info text-dark" *ngIf="p.papelCalibrado">Papel cal.</span>
+            </div>
+          </td>
+          <td>{{ p.observacao }}</td>
               <td>{{ p.dataH | date:'dd/MM HH:mm' }}</td>
               <td>
                 <button class="btn btn-success btn-sm" (click)="montarRapido(p.nr)" [disabled]="loading">
