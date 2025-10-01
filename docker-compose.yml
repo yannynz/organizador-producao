@@ -1,6 +1,6 @@
 services:
   postgres-container:
-    image: public.ecr.aws/docker/library/postgres:latest
+    image: postgres:17 
     container_name: postgres-container
     environment:
       TZ: America/Sao_Paulo  # Configurando o fuso horário
