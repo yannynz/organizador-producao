@@ -8,12 +8,12 @@ import { environment } from '../enviroment';
 import { HttpParams } from '@angular/common/http';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class OrderService {
   private baseUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   getOrders(): Observable<orders[]> {
     return this.http.get<orders[]>(`${this.baseUrl}`);
@@ -21,6 +21,11 @@ export class OrderService {
 
   getOrderById(id: number): Observable<orders | null> {
     return this.http.get<orders | null>(`${this.baseUrl}/${id}`);
+  }
+
+  getOrderByNr(nr: string | number): Observable<orders> {
+    const nrParam = encodeURIComponent(String(nr));
+    return this.http.get<orders>(`${this.baseUrl}/nr/${nrParam}`);
   }
 
   createOrder(order: orders): Observable<orders> {
@@ -34,7 +39,12 @@ export class OrderService {
   deleteOrder(id: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/delete/${id}`);
   }
-  updateOrderStatus(id: number, status: number, entregador: string, observacao: string): Observable<orders> {
+  updateOrderStatus(
+    id: number,
+    status: number,
+    entregador: string,
+    observacao: string,
+  ): Observable<orders> {
     const url = `${this.baseUrl}/${id}/status`;
     const params = new URLSearchParams();
     params.append('status', status.toString());
@@ -42,7 +52,11 @@ export class OrderService {
     params.append('observacao', observacao);
     return this.http.put<orders>(`${url}?${params.toString()}`, null);
   }
-  updateOrderAdm(id: number, order: orders, adminPassword: string): Observable<orders> {
+  updateOrderAdm(
+    id: number,
+    order: orders,
+    adminPassword: string,
+  ): Observable<orders> {
     const url = `${this.baseUrl}/updateAdm/${id}`;
     const params = new HttpParams().set('adminPassword', adminPassword);
     return this.http.put<orders>(url, order, { params });
@@ -58,7 +72,7 @@ export class OrderService {
     limit: number;
     cursor: string | null;
     strategy: 'ID' | 'DATE_ID';
-    filters: OrderFilters;          // seu tipo do front
+    filters: OrderFilters; // seu tipo do front
   }) {
     let params = new HttpParams()
       .set('limit', String(req.limit))
@@ -75,7 +89,7 @@ export class OrderService {
     return this.http.post<CursorPage<orders>>(
       `${this.baseUrl}/orders/search-cursor`,
       body, // @RequestBody OrderSearchDTO
-      { params }
+      { params },
     );
   }
 
@@ -98,7 +112,7 @@ export class OrderService {
     if (f.montador) dto.montador = f.montador;
 
     const rng = (from?: string, to?: string) =>
-      (from || to) ? { from, to } : undefined;
+      from || to ? { from, to } : undefined;
 
     const rDataH = rng(f.dataHFrom, f.dataHTo);
     const rDataEntrega = rng(f.dataEntregaFrom, f.dataEntregaTo);
@@ -113,4 +127,3 @@ export class OrderService {
     return dto;
   }
 }
-

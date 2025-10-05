@@ -70,7 +70,7 @@ public class OrderService {
 
     @Scheduled(fixedRate = 60000) // Executa a cada 10 minutos
 public void updateOrderPriorities() {
-    List<Integer> statuses = Arrays.asList(0, 1, 6, 7); // Status relevantes
+    List<Integer> statuses = Arrays.asList(0, 1, 6, 7, 8); // Status relevantes
     List<Order> orders = orderRepository.findByStatusIn(statuses);
 
     System.out.println("Atualizando prioridades dos pedidos...");

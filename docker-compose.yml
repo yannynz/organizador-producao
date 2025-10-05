@@ -10,7 +10,7 @@ services:
     ports:
       - "5433:5432"  # Mapeando a porta do banco de dados para a máquina local
     volumes:
-      - pgdata:/var/lib/postgresql/data  # Persistência de dados
+      - pgdata17:/var/lib/postgresql/data  # Persistência de dados
       - /etc/timezone:/etc/timezone:ro  # Montando o arquivo timezone
       - /etc/localtime:/etc/localtime:ro  # Montando o arquivo localtime para configurar o fuso horário
     networks:
@@ -26,7 +26,7 @@ services:
     build: .
     container_name: backend-container
     ports:
-      - "8080:8080"  # Mapeando a porta 8080 do backend para a máquina local
+      - "8081:8080"  # Mapeando a porta interna 8080 para 8081 na máquina local
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-container:5432/teste01  # Conexão com o banco
       SPRING_DATASOURCE_USERNAME: postgres
@@ -98,5 +98,5 @@ networks:
     driver: bridge
 
 volumes:
-  pgdata:
+  pgdata17:
     driver: local

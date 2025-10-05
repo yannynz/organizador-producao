@@ -43,21 +43,21 @@ public class OrderController {
     }
 
     @GetMapping("/nr/{nr}")
-public ResponseEntity<Order> getOrderByNr(@PathVariable String nr) {
-    Optional<Order> order = orderService.getOrderByNr(nr);
-    return order.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
-}
+    public ResponseEntity<Order> getOrderByNr(@PathVariable String nr) {
+        Optional<Order> order = orderService.getOrderByNr(nr);
+        return order.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
 
     @PostMapping("/create")
     public ResponseEntity<Order> createOrder(@RequestBody Order order) {
-    try {
-        Order createdOrder = orderService.saveOrder(order); // Salva o pedido no banco de dados
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder); // Retorna 201 com o pedido criado
+        try {
+            Order createdOrder = orderService.saveOrder(order);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
 
-    } catch (Exception e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build(); // Retorna 400 em caso de erro
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
     }
-}
     @PutMapping("/update/{id}")
     public ResponseEntity<Order> updateOrder(@PathVariable Long id, @RequestBody Order orderDetails) {
         Optional<Order> orderOptional = orderService.getOrderById(id);
@@ -93,6 +93,8 @@ public ResponseEntity<Order> getOrderByNr(@PathVariable String nr) {
             order.setPertinax(orderDetails.isPertinax());
             order.setPoliester(orderDetails.isPoliester());
             order.setPapelCalibrado(orderDetails.isPapelCalibrado());
+            order.setVincador(orderDetails.getVincador());
+            order.setDataVinco(orderDetails.getDataVinco());
 
             opImportService.applyManualLocksForOrder(
                 order,

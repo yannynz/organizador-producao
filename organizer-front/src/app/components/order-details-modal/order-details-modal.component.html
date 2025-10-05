@@ -61,13 +61,79 @@
               <tr>
                 <th>Data requerida</th>
                 <td>
-                  <div class="d-flex flex-column gap-2">
-                    <input #dateTimeInput
-                           type="text"
-                           class="form-control"
-                           formControlName="dataRequeridaEntrega"
-                           placeholder="Clique para escolher data e hora requeridas"
-                           autocomplete="off" />
+                  <div class="picker-container" #pickerContainer>
+                    <input
+                      type="text"
+                      class="form-control"
+                      [value]="form.get('dataRequeridaEntrega')?.value"
+                      readonly
+                      (click)="togglePicker($event)"
+                      placeholder="Clique para escolher data e hora requerida"
+                    />
+
+                    <div class="picker-backdrop" *ngIf="pickerOpen" (click)="closePicker()"></div>
+
+                    <div class="picker-modal" *ngIf="pickerOpen" (click)="$event.stopPropagation()">
+                      <div class="picker-header">Selecionar Data e Hora</div>
+
+                      <div class="calendar-grid">
+                        <div *ngFor="let d of weekDays" class="calendar-weekday">{{ d }}</div>
+                        <div
+                          *ngFor="let day of monthCells"
+                          class="calendar-day"
+                          [class.outside]="day === null"
+                          [class.selected]="day === selectedDay"
+                          (click)="day !== null ? selectDay(day) : null"
+                        >
+                          {{ day === null ? '' : day }}
+                        </div>
+                      </div>
+
+                      <div class="clock" *ngIf="!selectingMinutes">
+                        <div
+                          class="clock-hour outer"
+                          *ngFor="let h of outerHours"
+                          [class.selected]="selectedHour === h"
+                          [ngStyle]="getClockNumberStyle(h, 'outer')"
+                          (click)="selectHour(h)"
+                        >
+                          {{ h.toString().padStart(2, '0') }}
+                        </div>
+
+                        <div
+                          class="clock-hour inner"
+                          *ngFor="let h of innerHours"
+                          [class.selected]="selectedHour === h"
+                          [ngStyle]="getClockNumberStyle(h, 'inner')"
+                          (click)="selectHour(h)"
+                        >
+                          {{ h.toString().padStart(2, '0') }}
+                        </div>
+
+                        <div class="clock-hand" [ngStyle]="clockHandStyle()"></div>
+                        <div class="clock-center"></div>
+                      </div>
+
+                      <div class="clock" *ngIf="selectingMinutes">
+                        <div
+                          class="clock-minute"
+                          *ngFor="let m of minuteSteps"
+                          [class.selected]="selectedMinute === m"
+                          [ngStyle]="getClockNumberStyle(m, 'minute')"
+                          (click)="selectMinute(m)"
+                        >
+                          {{ m.toString().padStart(2, '0') }}
+                        </div>
+
+                        <div class="clock-hand" [ngStyle]="clockHandStyle()"></div>
+                        <div class="clock-center"></div>
+                      </div>
+
+                      <div class="picker-footer">
+                        <button type="button" class="btn btn-outline-secondary btn-sm" (click)="closePicker()">Cancelar</button>
+                        <button type="button" class="btn btn-primary btn-sm" (click)="applyDateTime()">OK</button>
+                      </div>
+                    </div>
                   </div>
                 </td>
               </tr>
@@ -89,6 +155,8 @@
               <tr><th>Data de Tiragem</th><td>{{ form.get('dataTirada')?.value | date:'dd/MM/yyyy HH:mm' }}</td></tr>
               <tr><th>Montador</th><td>{{ form.get('montador')?.value }}</td></tr>
               <tr><th>Data de Montagem</th><td>{{ form.get('dataMontagem')?.value | date:'dd/MM/yyyy HH:mm' }}</td></tr>
+              <tr><th>Vincador</th><td>{{ form.get('vincador')?.value }}</td></tr>
+              <tr><th>Data Vinco</th><td>{{ form.get('dataVinco')?.value | date:'dd/MM/yyyy HH:mm' }}</td></tr>
               <tr><th>Emborrachador</th><td>{{ form.get('emborrachador')?.value }}</td></tr>
               <tr><th>Data de Emborrachamento</th><td>{{ form.get('dataEmborrachamento')?.value | date:'dd/MM/yyyy HH:mm' }}</td></tr>
               <tr><th>Saída</th><td>{{ form.get('dataEntrega')?.value | date:'dd/MM/yyyy HH:mm' }}</td></tr>

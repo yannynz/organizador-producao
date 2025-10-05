@@ -37,8 +37,20 @@ public class Order {
     private boolean poliester;
     private boolean papelCalibrado;
 
+    @Column(name = "vincador")
+    private String vincador;
+
+    @Column(name = "data_vinco")
+    private ZonedDateTime dataVinco;
+
 
     public Order() {}
+
+    public String getVincador() { return vincador; }
+    public void setVincador(String vincador) { this.vincador = vincador; }
+
+    public ZonedDateTime getDataVinco() { return dataVinco; }
+    public void setDataVinco(ZonedDateTime dataVinco) { this.dataVinco = dataVinco; }
 
     public String getModalidadeEntrega() { return modalidadeEntrega; }
     public void setModalidadeEntrega(String modalidadeEntrega) { this.modalidadeEntrega = modalidadeEntrega; }

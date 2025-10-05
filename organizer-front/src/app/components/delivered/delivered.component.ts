@@ -15,10 +15,9 @@ import { debounceTime } from 'rxjs/operators';
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './delivered.component.html',
-  styleUrls: ['./delivered.component.css']
+  styleUrls: ['./delivered.component.css'],
 })
 export class DeliveredComponent implements OnInit {
-
   @ViewChild('adverseOutputModal') adverseOutputModal!: ElementRef;
   adverseOutputForm: FormGroup;
   allOrders: orders[] = [];
@@ -31,17 +30,16 @@ export class DeliveredComponent implements OnInit {
   totalPages: number = 0;
   visiblePages: number[] = [];
 
-
   statusDescriptions: { [key: number]: string } = {
     0: 'Em Produção',
     1: 'Cortada',
     6: 'Tirada',
-    7: 'Montada',
+    7: 'Montada (corte)',
+    8: 'Montada e vincada',
     2: 'Pronto para Entrega',
     3: 'Saiu para Entrega',
     4: 'Retirada',
     5: 'Entregue',
-
   };
 
   @ViewChild('orderDetailsModal') orderDetailsModal!: ElementRef;
@@ -50,7 +48,7 @@ export class DeliveredComponent implements OnInit {
     private orderService: OrderService,
     private fb: FormBuilder,
     private websocketService: WebsocketService,
-    private modalService: NgbModal
+    private modalService: NgbModal,
   ) {
     this.editOrderForm = this.fb.group({
       id: [''],
@@ -68,23 +66,26 @@ export class DeliveredComponent implements OnInit {
       dataMontagem: [''],
     });
     this.returnForm = this.fb.group({
-      search: ['']
+      search: [''],
     });
     this.adverseOutputForm = this.fb.group({
       adverseType: ['', Validators.required],
       customAdverseType: [''],
       cliente: ['', Validators.required],
       prioridade: ['VERDE', Validators.required],
-      observacao: ['']
+      observacao: [''],
     });
   }
 
   ngOnInit(): void {
     this.loadOrders();
     this.setupWebSocket();
-    this.returnForm.get('search')?.valueChanges.pipe(debounceTime(300)).subscribe(() => {
-      this.filterOrdersByAnyAttribute();
-    });
+    this.returnForm
+      .get('search')
+      ?.valueChanges.pipe(debounceTime(300))
+      .subscribe(() => {
+        this.filterOrdersByAnyAttribute();
+      });
   }
 
   loadOrders(): void {
@@ -132,26 +133,38 @@ export class DeliveredComponent implements OnInit {
   }
 
   filterOrdersByAnyAttribute(): void {
-    const searchTerm = this.returnForm.get('search')?.value?.toLowerCase() || '';
+    const searchTerm =
+      this.returnForm.get('search')?.value?.toLowerCase() || '';
 
     if (searchTerm) {
-      this.orders = this.allOrders.filter(order => {
-        const creationDate = order.dataH ? format(new Date(order.dataH), 'dd/MM/yyyy') : '';
-        const deliveryDate = order.dataEntrega ? format(new Date(order.dataEntrega), 'dd/MM/yyyy') : '';
-        const statusDescription = this.statusDescriptions[order.status]?.toLowerCase() || '';
+      this.orders = this.allOrders.filter((order) => {
+        const creationDate = order.dataH
+          ? format(new Date(order.dataH), 'dd/MM/yyyy')
+          : '';
+        const deliveryDate = order.dataEntrega
+          ? format(new Date(order.dataEntrega), 'dd/MM/yyyy')
+          : '';
+        const statusDescription =
+          this.statusDescriptions[order.status]?.toLowerCase() || '';
 
         return (
           order.nr.toLowerCase().includes(searchTerm) || // Número do pedido
           order.cliente.toLowerCase().includes(searchTerm) || // Nome do cliente
           order.prioridade.toLowerCase().includes(searchTerm) || // Prioridade
           statusDescription.includes(searchTerm) || // Descrição do status
-          (order.entregador && order.entregador.toLowerCase().includes(searchTerm)) || // Entregador
-          (order.observacao && order.observacao.toLowerCase().includes(searchTerm)) || // Observação
+          (order.entregador &&
+            order.entregador.toLowerCase().includes(searchTerm)) || // Entregador
+          (order.observacao &&
+            order.observacao.toLowerCase().includes(searchTerm)) || // Observação
           (order.veiculo && order.veiculo.toLowerCase().includes(searchTerm)) || // Veículo
           creationDate.includes(searchTerm) || // Data de criação
           deliveryDate.includes(searchTerm) || // Data de entrega
           order.montador?.toLowerCase().includes(searchTerm) || // montador
-          (order.dataMontagem ? format(new Date(order.dataMontagem), 'dd/MM/yyyy').includes(searchTerm) : false) // dataMontagem
+          (order.dataMontagem
+            ? format(new Date(order.dataMontagem), 'dd/MM/yyyy').includes(
+                searchTerm,
+              )
+            : false) // dataMontagem
         );
       });
       this.totalPages = Math.ceil(this.orders.length / this.pageSize); // Atualiza número de páginas após o filtro
@@ -167,7 +180,9 @@ export class DeliveredComponent implements OnInit {
     this.websocketService.watchOrders().subscribe((message) => {
       const updatedOrder: orders = JSON.parse(message.body);
 
-      const orderIndex = this.allOrders.findIndex(order => order.id === updatedOrder.id);
+      const orderIndex = this.allOrders.findIndex(
+        (order) => order.id === updatedOrder.id,
+      );
       if (orderIndex !== -1) {
         this.allOrders[orderIndex] = updatedOrder;
       } else {
@@ -182,19 +197,25 @@ export class DeliveredComponent implements OnInit {
   updateOrder(): void {
     if (this.editOrderForm.valid) {
       // Cria uma cópia do pedido com os novos dados
-      const updatedOrder: orders = { ...this.selectedOrder, ...this.editOrderForm.value };
-      const currentSearchTerm = this.returnForm.get('search')?.value?.toLowerCase(); // Armazena o termo de pesquisa
+      const updatedOrder: orders = {
+        ...this.selectedOrder,
+        ...this.editOrderForm.value,
+      };
+      const currentSearchTerm = this.returnForm
+        .get('search')
+        ?.value?.toLowerCase(); // Armazena o termo de pesquisa
       const currentPage = this.currentPage; // Armazena a página atual
 
       // Chama o serviço para atualizar o pedido no banco de dados
       this.orderService.updateOrder(updatedOrder.id, updatedOrder).subscribe(
         () => {
-
           // Envia a atualização via WebsocketService
           this.websocketService.sendUpdateOrder(updatedOrder);
 
           // Atualiza a lista de pedidos locais
-          const orderIndex = this.allOrders.findIndex(order => order.id === updatedOrder.id);
+          const orderIndex = this.allOrders.findIndex(
+            (order) => order.id === updatedOrder.id,
+          );
           if (orderIndex !== -1) {
             this.allOrders[orderIndex] = updatedOrder;
           } else {
@@ -221,7 +242,7 @@ export class DeliveredComponent implements OnInit {
         (error) => {
           console.error('Erro ao atualizar o pedido:', error);
           alert('Erro ao atualizar o pedido.');
-        }
+        },
       );
     }
   }
@@ -261,7 +282,7 @@ export class DeliveredComponent implements OnInit {
     const orderId = this.selectedOrder?.id; // Utiliza o operador opcional para evitar erro
     if (
       confirm(
-        `Tem certeza que deseja excluir o pedido de ID ${orderId}? Esta ação não pode ser desfeita.`
+        `Tem certeza que deseja excluir o pedido de ID ${orderId}? Esta ação não pode ser desfeita.`,
       )
     ) {
       this.orderService.deleteOrder(orderId!).subscribe(
@@ -282,37 +303,51 @@ export class DeliveredComponent implements OnInit {
         (error) => {
           console.error('Erro ao deletar pedido:', error);
           alert('Não foi possível excluir o pedido. Tente novamente.');
-        }
+        },
       );
     }
   }
 
   getPriorityColor(prioridade: string): string {
     switch (prioridade) {
-      case 'VERMELHO': return 'red';
-      case 'AMARELO': return 'yellow';
-      case 'AZUL': return 'blue';
-      case 'VERDE': return 'green';
-      default: return 'black';
+      case 'VERMELHO':
+        return 'red';
+      case 'AMARELO':
+        return 'yellow';
+      case 'AZUL':
+        return 'blue';
+      case 'VERDE':
+        return 'green';
+      default:
+        return 'black';
     }
   }
 
   getStatusDescription(status: number): string {
     switch (status) {
-      case 0: return 'Em Produção';
-      case 1: return 'Cortada';
-      case 2: return 'Pronto para Entrega';
-      case 3: return 'Saiu para Entrega';
-      case 4: return 'Retirada';
-      case 5: return 'Entregue';
-      case 6: return 'Tirada';
-      case 7: return 'Montada';
-      default: return 'Desconhecido';
+      case 0:
+        return 'Em Produção';
+      case 1:
+        return 'Cortada';
+      case 2:
+        return 'Pronto para Entrega';
+      case 3:
+        return 'Saiu para Entrega';
+      case 4:
+        return 'Retirada';
+      case 5:
+        return 'Entregue';
+      case 6:
+        return 'Tirada';
+      case 7:
+        return 'Montada';
+      default:
+        return 'Desconhecido';
     }
   }
 
   getStatusKeys(): number[] {
-    return Object.keys(this.statusDescriptions).map(key => +key);
+    return Object.keys(this.statusDescriptions).map((key) => +key);
   }
 
   openAdverseOutputModal(): void {
@@ -342,7 +377,8 @@ export class DeliveredComponent implements OnInit {
       dataH: DateTime.now().setZone('America/Sao_Paulo').toJSDate(),
       prioridade: this.adverseOutputForm.get('prioridade')?.value || 'VERDE',
       status: 2,
-      observacao: this.adverseOutputForm.get('observacao')?.value || 'Sem observações',
+      observacao:
+        this.adverseOutputForm.get('observacao')?.value || 'Sem observações',
       isOpen: false,
     };
 
@@ -355,8 +391,7 @@ export class DeliveredComponent implements OnInit {
       },
       (error) => {
         alert('Erro ao salvar a saída adversa: ' + error.message);
-      }
+      },
     );
   }
 }
-

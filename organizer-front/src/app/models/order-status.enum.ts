@@ -6,6 +6,7 @@ export enum OrderStatus {
   Retirada = 4,
   Entregue = 5,
   Tirada = 6,
-  Montada = 7
+  MontadaCorte = 7,
+  MontadaCompleta = 8,
 }
 

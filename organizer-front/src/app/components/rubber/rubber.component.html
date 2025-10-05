@@ -1,7 +1,14 @@
-<div class="container py-4" style="max-width: 720px;">
+<div class="container py-4" style="max-width: 720px">
   <h3 class="mb-3">Emborrachamento</h3>
 
-  <div *ngIf="msg.type" class="alert" [ngClass]="{'alert-success': msg.type==='success','alert-danger': msg.type==='danger'}">
+  <div
+    *ngIf="msg.type"
+    class="alert"
+    [ngClass]="{
+      'alert-success': msg.type === 'success',
+      'alert-danger': msg.type === 'danger',
+    }"
+  >
     {{ msg.text }}
   </div>
 
@@ -10,10 +17,22 @@
     <div class="row g-3 align-items-end">
       <div class="col-sm-5">
         <label class="form-label">Nome do emborrachador</label>
-        <input type="text" class="form-control" formControlName="emborrachador" autocomplete="name">
+        <input
+          type="text"
+          class="form-control"
+          formControlName="emborrachador"
+          autocomplete="name"
+        />
       </div>
       <div class="col-sm-3 d-flex gap-2">
-        <button type="button" class="btn btn-warning" (click)="limpar()" [disabled]="loading">Limpar</button>
+        <button
+          type="button"
+          class="btn btn-warning"
+          (click)="limpar()"
+          [disabled]="loading"
+        >
+          Limpar
+        </button>
       </div>
     </div>
   </form>
@@ -22,11 +41,16 @@
   <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
       <strong>Facas montadas p/ borracha</strong>
-      <small class="text-muted" *ngIf="paraBorracha?.length"> {{ paraBorracha.length }} item(ns)</small>
+      <small class="text-muted" *ngIf="paraBorracha?.length">
+        {{ paraBorracha.length }} item(ns)</small
+      >
     </div>
 
     <div class="card-body p-0">
-      <div *ngIf="!paraBorracha || paraBorracha.length === 0" class="p-3 text-muted">
+      <div
+        *ngIf="!paraBorracha || paraBorracha.length === 0"
+        class="p-3 text-muted"
+      >
         Nenhuma faca pendente de borracha no momento.
       </div>
 
@@ -34,12 +58,12 @@
         <table class="table table-sm mb-0 align-middle">
           <thead class="table-light">
             <tr>
-              <th style="width: 90px;">NR</th>
+              <th style="width: 90px">NR</th>
               <th>Cliente</th>
-              <th style="width: 120px;">Montador</th>
+              <th style="width: 180px">Montagem</th>
+              <th style="width: 180px">Vinco</th>
               <th>Atributos</th>
-              <th style="width: 160px;">Montada</th>
-              <th style="width: 140px;">Ação</th>
+              <th style="width: 140px">Ação</th>
             </tr>
           </thead>
           <tbody>
@@ -47,27 +71,83 @@
               <td class="fw-semibold">{{ p.nr }}</td>
               <td>{{ p.cliente }}</td>
               <td>
-                {{ p.montador }}
+                <div>
+                  <span
+                    class="fw-semibold"
+                    *ngIf="p.montador; else pendenteMontagem"
+                    >{{ p.montador }}</span
+                  >
+                </div>
+                <div class="small text-muted" *ngIf="p.dataMontagem">
+                  {{ p.dataMontagem | date: "dd/MM HH:mm" }}
+                </div>
+                <ng-template #pendenteMontagem>
+                  <span class="text-muted">Pendente</span>
+                </ng-template>
+              </td>
+              <td>
+                <div>
+                  <span
+                    class="fw-semibold"
+                    *ngIf="p.vincador; else pendenteVinco"
+                    >{{ p.vincador }}</span
+                  >
+                </div>
+                <div class="small text-muted" *ngIf="p.dataVinco">
+                  {{ p.dataVinco | date: "dd/MM HH:mm" }}
+                </div>
+                <ng-template #pendenteVinco>
+                  <span class="text-muted">Pendente</span>
+                </ng-template>
               </td>
               <td class="attributes-cell">
-            <div class="d-flex flex-wrap gap-1" *ngIf="p.emborrachada || p.destacador || p.pertinax || p.poliester || p.papelCalibrado">
-              <span class="badge bg-success" *ngIf="p.emborrachada">Emborrachada</span>
-              <span class="badge bg-secondary" *ngIf="p.destacador">Dest: {{ p.destacador }}</span>
-              <span class="badge bg-info text-dark" *ngIf="p.pertinax">Pertinax</span>
-              <span class="badge bg-info text-dark" *ngIf="p.poliester">Poliéster</span>
-              <span class="badge bg-info text-dark" *ngIf="p.papelCalibrado">Papel cal.</span>
-            </div>
-          </td>
+                <div
+                  class="d-flex flex-wrap gap-1"
+                  *ngIf="
+                    p.emborrachada ||
+                    p.destacador ||
+                    p.pertinax ||
+                    p.poliester ||
+                    p.papelCalibrado
+                  "
+                >
+                  <span class="badge bg-success" *ngIf="p.emborrachada"
+                    >Emborrachada</span
+                  >
+                  <span class="badge bg-secondary" *ngIf="p.destacador"
+                    >Dest: {{ p.destacador }}</span
+                  >
+                  <span class="badge bg-info text-dark" *ngIf="p.pertinax"
+                    >Pertinax</span
+                  >
+                  <span class="badge bg-info text-dark" *ngIf="p.poliester"
+                    >Poliéster</span
+                  >
+                  <span class="badge bg-info text-dark" *ngIf="p.papelCalibrado"
+                    >Papel cal.</span
+                  >
+                </div>
+                <div
+                  *ngIf="
+                    !(
+                      p.emborrachada ||
+                      p.destacador ||
+                      p.pertinax ||
+                      p.poliester ||
+                      p.papelCalibrado
+                    )
+                  "
+                  class="text-muted small"
+                >
+                  Nenhum.
+                </div>
+              </td>
               <td>
-                <!-- tenta mostrar dataMontagem se existir; senão dataH -->
-                <ng-container *ngIf="$any(p).dataMontagem as dm; else criado">
-    {{ dm | date:'dd/MM HH:mm' }}
-  </ng-container>
-  <ng-template #criado>
-    {{ p.dataH | date:'dd/MM HH:mm' }}
-  </ng-template>              </td>
-              <td>
-                <button class="btn btn-success btn-sm" (click)="borrachaRapido(p.nr)" [disabled]="loading">
+                <button
+                  class="btn btn-success btn-sm"
+                  (click)="borrachaRapido(p.nr)"
+                  [disabled]="loading"
+                >
                   pronta
                 </button>
               </td>
@@ -80,7 +160,9 @@
 
   <!-- Feedback do último pedido baixado -->
   <div *ngIf="pedidoAtualizado" class="mt-3 small text-muted">
-    <div><strong>Último:</strong> NR {{ pedidoAtualizado.nr }} → <strong>Pronta p/ entrega</strong></div>
+    <div>
+      <strong>Último:</strong> NR {{ pedidoAtualizado.nr }} →
+      <strong>Pronta p/ entrega</strong>
+    </div>
   </div>
 </div>
-

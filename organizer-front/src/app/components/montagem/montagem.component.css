@@ -1,0 +1,20 @@
+.table-montagem th,
+.table-montagem td {
+  vertical-align: middle;
+}
+
+.table-montagem thead th {
+  white-space: nowrap;
+}
+
+.table-montagem .badge {
+  font-size: 0.75rem;
+}
+
+.table-montagem .small {
+  font-size: 0.75rem;
+}
+
+.table-montagem .btn {
+  min-width: 90px;
+}
