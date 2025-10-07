@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common';
 import { DateTime } from 'luxon';
 import { forkJoin } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { OrderStatus } from '../../models/order-status.enum';
 
 @Component({
   selector: 'app-delivery',
@@ -24,6 +25,13 @@ export class DeliveryComponent implements OnInit {
   searchTerm: string = '';
   adverseOutputForm: FormGroup;
   selectedIds = new Set<number>();
+  private readonly statusElegiveis = new Set<number>([
+    OrderStatus.Cortada,
+    OrderStatus.ProntoEntrega,
+    OrderStatus.Tirada,
+    OrderStatus.MontadaCorte,
+    OrderStatus.MontadaCompleta,
+  ]);
 
   @ViewChild('deliveryModal', { static: false }) deliveryModal!: TemplateRef<any>;
   @ViewChild('thankYouModal', { static: false }) thankYouModal!: TemplateRef<any>;
@@ -62,7 +70,7 @@ export class DeliveryComponent implements OnInit {
   this.orderService.getOrders().subscribe({
     next: (orders) => {
       this.orders = orders
-        .filter(order => [1, 2, 6, 7].includes(order.status))
+        .filter(order => this.statusElegiveis.has(order.status ?? -1))
         .sort((a, b) => this.comparePriorities(a.prioridade, b.prioridade));
       this.filteredOrders = [...this.orders];
     },
@@ -89,7 +97,7 @@ listenForNewOrdersPrioridades(): void {
 }
 
 private handleIncomingDeliveryOrder(received: orders) {
-  if (![1,2,6,7].includes(received.status)) {
+  if (!this.statusElegiveis.has(received.status ?? -1)) {
     this.orders = this.orders.filter(o => o.id !== received.id);
   } else {
     const idx = this.orders.findIndex(o => o.id === received.id);
@@ -106,10 +114,12 @@ private handleIncomingDeliveryOrder(received: orders) {
     const index = this.orders.findIndex(o => o.id === order.id);
     if (index !== -1) {
       this.orders[index] = order;
-    } else {
+    } else if (this.statusElegiveis.has(order.status ?? -1)) {
       this.orders.push(order);
     }
-    this.orders.sort((a, b) => this.comparePriorities(a.prioridade, b.prioridade));
+    this.orders = this.orders
+      .filter(o => this.statusElegiveis.has(o.status ?? -1))
+      .sort((a, b) => this.comparePriorities(a.prioridade, b.prioridade));
     this.selectedOrders = [];
   }
 
@@ -263,8 +273,33 @@ confirmDelivery(): void {
       order.nr.toLowerCase().includes(term) ||
       order.cliente.toLowerCase().includes(term) ||
       order.prioridade.toLowerCase().includes(term) ||
-      order.status.toString().includes(term)
+      (order.status !== undefined && order.status !== null && order.status.toString().includes(term)) ||
+      this.getStatusDescription(order.status ?? -1).toLowerCase().includes(term)
     );
   }
-}
 
+  getStatusDescription(status: number): string {
+    switch (status) {
+      case OrderStatus.EmProducao:
+        return 'Em produção';
+      case OrderStatus.Cortada:
+        return 'Cortada';
+      case OrderStatus.ProntoEntrega:
+        return 'Pronto para entrega';
+      case OrderStatus.SaiuEntrega:
+        return 'Saiu para entrega';
+      case OrderStatus.Retirada:
+        return 'Retirada';
+      case OrderStatus.Entregue:
+        return 'Entregue';
+      case OrderStatus.Tirada:
+        return 'Tirada';
+      case OrderStatus.MontadaCorte:
+        return 'Montada (corte)';
+      case OrderStatus.MontadaCompleta:
+        return 'Montada e vincada';
+      default:
+        return 'Desconhecido';
+    }
+  }
+}

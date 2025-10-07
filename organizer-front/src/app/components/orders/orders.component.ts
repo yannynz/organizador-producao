@@ -263,7 +263,9 @@ export class OrdersComponent implements OnInit, OnDestroy {
       case 6:
         return 'Tirada';
       case 7:
-        return 'Montada';
+        return 'Montada (corte)';
+      case 8:
+        return 'Montada e vincada';
       default:
         return 'Desconhecido';
     }

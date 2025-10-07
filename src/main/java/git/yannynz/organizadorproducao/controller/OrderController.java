@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import git.yannynz.organizadorproducao.model.Order;
 import git.yannynz.organizadorproducao.service.OrderService;
 import git.yannynz.organizadorproducao.service.OpImportService;
+import git.yannynz.organizadorproducao.service.OrderStatusRules;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -67,6 +68,7 @@ public class OrderController {
             boolean prevPertinax = order.isPertinax();
             boolean prevPoliester = order.isPoliester();
             boolean prevPapelCalibrado = order.isPapelCalibrado();
+            boolean prevVaiVinco = order.isVaiVinco();
             order.setNr(orderDetails.getNr());
             order.setCliente(orderDetails.getCliente());
             order.setPrioridade(orderDetails.getPrioridade());
@@ -93,15 +95,19 @@ public class OrderController {
             order.setPertinax(orderDetails.isPertinax());
             order.setPoliester(orderDetails.isPoliester());
             order.setPapelCalibrado(orderDetails.isPapelCalibrado());
+            order.setVaiVinco(orderDetails.isVaiVinco());
             order.setVincador(orderDetails.getVincador());
             order.setDataVinco(orderDetails.getDataVinco());
+
+            OrderStatusRules.applyAutoProntoEntrega(order);
 
             opImportService.applyManualLocksForOrder(
                 order,
                 prevEmborrachada,
                 prevPertinax,
                 prevPoliester,
-                prevPapelCalibrado);
+                prevPapelCalibrado,
+                prevVaiVinco);
 
             return ResponseEntity.ok(orderService.saveOrder(order));
         } else {

@@ -10,6 +10,7 @@ public class OpImportRequestDTO {
   private String dataOp;           // yyyy-MM-dd
   private List<String> materiais;
   private Boolean emborrachada;
+  private Boolean vaiVinco;
   private String sharePath;
 
   private String destacador;         
@@ -53,6 +54,8 @@ public class OpImportRequestDTO {
   public void setMateriais(java.util.List<String> materiais) { this.materiais = materiais; }
   public Boolean getEmborrachada() { return emborrachada; }
   public void setEmborrachada(Boolean emborrachada) { this.emborrachada = emborrachada; }
+  public Boolean getVaiVinco() { return vaiVinco; }
+  public void setVaiVinco(Boolean vaiVinco) { this.vaiVinco = vaiVinco; }
   public String getSharePath() { return sharePath; }
   public void setSharePath(String sharePath) { this.sharePath = sharePath; }
 }

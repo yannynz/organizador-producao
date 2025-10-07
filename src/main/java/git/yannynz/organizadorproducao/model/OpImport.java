@@ -72,6 +72,9 @@ public class OpImport {
   @Column(name = "papel_calibrado")
   private Boolean papelCalibrado;
 
+  @Column(name = "vai_vinco")
+  private Boolean vaiVinco;
+
   @Column(name = "manual_lock_emborrachada", nullable = false)
   private boolean manualLockEmborrachada;
 
@@ -83,6 +86,9 @@ public class OpImport {
 
   @Column(name = "manual_lock_papel_calibrado", nullable = false)
   private boolean manualLockPapelCalibrado;
+
+  @Column(name = "manual_lock_vai_vinco", nullable = false)
+  private boolean manualLockVaiVinco;
 
 
   public OpImport() {}
@@ -96,6 +102,8 @@ public class OpImport {
   public void setPoliester(Boolean poliester) { this.poliester = poliester; }
   public Boolean getPapelCalibrado() { return papelCalibrado; }
   public void setPapelCalibrado(Boolean papelCalibrado) { this.papelCalibrado = papelCalibrado; }
+  public Boolean getVaiVinco() { return vaiVinco; }
+  public void setVaiVinco(Boolean vaiVinco) { this.vaiVinco = vaiVinco; }
 
   public boolean isManualLockEmborrachada() { return manualLockEmborrachada; }
   public void setManualLockEmborrachada(boolean manualLockEmborrachada) { this.manualLockEmborrachada = manualLockEmborrachada; }
@@ -108,6 +116,8 @@ public class OpImport {
 
   public boolean isManualLockPapelCalibrado() { return manualLockPapelCalibrado; }
   public void setManualLockPapelCalibrado(boolean manualLockPapelCalibrado) { this.manualLockPapelCalibrado = manualLockPapelCalibrado; }
+  public boolean isManualLockVaiVinco() { return manualLockVaiVinco; }
+  public void setManualLockVaiVinco(boolean manualLockVaiVinco) { this.manualLockVaiVinco = manualLockVaiVinco; }
 
   public ZonedDateTime getDataOp() { return dataOp; }
   public void setDataOp(ZonedDateTime dataOp) { this.dataOp = dataOp; }

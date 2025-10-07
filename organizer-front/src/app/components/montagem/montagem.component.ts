@@ -183,17 +183,21 @@ export class MontagemComponent implements OnInit {
 
         const agora = DateTime.now().setZone('America/Sao_Paulo').toJSDate();
         const atualizado: orders = { ...alvo, id: orderId };
+        const vaiVinco = !!alvo.vaiVinco;
+        const emborrachada = !!alvo.emborrachada;
 
         switch (acao) {
           case 'montar':
             atualizado.montador = nome;
             atualizado.dataMontagem = agora;
-            atualizado.status = OrderStatus.MontadaCorte;
+            atualizado.status = !emborrachada && !vaiVinco
+              ? OrderStatus.ProntoEntrega
+              : OrderStatus.MontadaCorte;
             break;
           case 'vincar':
             atualizado.vincador = nome;
             atualizado.dataVinco = agora;
-            atualizado.status = atualizado.emborrachada
+            atualizado.status = emborrachada
               ? OrderStatus.MontadaCompleta
               : OrderStatus.ProntoEntrega;
             break;
@@ -202,7 +206,7 @@ export class MontagemComponent implements OnInit {
             atualizado.vincador = nome;
             atualizado.dataMontagem = agora;
             atualizado.dataVinco = agora;
-            atualizado.status = atualizado.emborrachada
+            atualizado.status = emborrachada
               ? OrderStatus.MontadaCompleta
               : OrderStatus.ProntoEntrega;
             break;

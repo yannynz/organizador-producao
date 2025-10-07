@@ -34,6 +34,7 @@
 /home/ynz/Documentos/organizador-producao/src/main/java/git/yannynz/organizadorproducao/service/FileWatcherService.java
 /home/ynz/Documentos/organizador-producao/src/main/java/git/yannynz/organizadorproducao/service/OpImportService.java
 /home/ynz/Documentos/organizador-producao/src/main/java/git/yannynz/organizadorproducao/service/OrderService.java
+/home/ynz/Documentos/organizador-producao/src/main/java/git/yannynz/organizadorproducao/service/OrderStatusRules.java
 /home/ynz/Documentos/organizador-producao/src/main/java/git/yannynz/organizadorproducao/service/SearchResult.java
 /home/ynz/Documentos/organizador-producao/src/main/java/git/yannynz/organizadorproducao/service/StatusWsPublisher.java
 /home/ynz/Documentos/organizador-producao/src/main/java/git/yannynz/organizadorproducao/service/WebSocketMessage.java

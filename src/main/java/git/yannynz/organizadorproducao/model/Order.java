@@ -37,6 +37,9 @@ public class Order {
     private boolean poliester;
     private boolean papelCalibrado;
 
+    @Column(name = "vai_vinco")
+    private boolean vaiVinco;
+
     @Column(name = "vincador")
     private String vincador;
 
@@ -64,6 +67,8 @@ public class Order {
     public void setPoliester(boolean poliester) { this.poliester = poliester; }
     public boolean isPapelCalibrado() { return papelCalibrado; }
     public void setPapelCalibrado(boolean papelCalibrado) { this.papelCalibrado = papelCalibrado; }
+    public boolean isVaiVinco() { return vaiVinco; }
+    public void setVaiVinco(boolean vaiVinco) { this.vaiVinco = vaiVinco; }
 
     public ZonedDateTime getDataRequeridaEntrega() { return dataRequeridaEntrega; }
     public void setDataRequeridaEntrega(ZonedDateTime dataRequeridaEntrega){ this.dataRequeridaEntrega = dataRequeridaEntrega; }

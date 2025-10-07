@@ -26,6 +26,7 @@ export class orders {
   pertinax?: boolean;
   poliester?: boolean;
   papelCalibrado?: boolean;
+  vaiVinco?: boolean;
   vincador?: string;
   dataVinco?: Date;
 }

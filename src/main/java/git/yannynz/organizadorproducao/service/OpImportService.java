@@ -43,11 +43,12 @@ private void notifyOrder(Order order) {
   ws.convertAndSend("/topic/orders", order);
 }
 
-private void notifyOpImported(OpImport saved, OpImportRequestDTO req, boolean linkedNow) {
+  private void notifyOpImported(OpImport saved, OpImportRequestDTO req, boolean linkedNow) {
   var payload = new java.util.LinkedHashMap<String, Object>();
 
   payload.put("numeroOp", saved.getNumeroOp());                              // assumindo não-nulo
   payload.put("emborrachada", saved.isEmborrachada());
+  payload.put("vaiVinco", Boolean.TRUE.equals(saved.getVaiVinco()));
 
   // Só adiciona se não for nulo
   if (saved.getSharePath() != null && !saved.getSharePath().isBlank())
@@ -193,16 +194,19 @@ private void notifyOpImported(OpImport saved, OpImportRequestDTO req, boolean li
     boolean manualLockPertinax = op.isManualLockPertinax();
     boolean manualLockPoliester = op.isManualLockPoliester();
     boolean manualLockPapelCalibrado = op.isManualLockPapelCalibrado();
+    boolean manualLockVaiVinco = op.isManualLockVaiVinco();
 
     boolean previousOpEmborrachada = op.isEmborrachada();
     Boolean previousPertinax = op.getPertinax();
     Boolean previousPoliester = op.getPoliester();
     Boolean previousPapelCalibrado = op.getPapelCalibrado();
+    Boolean previousVaiVinco = op.getVaiVinco();
 
     Boolean requestedEmborrachada = req.getEmborrachada();
     Boolean requestedPertinax = req.getPertinax();
     Boolean requestedPoliester = req.getPoliester();
     Boolean requestedPapelCalibrado = req.getPapelCalibrado();
+    Boolean requestedVaiVinco = req.getVaiVinco();
 
     boolean newOpEmborrachada =
         requestedEmborrachada != null ? Boolean.TRUE.equals(requestedEmborrachada) : previousOpEmborrachada;
@@ -234,17 +238,26 @@ private void notifyOpImported(OpImport saved, OpImportRequestDTO req, boolean li
         manualLockPapelCalibrado = false;
     }
 
+    Boolean newVaiVinco = requestedVaiVinco != null ? requestedVaiVinco : previousVaiVinco;
+    op.setVaiVinco(newVaiVinco);
+    if (!Boolean.TRUE.equals(newVaiVinco) && manualLockVaiVinco) {
+        op.setManualLockVaiVinco(false);
+        manualLockVaiVinco = false;
+    }
+
     log.info(
-        "[IMPORT] flags calculadas OP {} -> emborrachada={}, pertinax={}, poliester={}, papelCalibrado={}, locks(e={},pt={},po={},pc={})",
+        "[IMPORT] flags calculadas OP {} -> emborrachada={}, pertinax={}, poliester={}, papelCalibrado={}, vaiVinco={}, locks(e={},pt={},po={},pc={},vinco={})",
         numeroOp,
         newOpEmborrachada,
         newPertinax,
         newPoliester,
         newPapelCalibrado,
+        newVaiVinco,
         manualLockEmborrachada,
         manualLockPertinax,
         manualLockPoliester,
-        manualLockPapelCalibrado);
+        manualLockPapelCalibrado,
+        manualLockVaiVinco);
 
     boolean shouldApplyEmborrachada = newOpEmborrachada && !manualLockEmborrachada;
 
@@ -282,6 +295,12 @@ private void notifyOpImported(OpImport saved, OpImportRequestDTO req, boolean li
             order.setEmborrachada(true);
             orderUpdated = true;
             log.info("[IMPORT] OP {} marcou pedido {} como emborrachada", numeroOp, order.getId());
+        }
+
+        if (Boolean.TRUE.equals(newVaiVinco) && !manualLockVaiVinco && !order.isVaiVinco()) {
+            order.setVaiVinco(true);
+            orderUpdated = true;
+            log.info("[IMPORT] OP {} marcou pedido {} como vaiVinco", numeroOp, order.getId());
         }
 
         // Default de modalidade quando ainda ausente
@@ -406,15 +425,22 @@ private boolean containsTag(String obs, String chaveLower) {
   // ---------------------------
   @Transactional
   public void onFacaMontada(Long facaId) {
-    boolean emborrachada = repo.findTopByFacaIdOrderByCreatedAtDesc(facaId)
-        .map(OpImport::isEmborrachada)
-        .orElse(false);
+    Optional<OpImport> maybeOp = repo.findTopByFacaIdOrderByCreatedAtDesc(facaId);
+    Order order = orderRepo.findById(facaId).orElseThrow();
 
-    if (!emborrachada) {
-      Order f = orderRepo.findById(facaId).orElseThrow();
-      f.setStatus(2); // Prontas p/ Entrega
-      orderRepo.save(f);
-      notifyOrder(f);
+    boolean emborrachada = maybeOp.map(OpImport::isEmborrachada)
+        .orElse(order.isEmborrachada());
+    if (emborrachada) {
+      return;
+    }
+
+    maybeOp.map(OpImport::getVaiVinco)
+        .filter(Objects::nonNull)
+        .ifPresent(v -> order.setVaiVinco(Boolean.TRUE.equals(v)));
+
+    if (OrderStatusRules.applyAutoProntoEntrega(order)) {
+      orderRepo.save(order);
+      notifyOrder(order);
     }
   }
 
@@ -589,6 +615,31 @@ private boolean containsTag(String obs, String chaveLower) {
           }
         }
 
+        Boolean opVaiVinco = op.getVaiVinco();
+        boolean lockVaiVinco = op.isManualLockVaiVinco();
+        if (order.isVaiVinco()) {
+          if (!Boolean.TRUE.equals(opVaiVinco)) {
+            op.setVaiVinco(true);
+            opUpdated = true;
+            log.info("[LINK] OP {} recebeu vaiVinco=true do pedido {}", op.getNumeroOp(), order.getId());
+          }
+          if (lockVaiVinco) {
+            op.setManualLockVaiVinco(false);
+            opUpdated = true;
+            log.info("[LINK] OP {} removeu lock vaiVinco após pedido {}=true", op.getNumeroOp(), order.getId());
+          }
+        } else {
+          if (Boolean.TRUE.equals(opVaiVinco) && !lockVaiVinco) {
+            order.setVaiVinco(true);
+            orderUpdated = true;
+            log.info("[LINK] Pedido {} recebeu vaiVinco=true da OP {}", order.getId(), op.getNumeroOp());
+          } else if (lockVaiVinco && !Boolean.TRUE.equals(opVaiVinco)) {
+            op.setManualLockVaiVinco(false);
+            opUpdated = true;
+            log.info("[LINK] OP {} limpou lock vaiVinco pois pedido {} segue false", op.getNumeroOp(), order.getId());
+          }
+        }
+
         if (isBlank(order.getModalidadeEntrega())) {
           order.setModalidadeEntrega("A ENTREGAR");
           orderUpdated = true;
@@ -606,7 +657,8 @@ private boolean containsTag(String obs, String chaveLower) {
       boolean previousEmborrachada,
       boolean previousPertinax,
       boolean previousPoliester,
-      boolean previousPapelCalibrado) {
+      boolean previousPapelCalibrado,
+      boolean previousVaiVinco) {
 
     if (order == null || order.getNr() == null || order.getNr().isBlank()) return;
 
@@ -669,6 +721,20 @@ private boolean containsTag(String obs, String chaveLower) {
         }
       }
 
+      if (previousVaiVinco != order.isVaiVinco()) {
+        if (!order.isVaiVinco() && Boolean.TRUE.equals(op.getVaiVinco())) {
+          if (!op.isManualLockVaiVinco()) {
+            op.setManualLockVaiVinco(true);
+            dirty = true;
+            log.info("[ORDER] Pedido {} marcou lock vaiVinco=false na OP {}", order.getId(), op.getNumeroOp());
+          }
+        } else if (order.isVaiVinco() && op.isManualLockVaiVinco()) {
+          op.setManualLockVaiVinco(false);
+          dirty = true;
+          log.info("[ORDER] Pedido {} removeu lock vaiVinco na OP {}", order.getId(), op.getNumeroOp());
+        }
+      }
+
       if (dirty) {
         repo.save(op);
       }
@@ -700,6 +766,7 @@ private boolean containsTag(String obs, String chaveLower) {
           boolean lockPertinax = o.isManualLockPertinax();
           boolean lockPoliester = o.isManualLockPoliester();
           boolean lockPapel = o.isManualLockPapelCalibrado();
+          boolean lockVaiVinco = o.isManualLockVaiVinco();
 
           if (!linked && o.isEmborrachada() && !f.isEmborrachada()) {
             f.setEmborrachada(true);
@@ -830,6 +897,30 @@ private boolean containsTag(String obs, String chaveLower) {
               o.setManualLockPapelCalibrado(false);
               opUpdated = true;
               log.info("[RECONCILE] OP {} limpou lock papelCalibrado pois pedido {} permanece false", o.getNumeroOp(), f.getId());
+            }
+          }
+
+          Boolean opVaiVinco = o.getVaiVinco();
+          if (f.isVaiVinco()) {
+            if (!Boolean.TRUE.equals(opVaiVinco)) {
+              o.setVaiVinco(true);
+              opUpdated = true;
+              log.info("[RECONCILE] OP {} recebeu vaiVinco=true do pedido {}", o.getNumeroOp(), f.getId());
+            }
+            if (lockVaiVinco) {
+              o.setManualLockVaiVinco(false);
+              opUpdated = true;
+              log.info("[RECONCILE] OP {} removeu lock vaiVinco após pedido {}=true", o.getNumeroOp(), f.getId());
+            }
+          } else {
+            if (Boolean.TRUE.equals(opVaiVinco) && !lockVaiVinco) {
+              f.setVaiVinco(true);
+              orderUpdated = true;
+              log.info("[RECONCILE] Pedido {} recebeu vaiVinco=true da OP {}", f.getId(), o.getNumeroOp());
+            } else if (lockVaiVinco && !Boolean.TRUE.equals(opVaiVinco)) {
+              o.setManualLockVaiVinco(false);
+              opUpdated = true;
+              log.info("[RECONCILE] OP {} limpou lock vaiVinco pois pedido {} permanece false", o.getNumeroOp(), f.getId());
             }
           }
 

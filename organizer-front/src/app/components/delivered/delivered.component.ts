@@ -340,7 +340,9 @@ export class DeliveredComponent implements OnInit {
       case 6:
         return 'Tirada';
       case 7:
-        return 'Montada';
+        return 'Montada (corte)';
+      case 8:
+        return 'Montada e vincada';
       default:
         return 'Desconhecido';
     }
