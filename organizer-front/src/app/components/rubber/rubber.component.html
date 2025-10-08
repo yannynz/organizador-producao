@@ -1,4 +1,4 @@
-<div class="container py-4" style="max-width: 720px">
+<div class="container-fluid py-4 rubber-container">
   <h3 class="mb-3">Emborrachamento</h3>
 
   <div
@@ -6,163 +6,285 @@
     class="alert"
     [ngClass]="{
       'alert-success': msg.type === 'success',
-      'alert-danger': msg.type === 'danger',
+      'alert-danger': msg.type === 'danger'
     }"
   >
     {{ msg.text }}
   </div>
 
-  <!-- Formulário -->
   <form (ngSubmit)="confirmar()" [formGroup]="form" novalidate class="mb-4">
-    <div class="row g-3 align-items-end">
-      <div class="col-sm-5">
-        <label class="form-label">Nome do emborrachador</label>
-        <input
-          type="text"
-          class="form-control"
-          formControlName="emborrachador"
-          autocomplete="name"
-        />
-      </div>
-      <div class="col-sm-3 d-flex gap-2">
-        <button
-          type="button"
-          class="btn btn-warning"
-          (click)="limpar()"
-          [disabled]="loading"
-        >
-          Limpar
-        </button>
+    <div class="row g-3">
+      <div class="col-12">
+        <label class="form-label" for="responsavelRubber">
+          Nome do emborrachador
+        </label>
+        <div class="name-field-wrap">
+          <input
+            id="responsavelRubber"
+            type="text"
+            class="form-control form-control-lg"
+            formControlName="emborrachador"
+            autocomplete="name"
+            placeholder="Quem está emborrachando agora"
+          />
+          <button
+            type="button"
+            class="btn btn-outline-secondary name-clear-btn"
+            (click)="limpar()"
+            [disabled]="loading"
+          >
+            Limpar
+          </button>
+        </div>
+        <div class="form-text mt-2">
+          Informe uma vez o responsável e utilize os botões de cada faca para
+          dar baixa.
+        </div>
       </div>
     </div>
   </form>
 
-  <!-- Lista das facas montadas que precisam de borracha -->
-  <div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-      <strong>Facas montadas p/ borracha</strong>
-      <small class="text-muted" *ngIf="paraBorracha?.length">
-        {{ paraBorracha.length }} item(ns)</small
-      >
+  <!-- Desktop layout -->
+  <div class="d-none d-lg-block">
+    <div *ngIf="!paraBorracha || paraBorracha.length === 0" class="text-muted pb-3">
+      Nenhuma faca aguardando borracha no momento.
     </div>
 
-    <div class="card-body p-0">
-      <div
-        *ngIf="!paraBorracha || paraBorracha.length === 0"
-        class="p-3 text-muted"
-      >
-        Nenhuma faca pendente de borracha no momento.
-      </div>
-
-      <div *ngIf="paraBorracha?.length" class="table-responsive">
-        <table class="table table-sm mb-0 align-middle">
-          <thead class="table-light">
-            <tr>
-              <th style="width: 90px">NR</th>
-              <th>Cliente</th>
-              <th style="width: 180px">Montagem</th>
-              <th style="width: 180px">Vinco</th>
-              <th>Atributos</th>
-              <th style="width: 140px">Ação</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let p of paraBorracha; trackBy: trackById">
-              <td class="fw-semibold">{{ p.nr }}</td>
-              <td>{{ p.cliente }}</td>
-              <td>
-                <div>
-                  <span
-                    class="fw-semibold"
-                    *ngIf="p.montador; else pendenteMontagem"
-                    >{{ p.montador }}</span
-                  >
-                </div>
-                <div class="small text-muted" *ngIf="p.dataMontagem">
-                  {{ p.dataMontagem | date: "dd/MM HH:mm" }}
-                </div>
-                <ng-template #pendenteMontagem>
-                  <span class="text-muted">Pendente</span>
-                </ng-template>
-              </td>
-              <td>
-                <div>
-                  <span
-                    class="fw-semibold"
-                    *ngIf="p.vincador; else pendenteVinco"
-                    >{{ p.vincador }}</span
-                  >
-                </div>
-                <div class="small text-muted" *ngIf="p.dataVinco">
-                  {{ p.dataVinco | date: "dd/MM HH:mm" }}
-                </div>
-                <ng-template #pendenteVinco>
-                  <span class="text-muted">Pendente</span>
-                </ng-template>
-              </td>
-              <td class="attributes-cell">
-                <div
-                  class="d-flex flex-wrap gap-1"
-                  *ngIf="
+    <div *ngIf="paraBorracha?.length" class="table-responsive">
+      <table class="table table-sm table-hover align-middle table-rubber">
+        <thead class="table-light">
+          <tr>
+            <th style="width: 80px">NR</th>
+            <th>Cliente</th>
+            <th>Status</th>
+            <th style="min-width: 180px">Montagem</th>
+            <th style="min-width: 180px">Vinco</th>
+            <th>Atributos</th>
+            <th>Obs</th>
+            <th style="width: 120px">Criado</th>
+            <th style="width: 120px">Ação</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of paraBorracha; trackBy: trackById">
+            <td class="fw-semibold fs-5">{{ p.nr }}</td>
+            <td>
+              <div class="fw-semibold">{{ p.cliente }}</div>
+              <div class="small text-muted" *ngIf="p.observacao">
+                {{ p.observacao }}
+              </div>
+            </td>
+            <td>
+              <span class="badge" [ngClass]="statusBadgeClass(p.status)">
+                {{ getStatusLabel(p.status) }}
+              </span>
+            </td>
+            <td>
+              <div>
+                <span *ngIf="p.montador; else pendenteMontagemDesktop">
+                  {{ p.montador }}
+                </span>
+              </div>
+              <div class="small text-muted" *ngIf="p.dataMontagem">
+                {{ p.dataMontagem | date: 'dd/MM HH:mm' }}
+              </div>
+              <ng-template #pendenteMontagemDesktop>
+                <span class="text-muted">Pendente</span>
+              </ng-template>
+            </td>
+            <td>
+              <div>
+                <span *ngIf="p.vincador; else pendenteVincoDesktop">
+                  {{ p.vincador }}
+                </span>
+              </div>
+              <div class="small text-muted" *ngIf="p.dataVinco">
+                {{ p.dataVinco | date: 'dd/MM HH:mm' }}
+              </div>
+              <ng-template #pendenteVincoDesktop>
+                <span class="text-muted">Pendente</span>
+              </ng-template>
+            </td>
+            <td>
+              <div class="d-flex flex-wrap gap-1">
+                <span class="badge bg-success" *ngIf="p.emborrachada">
+                  Emborrachada
+                </span>
+                <span class="badge bg-secondary" *ngIf="p.destacador">
+                  Dest: {{ p.destacador }}
+                </span>
+                <span class="badge bg-info text-dark" *ngIf="p.pertinax">
+                  Pertinax
+                </span>
+                <span class="badge bg-info text-dark" *ngIf="p.poliester">
+                  Poliéster
+                </span>
+                <span class="badge bg-info text-dark" *ngIf="p.papelCalibrado">
+                  Papel cal.
+                </span>
+              </div>
+              <div
+                class="text-muted small"
+                *ngIf="
+                  !(
                     p.emborrachada ||
                     p.destacador ||
                     p.pertinax ||
                     p.poliester ||
                     p.papelCalibrado
-                  "
-                >
-                  <span class="badge bg-success" *ngIf="p.emborrachada"
-                    >Emborrachada</span
-                  >
-                  <span class="badge bg-secondary" *ngIf="p.destacador"
-                    >Dest: {{ p.destacador }}</span
-                  >
-                  <span class="badge bg-info text-dark" *ngIf="p.pertinax"
-                    >Pertinax</span
-                  >
-                  <span class="badge bg-info text-dark" *ngIf="p.poliester"
-                    >Poliéster</span
-                  >
-                  <span class="badge bg-info text-dark" *ngIf="p.papelCalibrado"
-                    >Papel cal.</span
-                  >
-                </div>
-                <div
-                  *ngIf="
-                    !(
-                      p.emborrachada ||
-                      p.destacador ||
-                      p.pertinax ||
-                      p.poliester ||
-                      p.papelCalibrado
-                    )
-                  "
-                  class="text-muted small"
-                >
-                  Nenhum.
-                </div>
-              </td>
-              <td>
-                <button
-                  class="btn btn-success btn-sm"
-                  (click)="borrachaRapido(p.nr)"
-                  [disabled]="loading"
-                >
-                  pronta
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+                  )
+                "
+              >
+                Sem atributos.
+              </div>
+            </td>
+            <td>{{ p.observacao || '—' }}</td>
+            <td>{{ p.dataH | date: 'dd/MM HH:mm' }}</td>
+            <td>
+              <button
+                class="btn btn-success btn-sm w-100"
+                (click)="borrachaRapido(p.nr)"
+                [disabled]="loading"
+              >
+                Dar baixa
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Mobile layout -->
+  <div class="card d-lg-none">
+    <div class="card-header d-flex justify-content-between align-items-center gap-2">
+      <strong>Facas p/ borracha</strong>
+      <small class="text-muted" *ngIf="paraBorracha?.length">
+        {{ paraBorracha.length }} item(ns)
+      </small>
+    </div>
+    <div class="card-body">
+      <div *ngIf="!paraBorracha || paraBorracha.length === 0" class="text-muted mb-0">
+        Nenhuma faca aguardando borracha no momento.
+      </div>
+      <div *ngIf="paraBorracha?.length" class="d-grid gap-3">
+        <div
+          class="border rounded p-3 shadow-sm"
+          *ngFor="let p of paraBorracha; trackBy: trackById"
+        >
+          <div class="d-flex justify-content-between align-items-start gap-2">
+            <div>
+              <div class="fw-bold">NR {{ p.nr }}</div>
+              <div class="small text-muted">{{ p.cliente }}</div>
+            </div>
+            <span class="badge" [ngClass]="statusBadgeClass(p.status)">
+              {{ getStatusLabel(p.status) }}
+            </span>
+          </div>
+
+          <div class="mt-3 small">
+            <div class="fw-semibold">Montagem</div>
+            <div>
+              <span *ngIf="p.montador; else pendenteMontagemMobile">
+                {{ p.montador }}
+              </span>
+              <ng-template #pendenteMontagemMobile>
+                <span class="text-muted">Pendente</span>
+              </ng-template>
+            </div>
+            <div class="text-muted" *ngIf="p.dataMontagem">
+              {{ p.dataMontagem | date: 'dd/MM HH:mm' }}
+            </div>
+          </div>
+
+          <div class="mt-2 small">
+            <div class="fw-semibold">Vinco</div>
+            <div>
+              <span *ngIf="p.vincador; else pendenteVincoMobile">
+                {{ p.vincador }}
+              </span>
+              <ng-template #pendenteVincoMobile>
+                <span class="text-muted">Pendente</span>
+              </ng-template>
+            </div>
+            <div class="text-muted" *ngIf="p.dataVinco">
+              {{ p.dataVinco | date: 'dd/MM HH:mm' }}
+            </div>
+          </div>
+
+          <div
+            class="mt-3 d-flex flex-wrap gap-1"
+            *ngIf="
+              p.emborrachada ||
+              p.destacador ||
+              p.pertinax ||
+              p.poliester ||
+              p.papelCalibrado
+            "
+          >
+            <span class="badge bg-success" *ngIf="p.emborrachada">
+              Emborrachada
+            </span>
+            <span class="badge bg-secondary" *ngIf="p.destacador">
+              Dest: {{ p.destacador }}
+            </span>
+            <span class="badge bg-info text-dark" *ngIf="p.pertinax">
+              Pertinax
+            </span>
+            <span class="badge bg-info text-dark" *ngIf="p.poliester">
+              Poliéster
+            </span>
+            <span class="badge bg-info text-dark" *ngIf="p.papelCalibrado">
+              Papel cal.
+            </span>
+          </div>
+          <div
+            class="mt-3 small text-muted"
+            *ngIf="
+              !(
+                p.emborrachada ||
+                p.destacador ||
+                p.pertinax ||
+                p.poliester ||
+                p.papelCalibrado
+              )
+            "
+          >
+            Sem atributos adicionais.
+          </div>
+
+          <div class="mt-3 small" *ngIf="p.observacao">
+            <span class="fw-semibold">Obs:</span> {{ p.observacao }}
+          </div>
+
+          <div class="mt-3 small text-muted">
+            Criado: {{ p.dataH | date: 'dd/MM HH:mm' }}
+          </div>
+
+          <div class="mt-3 d-grid gap-2">
+            <button
+              class="btn btn-success btn-sm"
+              (click)="borrachaRapido(p.nr)"
+              [disabled]="loading"
+            >
+              Dar baixa
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Feedback do último pedido baixado -->
   <div *ngIf="pedidoAtualizado" class="mt-3 small text-muted">
     <div>
       <strong>Último:</strong> NR {{ pedidoAtualizado.nr }} →
-      <strong>Pronta p/ entrega</strong>
+      <strong>{{ getStatusLabel(pedidoAtualizado.status) }}</strong>
+    </div>
+    <div *ngIf="pedidoAtualizado?.emborrachador">
+      Emborrachador: {{ pedidoAtualizado.emborrachador }}
+      <span *ngIf="pedidoAtualizado?.dataEmborrachamento">
+        ({{ pedidoAtualizado.dataEmborrachamento | date: 'dd/MM HH:mm' }})
+      </span>
     </div>
   </div>
 </div>

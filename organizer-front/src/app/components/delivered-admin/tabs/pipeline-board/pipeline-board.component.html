@@ -5,72 +5,222 @@
 >
 </app-advanced-filters>
 
-<div class="d-flex align-items-center gap-2 flex-wrap mt-3">
-  <span class="badge bg-dark">Em Produção: {{ counts[0] || 0 }}</span>
-  <span class="badge bg-secondary">Cortada: {{ counts[1] || 0 }}</span>
-  <span class="badge bg-light text-dark">Tirada: {{ counts[6] || 0 }}</span>
-  <span class="badge bg-info text-dark"
+<div
+  class="board-toolbar mt-3 shadow-sm rounded-2xl p-3 d-flex flex-wrap gap-3 align-items-center justify-content-between"
+>
+  <div class="flex-grow-1 min-w-0">
+    <div
+      class="d-flex flex-wrap align-items-center justify-content-between gap-2"
+    >
+      <div class="d-flex align-items-center gap-2">
+        <span class="fw-semibold text-dark">Pronto p/ Entrega</span>
+        <span class="badge badge-soft-success shadow-sm">
+          {{ counts[2] || 0 }} / {{ getTotalCount() }}
+        </span>
+      </div>
+      <span class="small text-muted">{{ formatSinceUpdate() }}</span>
+    </div>
+    <div class="progress progress-thin mt-2 shadow-sm">
+      <div
+        class="progress-bar bg-success"
+        role="progressbar"
+        [style.width.%]="getReadyProgress()"
+        [attr.aria-valuenow]="getReadyProgress()"
+        aria-valuemin="0"
+        aria-valuemax="100"
+      ></div>
+    </div>
+    <span class="small text-muted d-block mt-2">
+      {{ getReadyProgress() }}% do fluxo pronto para entrega
+    </span>
+  </div>
+  <button
+    class="btn btn-sm btn-outline-primary shadow-sm rounded-pill"
+    (click)="toggleCompactView()"
+  >
+    {{ compactView ? 'Exibir cards' : 'Visão compacta' }}
+  </button>
+</div>
+
+<div
+  class="quick-filters mt-3 d-flex flex-wrap gap-2 align-items-center"
+>
+  <span class="text-muted small me-1">Filtrar rápido:</span>
+  <button
+    class="btn btn-sm btn-light shadow-sm rounded-pill"
+    [class.active]="activeQuickFilter === 'all'"
+    (click)="setQuickFilter('all')"
+  >
+    🟢 Todos
+  </button>
+  <button
+    *ngFor="let filter of quickFilters"
+    class="btn btn-sm btn-light shadow-sm rounded-pill"
+    [class.active]="activeQuickFilter === filter.id"
+    (click)="setQuickFilter(filter.id)"
+  >
+    {{ filter.label }}
+  </button>
+</div>
+
+<div class="status-counts mt-3 d-flex align-items-center gap-2 flex-wrap">
+  <span class="badge badge-track shadow-sm rounded-pill"
+    >Em Produção: {{ counts[0] || 0 }}</span
+  >
+  <span class="badge badge-track shadow-sm rounded-pill"
+    >Cortada: {{ counts[1] || 0 }}</span
+  >
+  <span class="badge badge-track shadow-sm rounded-pill"
+    >Tirada: {{ counts[6] || 0 }}</span
+  >
+  <span class="badge badge-track shadow-sm rounded-pill"
     >Montada (corte): {{ counts[7] || 0 }}</span
   >
-  <span class="badge bg-primary">Montada e vincada: {{ counts[8] || 0 }}</span>
-  <span class="badge bg-success">Pronto p/ Entrega: {{ counts[2] || 0 }}</span>
-  <span class="badge bg-warning text-dark"
+  <span class="badge badge-track shadow-sm rounded-pill"
+    >Montada e vincada: {{ counts[8] || 0 }}</span
+  >
+  <span class="badge badge-track shadow-sm rounded-pill"
+    >Pronto p/ Entrega: {{ counts[2] || 0 }}</span
+  >
+  <span class="badge badge-track shadow-sm rounded-pill"
     >Saiu p/ Entrega: {{ counts[3] || 0 }}</span
   >
 </div>
 
 <div class="pipeline mt-3">
-  <div class="col" *ngFor="let c of cols">
-    <div class="col-header">
-      <span>{{ c.label }}</span>
-      <span class="badge bg-light text-dark">{{ counts[c.key] || 0 }}</span>
+  <div class="col shadow-sm" *ngFor="let c of cols">
+    <div class="col-header shadow-sm rounded-2xl">
+      <span class="col-title">{{ c.label }}</span>
+      <span class="badge bg-light text-dark shadow-sm">
+        {{ counts[c.key] || 0 }}
+      </span>
     </div>
-    <div class="col-body">
-      <div class="card card-order" *ngFor="let o of data[c.key] || []">
-        <div class="card-body">
-          <div class="d-flex justify-content-between">
-            <strong>{{ o.nr }}</strong>
-            <span [style.color]="getPriorityColor(o.prioridade)">{{
-              o.prioridade
-            }}</span>
-          </div>
-          <div class="small text-muted">{{ o.cliente }}</div>
-          <div class="small">Entrada: {{ o.dataH | date: "dd/MM HH:mm" }}</div>
-          <div class="small" *ngIf="o.dataEntrega">
-            Saída: {{ o.dataEntrega | date: "dd/MM HH:mm" }}
-          </div>
-          <div class="small" *ngIf="o.dataRequeridaEntrega">
-            Entrega requerida:
-            {{ o.dataRequeridaEntrega | date: "dd/MM HH:mm" }}
-          </div>
-          <div class="mt-1 d-flex flex-wrap gap-1">
-            <span class="badge bg-success" *ngIf="o.emborrachada"
-              >Emborrachada</span
+
+    <cdk-virtual-scroll-viewport
+      class="col-viewport"
+      [itemSize]="compactView ? 96 : 176"
+      [minBufferPx]="200"
+      [maxBufferPx]="400"
+    >
+      <ng-container
+        *cdkVirtualFor="let o of getColumnOrders(c.key); trackBy: trackByOrder"
+      >
+        <div
+          class="card card-order shadow-sm rounded-2xl"
+          [ngClass]="getCardState(o)"
+          [attr.data-priority]="(o.prioridade || '').toLowerCase()"
+          [@cardFade]="'in'"
+        >
+          <div class="card-body" [class.compact]="compactView">
+            <div
+              class="order-head d-flex justify-content-between align-items-center mb-2"
             >
-            <span class="badge bg-secondary" *ngIf="o.destacador"
-              >Dest: {{ o.destacador }}</span
+              <div class="order-id d-flex align-items-center gap-2">
+                <span class="order-number fw-semibold">#{{ o.nr }}</span>
+                <span
+                  class="priority-chip badge rounded-pill"
+                  [ngClass]="getPriorityBadgeClass(o.prioridade)"
+                >
+                  {{ getPriorityEmoji(o.prioridade) }}
+                </span>
+              </div>
+              <span
+                class="priority-label small text-muted text-uppercase"
+                *ngIf="o.prioridade"
+                >{{ o.prioridade }}</span
+              >
+            </div>
+
+            <div
+              class="client fw-semibold text-truncate mb-1"
+              [title]="o.cliente"
             >
-            <span class="badge bg-dark" *ngIf="o.modalidadeEntrega">{{
-              o.modalidadeEntrega
-            }}</span>
-            <span class="badge bg-info text-dark" *ngIf="o.pertinax"
-              >Pertinax</span
+              {{ o.cliente }}
+            </div>
+
+            <div class="order-dates small text-muted mb-2">
+              <div>
+                Entrada
+                <span class="fw-semibold text-dark">
+                  {{ o.dataH | date: 'dd/MM HH:mm' }}
+                </span>
+              </div>
+              <div *ngIf="o.dataRequeridaEntrega">
+                Entrega req.
+                <span class="fw-semibold text-dark">
+                  {{ o.dataRequeridaEntrega | date: 'dd/MM HH:mm' }}
+                </span>
+              </div>
+              <div *ngIf="o.dataEntrega">
+                Saída
+                <span class="fw-semibold text-dark">
+                  {{ o.dataEntrega | date: 'dd/MM HH:mm' }}
+                </span>
+              </div>
+            </div>
+
+            <div class="order-tags d-flex flex-wrap gap-2 mb-3">
+              <span
+                class="badge badge-tag shadow-sm rounded-pill"
+                *ngIf="o.vaiVinco"
+              >
+                📐 Vai vinco
+              </span>
+              <span
+                class="badge badge-tag shadow-sm rounded-pill"
+                *ngIf="o.emborrachada"
+                >🧱 Emborrachada</span
+              >
+              <span
+                class="badge badge-tag shadow-sm rounded-pill"
+                *ngIf="o.destacador"
+                >✂️ Corte</span
+              >
+              <span
+                class="badge badge-tag shadow-sm rounded-pill"
+                *ngIf="o.modalidadeEntrega"
+                >🚚 {{ o.modalidadeEntrega }}</span
+              >
+              <span
+                class="badge badge-tag shadow-sm rounded-pill"
+                *ngIf="o.pertinax"
+                >🧊 Pertinax</span
+              >
+              <span
+                class="badge badge-tag shadow-sm rounded-pill"
+                *ngIf="o.poliester"
+                >🧵 Poliéster</span
+              >
+              <span
+                class="badge badge-tag shadow-sm rounded-pill"
+                *ngIf="o.papelCalibrado"
+                >📄 Papel cal.</span
+              >
+            </div>
+
+            <div
+              class="card-footer-actions d-flex justify-content-between align-items-center"
             >
-            <span class="badge bg-info text-dark" *ngIf="o.poliester"
-              >Poliéster</span
-            >
-            <span class="badge bg-info text-dark" *ngIf="o.papelCalibrado"
-              >Papel cal.</span
-            >
-          </div>
-          <div class="mt-2">
-            <button class="btn btn-outline-info btn-sm" (click)="open(o)">
-              Detalhes
-            </button>
+              <span class="small text-danger fw-semibold" *ngIf="isLate(o)">
+                ⏰ Atrasado
+              </span>
+              <span
+                class="small text-warning fw-semibold"
+                *ngIf="!isLate(o) && isDueSoon(o)"
+              >
+                ⚠️ Prazo curto
+              </span>
+              <button
+                class="btn btn-outline-info btn-sm shadow-sm rounded-pill ms-auto"
+                (click)="open(o)"
+              >
+                Detalhes
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
+      </ng-container>
+    </cdk-virtual-scroll-viewport>
   </div>
 </div>
 

@@ -1,14 +1,66 @@
 :host {
   display: block;
+  color: inherit;
 }
 
-/* --- MOBILE FIRST: carrossel horizontal de colunas --- */
+.rounded-2xl {
+  border-radius: 18px;
+}
+
+.board-toolbar {
+  background: #ffffff;
+}
+
+.min-w-0 {
+  min-width: 0;
+}
+
+.badge-soft-success {
+  background: #e6f4ea;
+  color: #1f7a39;
+}
+
+.badge-track {
+  background: #f5f7fa;
+  color: #3f4c63;
+  font-size: 0.82rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+}
+
+.badge-tag {
+  background: #f1f3f5;
+  color: #374151;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  font-size: 0.78rem;
+  padding: 0.3rem 0.65rem;
+}
+
+.quick-filters .btn {
+  border: 1px solid #e2e6ea;
+  background: #ffffff;
+  min-width: fit-content;
+  transition: background-color 0.18s ease, color 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.quick-filters .btn.active {
+  background: #0d6efd;
+  color: #ffffff;
+  border-color: #0d6efd;
+}
+
+.quick-filters .btn:not(.active):hover {
+  background: #f8f9fb;
+}
+
 .pipeline {
   display: flex;
-  gap: 12px;
+  gap: 16px;
   overflow-x: auto;
-  padding: 8px 2px 16px;
-  scroll-snap-type: x mandatory;
+  padding: 12px 4px 20px;
+  scroll-snap-type: x proximity;
+  scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -16,68 +68,215 @@
   height: 8px;
 }
 
+.pipeline::-webkit-scrollbar-thumb {
+  background: rgba(15, 23, 42, 0.3);
+  border-radius: 999px;
+}
+
 .col {
-  flex: 0 0 280px;           /* largura mínima da coluna no celular */
-  max-width: 90vw;           /* evita estourar lateral */
+  flex: 0 0 304px;
+  max-width: 304px;
+  display: flex;
+  flex-direction: column;
   scroll-snap-align: start;
-  background: transparent;
 }
 
-@media (min-width: 576px) {
-  .col { flex-basis: 320px; }
-}
-
-/* Cabeçalho da coluna fixo enquanto rola a lista de cards */
-.col-header{
-  position: sticky;
-  top: 0;              /* desktop ajusta abaixo */
-  z-index: 3;
-  display:flex;justify-content:space-between;align-items:center;
-  padding:8px 10px;margin-bottom:8px;
-  border-radius:10px;background:#212529;color:#fff;
-}
-
-/* MOBILE: sem sticky para não “comer” o card */
-@media (max-width: 991.98px){
-  .col-header{ position: static; top: auto; }
-}
-
-/* DESKTOP: grid de 6 colunas e sticky ok */
-@media (min-width: 992px){
-  .pipeline{
-    overflow: visible;
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 16px;
+@media (min-width: 1200px) {
+  .col {
+    flex-basis: 360px;
+    max-width: 360px;
   }
-  .col-header{ top: 0; } /* se tiver barra fixa, ajuste aqui */
 }
 
-/* espaço entre header e o 1º card */
-.col-body{ display:grid; gap:10px; }
+.col-header {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  background: #0f172a;
+  color: #ffffff;
+}
 
+.col-title {
+  font-weight: 600;
+}
 
-/* Cartão do pedido */
+.col-viewport {
+  display: block;
+  padding: 6px 2px 6px 0;
+  height: clamp(320px, 70vh, 720px);
+  box-sizing: border-box;
+}
+
 .card-order {
-  border: 1px solid rgba(0,0,0,.08);
-  border-radius: 12px;
-  box-shadow: 0 1px 2px rgba(0,0,0,.04);
-  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #ffffff;
+  transition: transform 0.18s ease, box-shadow 0.18s ease,
+    border-color 0.18s ease, background 0.18s ease;
+  margin-right: 6px;
 }
+
+.card-order:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
+}
+
 .card-order .card-body {
-  padding: 10px 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-/* Linha de badges acima do board: permitir quebra/rolagem confortável */
-.d-flex.gap-2.flex-wrap.mt-3 {
-  row-gap: 6px;
+.card-order .card-body.compact {
+  gap: 6px;
+  padding: 12px 14px;
 }
 
+.order-number {
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+}
 
-/* Melhorar área clicável nos botões em telas de toque */
+.priority-chip {
+  padding: 4px 10px;
+  font-size: 0.85rem;
+  border: none;
+}
+
+.priority-chip.priority-red {
+  background: #ffe3e3;
+  color: #c0392b;
+}
+
+.priority-chip.priority-yellow {
+  background: #fff3cd;
+  color: #915907;
+}
+
+.priority-chip.priority-blue {
+  background: #dceeff;
+  color: #0b5ed7;
+}
+
+.priority-chip.priority-green {
+  background: #e3fcec;
+  color: #0f7a43;
+}
+
+.priority-chip.priority-default {
+  background: #edf2f7;
+  color: #334155;
+}
+
+.card-order[data-priority='vermelho'] {
+  background: linear-gradient(180deg, rgba(255, 235, 235, 0.85), #ffffff);
+  border-color: rgba(220, 53, 69, 0.18);
+}
+
+.card-order[data-priority='amarelo'] {
+  background: linear-gradient(180deg, rgba(255, 245, 217, 0.85), #ffffff);
+  border-color: rgba(255, 193, 7, 0.25);
+}
+
+.card-order[data-priority='azul'] {
+  background: linear-gradient(180deg, rgba(225, 240, 255, 0.85), #ffffff);
+  border-color: rgba(13, 110, 253, 0.2);
+}
+
+.card-order[data-priority='verde'] {
+  background: linear-gradient(180deg, rgba(217, 245, 229, 0.85), #ffffff);
+  border-color: rgba(25, 135, 84, 0.2);
+}
+
+.card-order.is-due-soon {
+  background: linear-gradient(180deg, #fff4dc, #ffffff);
+  border-color: rgba(255, 193, 7, 0.4);
+}
+
+.card-order.is-late {
+  border: 2px solid #dc3545;
+  box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.15);
+}
+
+.card-order.compact-mode .order-tags {
+  display: none;
+}
+
+.card-order.compact-mode .card-body {
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 18px;
+}
+
+.card-order.compact-mode .order-head {
+  margin: 0;
+}
+
+.card-order.compact-mode .client {
+  min-width: 160px;
+  max-width: 220px;
+}
+
+.card-order.compact-mode .order-dates {
+  display: flex;
+  gap: 12px;
+  margin: 0;
+}
+
+.card-order.compact-mode .card-footer-actions {
+  margin-left: auto;
+}
+
+.order-tags {
+  margin-top: 4px;
+}
+
+.card-footer-actions .btn {
+  transition: transform 0.15s ease;
+}
+
+.card-footer-actions .btn:hover {
+  transform: translateY(-1px);
+}
+
+.board-toolbar .progress {
+  background: rgba(15, 23, 42, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-thin {
+  height: 0.5rem;
+}
+
+@media (max-width: 767.98px) {
+  .col {
+    flex: 0 0 264px;
+    max-width: 264px;
+  }
+
+  .col-viewport {
+    height: clamp(260px, 65vh, 640px);
+  }
+
+  .card-order.compact-mode .card-body {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .card-order.compact-mode .order-dates {
+    flex-direction: column;
+    gap: 4px;
+  }
+}
+
 @media (hover: none) {
   .btn.btn-sm {
-    padding: .5rem .6rem;
+    padding: 0.5rem 0.75rem;
   }
 }
-

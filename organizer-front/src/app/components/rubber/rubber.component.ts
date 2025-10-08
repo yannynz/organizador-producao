@@ -54,9 +54,9 @@ export class RubberComponent implements OnInit {
   private carregarParaBorracha(): void {
     this.orderService.getOrders().subscribe({
       next: (lista) => {
-        this.paraBorracha = lista
-          .filter((o) => this.elegivelParaBorracha(o))
-          .sort((a, b) => this.timestampRef(b) - this.timestampRef(a));
+        this.paraBorracha = this.ordenarLista(
+          lista.filter((o) => this.elegivelParaBorracha(o)),
+        );
       },
       error: () => {
         this.msg = {
@@ -79,20 +79,7 @@ export class RubberComponent implements OnInit {
         received && received.payload ? received.payload : received;
       if (!order || typeof order !== 'object') return;
 
-      const idx = this.paraBorracha.findIndex((o) => o.id === order.id);
-      const deveEntrar = this.elegivelParaBorracha(order);
-
-      if (deveEntrar) {
-        if (idx === -1) this.paraBorracha = [order, ...this.paraBorracha];
-        else this.paraBorracha[idx] = order;
-
-        this.paraBorracha = [...this.paraBorracha].sort(
-          (a, b) => this.timestampRef(b) - this.timestampRef(a),
-        );
-      } else if (idx !== -1) {
-        this.paraBorracha.splice(idx, 1);
-        this.paraBorracha = [...this.paraBorracha];
-      }
+      this.atualizarLista(order);
     });
   }
 
@@ -217,6 +204,32 @@ export class RubberComponent implements OnInit {
 
   trackById = (_: number, o: orders) => o.id;
 
+  statusBadgeClass(status?: number): string {
+    switch (status) {
+      case OrderStatus.MontadaCorte:
+        return 'bg-warning text-dark';
+      case OrderStatus.MontadaCompleta:
+        return 'bg-primary';
+      case OrderStatus.ProntoEntrega:
+        return 'bg-success';
+      default:
+        return 'bg-light text-dark';
+    }
+  }
+
+  getStatusLabel(status?: number): string {
+    switch (status) {
+      case OrderStatus.MontadaCorte:
+        return 'Montada (corte)';
+      case OrderStatus.MontadaCompleta:
+        return 'Montada e vincada';
+      case OrderStatus.ProntoEntrega:
+        return 'Pronto p/ entrega';
+      default:
+        return '—';
+    }
+  }
+
   getPriorityColor(prioridade: string): string {
     switch (prioridade) {
       case 'VERMELHO':
@@ -229,6 +242,26 @@ export class RubberComponent implements OnInit {
         return 'green';
       default:
         return 'black';
+    }
+  }
+
+  private ordenarLista(lista: orders[]): orders[] {
+    return [...lista].sort((a, b) => this.timestampRef(b) - this.timestampRef(a));
+  }
+
+  private atualizarLista(order: orders): void {
+    const idx = this.paraBorracha.findIndex((o) => o.id === order.id);
+    const deveEntrar = this.elegivelParaBorracha(order);
+
+    if (deveEntrar) {
+      const novaLista =
+        idx === -1 ? [order, ...this.paraBorracha] : [...this.paraBorracha];
+      if (idx !== -1) novaLista[idx] = order;
+      this.paraBorracha = this.ordenarLista(novaLista);
+    } else if (idx !== -1) {
+      const novaLista = [...this.paraBorracha];
+      novaLista.splice(idx, 1);
+      this.paraBorracha = novaLista;
     }
   }
 }

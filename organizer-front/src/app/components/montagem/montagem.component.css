@@ -1,20 +1,68 @@
-.table-montagem th,
-.table-montagem td {
-  vertical-align: middle;
+/* mantém largura máxima só em telas pequenas */
+.montagem-container {
+  max-width: 880px;
 }
 
-.table-montagem thead th {
-  white-space: nowrap;
+@media (min-width: 992px) {
+  .montagem-container {
+    max-width: 95%;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+
+  /* melhora legibilidade da tabela */
+  .table-montagem th,
+  .table-montagem td {
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+
+  /* zebra leve + espaçamento */
+  .table-montagem tbody tr:nth-child(even) {
+    background-color: #fafafa;
+  }
+
+  .table-montagem td {
+    padding: 0.6rem 0.8rem;
+  }
+
+  /* títulos mais equilibrados */
+  .table-montagem thead th {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .table-responsive {
+    overflow-x: visible;
+  }
+
+  /* Faz os botões ficarem lado a lado, mas com espaçamento equilibrado */
+  .table-montagem .btn-sm {
+    min-width: 90px;
+  }
 }
 
-.table-montagem .badge {
-  font-size: 0.75rem;
+@media (min-width: 1200px) {
+  body {
+    background-color: #f7f8fa;
+  }
+
+  .montagem-container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+  }
 }
 
-.table-montagem .small {
-  font-size: 0.75rem;
+.name-field-wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(110px, 28vw);
+  gap: 0.75rem;
+  align-items: end;
 }
 
-.table-montagem .btn {
-  min-width: 90px;
+.name-field-wrap .btn {
+  align-self: stretch;
+  padding-inline: 1.1rem;
 }

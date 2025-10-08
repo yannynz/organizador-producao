@@ -1,5 +1,5 @@
-<div class="container py-4" style="max-width: 880px">
-  <h3 class="mb-3">Montagem</h3>
+<div class="container-fluid py-4 montagem-container">
+<h3 class="mb-3">Montagem</h3>
 
   <div
     *ngIf="msg.type"
@@ -13,30 +13,30 @@
   </div>
 
   <form (ngSubmit)="confirmar()" [formGroup]="form" novalidate class="mb-4">
-    <div class="row g-2 align-items-end">
-      <div class="col-12 col-md-8">
+    <div class="row g-3">
+      <div class="col-12">
         <label class="form-label" for="responsavel">Nome do responsável</label>
-        <input
-          id="responsavel"
-          type="text"
-          class="form-control form-control-lg"
-          formControlName="nome"
-          autocomplete="name"
-          placeholder="Quem está na etapa agora"
-        />
-        <div class="form-text">
+        <div class="name-field-wrap">
+          <input
+            id="responsavel"
+            type="text"
+            class="form-control form-control-lg"
+            formControlName="nome"
+            autocomplete="name"
+            placeholder="Quem está na etapa agora"
+          />
+          <button
+            type="button"
+            class="btn btn-outline-secondary name-clear-btn"
+            (click)="limpar()"
+            [disabled]="loading"
+          >
+            Limpar
+          </button>
+        </div>
+        <div class="form-text mt-2">
           Informe uma vez e use o botão desejado: Montar, Vincar ou ambos.
         </div>
-      </div>
-      <div class="col-12 col-md-4 d-flex gap-2 mt-2 mt-md-0">
-        <button
-          type="button"
-          class="btn btn-outline-secondary flex-fill"
-          (click)="limpar()"
-          [disabled]="loading"
-        >
-          Limpar
-        </button>
       </div>
     </div>
   </form>

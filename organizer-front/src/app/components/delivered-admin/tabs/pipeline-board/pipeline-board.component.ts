@@ -1,5 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { animate, style, transition, trigger } from '@angular/animations';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 import { Subscription } from 'rxjs';
 
 import { OrderService } from '../../../../services/orders.service';
@@ -9,12 +11,48 @@ import { AdvancedFiltersComponent } from '../../../../components/advanced-filter
 import { OrderDetailsModalComponent } from '../../../../components/order-details-modal/order-details-modal.component';
 import { OrderFilters } from '../../../../models/order-filters';
 
+type QuickFilterId =
+  | 'all'
+  | 'priority-red'
+  | 'priority-yellow'
+  | 'priority-blue'
+  | 'priority-green'
+  | 'rubber'
+  | 'late';
+
+interface QuickFilterOption {
+  id: QuickFilterId;
+  label: string;
+}
+
 @Component({
   selector: 'app-pipeline-board',
   standalone: true,
-  imports: [CommonModule, AdvancedFiltersComponent, OrderDetailsModalComponent],
+  imports: [
+    CommonModule,
+    ScrollingModule,
+    AdvancedFiltersComponent,
+    OrderDetailsModalComponent,
+  ],
   templateUrl: './pipeline-board.component.html',
   styleUrls: ['./pipeline-board.component.css'],
+  animations: [
+    trigger('cardFade', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(8px)' }),
+        animate(
+          '180ms ease-out',
+          style({ opacity: 1, transform: 'translateY(0)' }),
+        ),
+      ]),
+      transition(':leave', [
+        animate(
+          '140ms ease-in',
+          style({ opacity: 0, transform: 'translateY(-4px)' }),
+        ),
+      ]),
+    ]),
+  ],
 })
 export class PipelineBoardComponent implements OnInit, OnDestroy {
   statusDescriptions: { [key: number]: string } = {
@@ -51,10 +89,33 @@ export class PipelineBoardComponent implements OnInit, OnDestroy {
   selectedOrder: orders | null = null;
 
   currentFilters: OrderFilters = {};
+  quickFilters: QuickFilterOption[] = [
+    { id: 'priority-red', label: '🔴 Vermelhos' },
+    { id: 'priority-yellow', label: '🟡 Amarelos' },
+    { id: 'priority-blue', label: '🔵 Azuis' },
+    { id: 'priority-green', label: '🟢 Verdes' },
+    { id: 'rubber', label: '🧱 Emborrachadas' },
+    { id: 'late', label: '⏰ Atrasados' },
+  ];
+  activeQuickFilter: QuickFilterId = 'all';
+  compactView = false;
+  lastUpdatedAt: Date | null = null;
+  timeSinceUpdateSeconds = 0;
 
   // mapa do último status conhecido (apenas para itens que passam no filtro atual)
   private knownStatus: Record<number, number> = {};
   private subs = new Subscription();
+  private readonly priorityTokens: Record<
+    string,
+    { emoji: string; badgeClass: string }
+  > = {
+    VERMELHO: { emoji: '🔴', badgeClass: 'priority-red' },
+    AMARELO: { emoji: '🟡', badgeClass: 'priority-yellow' },
+    AZUL: { emoji: '🔵', badgeClass: 'priority-blue' },
+    VERDE: { emoji: '🟢', badgeClass: 'priority-green' },
+  };
+  private readonly compactStorageKey = 'pipeline-board.compact-view';
+  private updateTimer?: number;
 
   constructor(
     private orderService: OrderService,
@@ -62,6 +123,8 @@ export class PipelineBoardComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.restoreCompactPreference();
+    this.startUpdateTicker();
     this.reload();
 
     // WS: pedidos gerais
@@ -82,6 +145,7 @@ export class PipelineBoardComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    if (this.updateTimer) window.clearInterval(this.updateTimer);
     this.subs.unsubscribe();
   }
 
@@ -104,6 +168,8 @@ export class PipelineBoardComponent implements OnInit, OnDestroy {
             if (it.id != null) this.knownStatus[it.id] = c.key;
           });
         });
+
+        this.touchUpdated();
 
         this.loading = false;
       },
@@ -260,6 +326,8 @@ export class PipelineBoardComponent implements OnInit, OnDestroy {
         this.knownStatus[o.id] = o.status;
       }
     }
+
+    this.touchUpdated();
   }
 
   open(o: orders) {
@@ -295,5 +363,151 @@ export class PipelineBoardComponent implements OnInit, OnDestroy {
     if (p === 'AZUL') return 'dodgerblue';
     if (p === 'VERDE') return 'green';
     return 'black';
+  }
+
+  trackByOrder(_index: number, item: orders) {
+    return item.id ?? item.nr ?? _index;
+  }
+
+  setQuickFilter(id: QuickFilterId) {
+    this.activeQuickFilter = this.activeQuickFilter === id ? 'all' : id;
+  }
+
+  passesQuickFilter(o: orders) {
+    const priority = (o.prioridade || '').toUpperCase();
+    switch (this.activeQuickFilter) {
+      case 'all':
+        return true;
+      case 'priority-red':
+        return priority === 'VERMELHO';
+      case 'priority-yellow':
+        return priority === 'AMARELO';
+      case 'priority-blue':
+        return priority === 'AZUL';
+      case 'priority-green':
+        return priority === 'VERDE';
+      case 'rubber':
+        return !!o.emborrachada;
+      case 'late':
+        return this.isLate(o);
+      default:
+        return true;
+    }
+  }
+
+  toggleCompactView() {
+    this.compactView = !this.compactView;
+    this.persistCompactPreference();
+  }
+
+  getReadyProgress(): number {
+    const total = Object.values(this.counts || {}).reduce(
+      (sum, val) => sum + (val || 0),
+      0,
+    );
+    if (!total) return 0;
+    return Math.round(((this.counts[2] || 0) / total) * 100);
+  }
+
+  getTotalCount(): number {
+    return Object.values(this.counts || {}).reduce(
+      (sum, val) => sum + (val || 0),
+      0,
+    );
+  }
+
+  getColumnOrders(status: number): orders[] {
+    const base = this.data[status] || [];
+    if (this.activeQuickFilter === 'all') return base;
+    return base.filter((o) => this.passesQuickFilter(o));
+  }
+
+  formatSinceUpdate(): string {
+    if (!this.lastUpdatedAt) return 'Atualizado há pouco';
+    const secs = this.timeSinceUpdateSeconds;
+    if (secs < 60) {
+      return `Atualizado há ${secs}s`;
+    }
+    const mins = Math.floor(secs / 60);
+    if (mins < 60) {
+      return `Atualizado há ${mins}min`;
+    }
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) {
+      return `Atualizado há ${hours}h`;
+    }
+    const days = Math.floor(hours / 24);
+    return `Atualizado há ${days}d`;
+  }
+
+  getPriorityEmoji(p?: string) {
+    const key = (p || '').toUpperCase();
+    return this.priorityTokens[key]?.emoji || '⚪';
+  }
+
+  getPriorityBadgeClass(p?: string) {
+    const key = (p || '').toUpperCase();
+    return this.priorityTokens[key]?.badgeClass || 'priority-default';
+  }
+
+  isDueSoon(o: orders) {
+    if (!o.dataRequeridaEntrega) return false;
+    const delta =
+      new Date(o.dataRequeridaEntrega).getTime() - new Date().getTime();
+    const fourHoursMs = 4 * 60 * 60 * 1000;
+    return delta > 0 && delta <= fourHoursMs;
+  }
+
+  isLate(o: orders) {
+    if (!o.dataRequeridaEntrega) return false;
+    return new Date(o.dataRequeridaEntrega).getTime() < new Date().getTime();
+  }
+
+  getCardState(o: orders) {
+    return {
+      'is-due-soon': this.isDueSoon(o),
+      'is-late': this.isLate(o),
+      'compact-mode': this.compactView,
+    };
+  }
+
+  private restoreCompactPreference() {
+    try {
+      this.compactView =
+        localStorage.getItem(this.compactStorageKey) === 'true';
+    } catch {
+      this.compactView = false;
+    }
+  }
+
+  private persistCompactPreference() {
+    try {
+      localStorage.setItem(
+        this.compactStorageKey,
+        this.compactView ? 'true' : 'false',
+      );
+    } catch {
+      /* noop */
+    }
+  }
+
+  private startUpdateTicker() {
+    if (this.updateTimer) window.clearInterval(this.updateTimer);
+    this.updateTimer = window.setInterval(() => {
+      this.timeSinceUpdateSeconds = this.computeSecondsSinceUpdate();
+    }, 1000);
+  }
+
+  private touchUpdated() {
+    this.lastUpdatedAt = new Date();
+    this.timeSinceUpdateSeconds = 0;
+  }
+
+  private computeSecondsSinceUpdate(): number {
+    if (!this.lastUpdatedAt) return 0;
+    const diff = Math.floor(
+      (Date.now() - this.lastUpdatedAt.getTime()) / 1000,
+    );
+    return Math.max(diff, 0);
   }
 }
