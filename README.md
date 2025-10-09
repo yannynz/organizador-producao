@@ -11,6 +11,7 @@ Tecnologias
 - Banco de Dados: PostgreSQL
 - Orquestração: Docker Compose
 - Servidor HTTP: Nginx (serve o frontend produzido)
+- Monitoramento: Prometheus + Grafana
 
 Como rodar o projeto
 --------------------
@@ -25,6 +26,10 @@ Como rodar o projeto
    ```
    - O Dockerfile do frontend executa `npm run build --configuration=production`.
    - O Nginx serve imediatamente o pacote buildado pela mesma composição.
+3. Com tudo rodando, explore as métricas:
+   - Prometheus: http://localhost:9090 
+   - Grafana: http://localhost:3000 (login `admin` / senha `admin123`)
+   - Endpoint direto do backend: http://localhost:8081/actuator/prometheus
 
 Serviços disponíveis
 --------------------
@@ -33,12 +38,15 @@ Serviços disponíveis
 | Frontend (Angular)| http://localhost          |
 | Backend (API)    | http://localhost:8081      |
 | RabbitMQ UI      | http://localhost:15672     |
+| Prometheus       | http://localhost:9090      |
+| Grafana          | http://localhost:3000      |
 
 Arquitetura
 -----------
 - `/organizer-front`: código fonte Angular
 - `/src`: backend Spring Boot
 - `/nginx`: configuração do Nginx
+- `/monitoring`: arquivos de configuração do Prometheus e do Grafana
 - Dockerfile
   - Fase build: usa `node:18-alpine`, instala dependências, ajusta timezone e executa o build Angular
   - Fase final: usa `nginx:alpine`, copia os assets gerados
@@ -48,6 +56,16 @@ Arquitetura
   - `backend-container`: Spring Boot, depende de Postgres + RabbitMQ
   - `frontend-container`: container usado apenas para build — o conteúdo final é servido pelo Nginx
   - `nginx-container`: container final que expõe o frontend na porta 80
+- `prometheus-container`: coleta métricas do backend Spring Boot (Micrometer + Actuator)
+- `grafana-container`: visualização das métricas com datasource provisionado para o Prometheus
+
+Monitoramento e Métricas
+------------------------
+- O backend expõe métricas Micrometer em `http://localhost:8081/actuator/prometheus`. Esse endpoint é habilitado via Spring Boot Actuator e já exporta estatísticas JVM, HTTP e do agendamento.
+- O Prometheus usa `monitoring/prometheus.yml` para coletar as métricas do backend a cada 15s. Ajuste esse arquivo para incluir novos jobs ou mudar o intervalo.
+- O Grafana é iniciado com datasource `Prometheus` pré-configurado (provisionado em `monitoring/grafana/provisioning/datasources/datasource.yml`). Faça login em `http://localhost:3000` usando **usuário** `admin` e **senha** `admin123`.
+- Após logar, importe um dashboard existente (ex.: [Spring Boot Statistics, ID 11378](https://grafana.com/grafana/dashboards/11378)) ou crie um painel do zero com consultas PromQL como `sum(rate(http_server_requests_seconds_count{uri!~"^/actuator.*"}[1m]))`.
+- Para alterar as credenciais do Grafana, edite as variáveis `GF_SECURITY_ADMIN_USER` e `GF_SECURITY_ADMIN_PASSWORD` no `docker-compose.yml`. Os dados persistem no volume nomeado `grafana-data`.
 
 Scripts úteis
 -------------

@@ -93,10 +93,43 @@ services:
     networks:
       - organizador-producao-mynetwork
 
+  prometheus-container:
+    image: prom/prometheus:latest
+    container_name: prometheus-container
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    networks:
+      - organizador-producao-mynetwork
+
+  grafana-container:
+    image: grafana/grafana:10.4.1
+    container_name: grafana-container
+    depends_on:
+      - prometheus-container
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin123
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_SERVER_ROOT_URL: "%(protocol)s://%(domain)s/"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+    networks:
+      - organizador-producao-mynetwork
+
 networks:
   organizador-producao-mynetwork:
     driver: bridge
 
 volumes:
   pgdata17:
+    driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
     driver: local

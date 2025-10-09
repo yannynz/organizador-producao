@@ -1,0 +1,13 @@
+apiVersion: 1
+
+providers:
+  - name: Organizador Dashboards
+    orgId: 1
+    folder: Organizador Produção
+    type: file
+    editable: true
+    allowUiUpdates: true
+    disableDeletion: false
+    options:
+      path: /etc/grafana/provisioning/dashboards/json
+    updateIntervalSeconds: 30
