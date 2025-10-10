@@ -1,7 +1,11 @@
+const websocketUrl =
+  typeof window !== 'undefined'
+    ? `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws/orders`
+    : '';
+
 export const environment = {
-  production: false,
-  apiUrl: 'http://192.168.10.13:8080/api/orders', // URL do backend em desenvolvimento
- //apiUrl: 'http://192.168.0.204:8080/api/orders', // URL do backend em desenvolvimento
-  wsUrl: 'ws://192.168.10.13:8080/ws/orders', // URL do WebSocket
-// wsUrl: 'ws://192.168.0.204:8080/ws/orders', // URL do WebSocket
+  production: true,
+  apiBaseUrl: '/api',
+  apiUrl: '/api/orders',
+  wsUrl: websocketUrl,
 };

@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import git.yannynz.organizadorproducao.model.Order;
 import git.yannynz.organizadorproducao.repository.OrderRepository;
+import git.yannynz.organizadorproducao.monitoring.MessageProcessingMetrics;
 
 @Service
 public class FileWatcherService {
@@ -28,6 +29,9 @@ public class FileWatcherService {
     @Autowired
     private DestacadorMonitorService destacadorMonitorService;
 
+    @Autowired
+    private MessageProcessingMetrics messageProcessingMetrics;
+
     /**
      * Ouve mensagens da fila RabbitMQ associada à pasta /laser.
      * A mensagem contém informações simulando o "arquivo" ou seus dados.
@@ -36,11 +40,13 @@ public class FileWatcherService {
     public void handleLaserQueue(String message) {
         System.out.println("Mensagem recebida na fila 'laserQueue': " + message);
         try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode jsonNode = objectMapper.readTree(message);
-            String fileName = jsonNode.get("file_name").asText(); // Extraindo file_name
-            destacadorMonitorService.registrarAguardandoCorte(fileName);
-            processFile(fileName);
+            messageProcessingMetrics.recordProcessing("laser_notifications", () -> {
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode jsonNode = objectMapper.readTree(message);
+                String fileName = jsonNode.get("file_name").asText(); // Extraindo file_name
+                destacadorMonitorService.registrarAguardandoCorte(fileName);
+                processFile(fileName);
+            });
         } catch (Exception e) {
             System.err.println("Erro ao processar mensagem JSON na fila 'laserQueue': " + e.getMessage());
         }
@@ -50,11 +56,13 @@ public class FileWatcherService {
     public void handleFacasOkQueue(String message) {
         System.out.println("Mensagem recebida na fila 'facasOkQueue': " + message);
         try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode jsonNode = objectMapper.readTree(message);
-            String fileName = jsonNode.get("file_name").asText(); // Extraindo file_name
-            destacadorMonitorService.registrarCortado(fileName);
-            trackFileInFacasOk(fileName);
+            messageProcessingMetrics.recordProcessing("facas_notifications", () -> {
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode jsonNode = objectMapper.readTree(message);
+                String fileName = jsonNode.get("file_name").asText(); // Extraindo file_name
+                destacadorMonitorService.registrarCortado(fileName);
+                trackFileInFacasOk(fileName);
+            });
         } catch (Exception e) {
             System.err.println("Erro ao processar mensagem JSON na fila 'facasOkQueue': " + e.getMessage());
         }
@@ -173,4 +181,3 @@ public class FileWatcherService {
         }
     }
 }
-

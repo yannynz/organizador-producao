@@ -1,8 +1,9 @@
 package git.yannynz.organizadorproducao.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import git.yannynz.organizadorproducao.model.dto.OpImportRequestDTO;
 import git.yannynz.organizadorproducao.service.OpImportService;
+import git.yannynz.organizadorproducao.model.dto.OpImportRequestDTO;
+import git.yannynz.organizadorproducao.monitoring.MessageProcessingMetrics;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.context.annotation.Bean;
@@ -32,24 +33,28 @@ public class AmqpConfig {
 class OpImportedListener {
 
     private final OpImportService service;
+    private final MessageProcessingMetrics processingMetrics;
     private final ObjectMapper mapper = new ObjectMapper();
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(OpImportedListener.class);
 
-    public OpImportedListener(OpImportService service) {
+    public OpImportedListener(OpImportService service, MessageProcessingMetrics processingMetrics) {
         this.service = service;
+        this.processingMetrics = processingMetrics;
     }
 
     @RabbitListener(queues = "op.imported")
     public void onMessage(String json) throws Exception {
         log.info("[AMQP] op.imported received bytes={} payloadSample={}...",
             (json == null ? 0 : json.length()), (json == null ? null : json.substring(0, Math.min(120, json.length()))));
-        try {
-            var req = mapper.readValue(json, OpImportRequestDTO.class);
-            log.info("[AMQP] parsed: numeroOp={}, dataOp={}", req.getNumeroOp(), req.getDataOp());
-            service.importar(req);
-        } catch (Exception ex) {
-            log.error("[AMQP] error parsing/dispatching message: {}", ex.getMessage(), ex);
-            throw ex;
-        }
+        processingMetrics.recordProcessing("op.imported", () -> {
+            try {
+                var req = mapper.readValue(json, OpImportRequestDTO.class);
+                log.info("[AMQP] parsed: numeroOp={}, dataOp={}", req.getNumeroOp(), req.getDataOp());
+                service.importar(req);
+            } catch (Exception ex) {
+                log.error("[AMQP] error parsing/dispatching message: {}", ex.getMessage(), ex);
+                throw ex;
+            }
+        });
     }
 }

@@ -9,9 +9,6 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import git.yannynz.organizadorproducao.model.Order;
-import git.yannynz.organizadorproducao.repository.OrderRepository;
-import git.yannynz.organizadorproducao.service.DobrasFileService;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Optional;
@@ -20,8 +17,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import git.yannynz.organizadorproducao.model.Order;
+import git.yannynz.organizadorproducao.monitoring.MessageProcessingMetrics;
+import git.yannynz.organizadorproducao.repository.OrderRepository;
+import git.yannynz.organizadorproducao.service.DobrasFileService;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 @ExtendWith(MockitoExtension.class)
 class OrganizadorProducaoApplicationTests {
@@ -36,7 +39,9 @@ class OrganizadorProducaoApplicationTests {
 
     @BeforeEach
     void setUp() {
-        service = new DobrasFileService(new ObjectMapper(), orderRepository, messagingTemplate);
+        SimpleMeterRegistry meterRegistry = new SimpleMeterRegistry();
+        MessageProcessingMetrics metrics = new MessageProcessingMetrics(meterRegistry);
+        service = new DobrasFileService(new ObjectMapper(), orderRepository, messagingTemplate, metrics);
     }
 
     @Test

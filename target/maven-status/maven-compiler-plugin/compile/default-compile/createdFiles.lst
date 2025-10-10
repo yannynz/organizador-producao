@@ -1,5 +1,8 @@
+git/yannynz/organizadorproducao/monitoring/MessageProcessingMetrics$ThrowingSupplier.class
 git/yannynz/organizadorproducao/OrganizadorProducao.class
 git/yannynz/organizadorproducao/service/WebSocketMessage.class
+git/yannynz/organizadorproducao/monitoring/HttpRequestMetricsFilter.class
+git/yannynz/organizadorproducao/monitoring/MessageProcessingMetrics$ThrowingRunnable.class
 git/yannynz/organizadorproducao/service/FileWatcherService.class
 git/yannynz/organizadorproducao/controller/OrderWebSocketController.class
 git/yannynz/organizadorproducao/repository/OrderRepository.class
@@ -13,3 +16,5 @@ git/yannynz/organizadorproducao/config/RabbitMQConfig.class
 git/yannynz/organizadorproducao/config/MyWebSocketHandler.class
 git/yannynz/organizadorproducao/config/WebSocketConfig.class
 git/yannynz/organizadorproducao/model/FileInfo.class
+git/yannynz/organizadorproducao/monitoring/WebSocketMetrics.class
+git/yannynz/organizadorproducao/monitoring/MessageProcessingMetrics.class

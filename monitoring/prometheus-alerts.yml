@@ -1,0 +1,73 @@
+groups:
+  - name: organizador-alerts
+    interval: 30s
+    rules:
+      - alert: ApiHighLatencyP95
+        expr: histogram_quantile(0.95, sum by (le) (rate(organizador_http_server_latency_seconds_bucket[5m]))) > 0.5
+        for: 5m
+        labels:
+          severity: alta
+          service: backend
+        annotations:
+          summary: "Latência HTTP p95 acima de 500ms"
+          description: "P95 das requisições HTTP está acima de 500ms por mais de 5 minutos."
+
+      - alert: ApiErrorRateHigh
+        expr: (sum(rate(organizador_http_server_errors_total{status_family="5xx"}[2m])) / sum(rate(organizador_http_server_requests_total[2m]))) > 0.01
+        for: 2m
+        labels:
+          severity: alta
+          service: backend
+        annotations:
+          summary: "Taxa de erros 5xx acima de 1%"
+          description: "A porcentagem de respostas 5xx excedeu 1% nos últimos 2 minutos."
+
+      - alert: RabbitMqBacklogHigh
+        expr: sum(rabbitmq_queue_messages_ready) > 1000
+        for: 10m
+        labels:
+          severity: media
+          service: rabbitmq
+        annotations:
+          summary: "Mensagens acumuladas nas filas"
+          description: "Total de mensagens prontas nas filas excedeu 1000 por mais de 10 minutos."
+
+      - alert: JvmHeapHighUsage
+        expr: (sum(jvm_memory_used_bytes{area="heap"}) / sum(jvm_memory_max_bytes{area="heap"})) > 0.85
+        for: 5m
+        labels:
+          severity: media
+          service: backend
+        annotations:
+          summary: "Uso de heap JVM acima de 85%"
+          description: "A utilização de heap da JVM ultrapassou 85% do máximo disponível."
+
+      - alert: PostgresConnectionsNearLimit
+        expr: (sum(pg_stat_database_numbackends) / max(pg_settings_max_connections)) > 0.9
+        for: 2m
+        labels:
+          severity: alta
+          service: postgres
+        annotations:
+          summary: "Conexões PostgreSQL próximas ao limite"
+          description: "Mais de 90% das conexões máximas do PostgreSQL estão em uso."
+
+      - alert: ContainerRestartsBurst
+        expr: sum(changes(container_start_time_seconds{container_label_com_docker_compose_project!="", image!=""}[10m])) > 3
+        for: 0m
+        labels:
+          severity: alta
+          service: infra
+        annotations:
+          summary: "Reinícios frequentes de containers"
+          description: "Algum container reiniciou mais de 3 vezes nos últimos 10 minutos."
+
+      - alert: DiskUsageCritical
+        expr: (1 - (node_filesystem_avail_bytes{fstype!~"tmpfs|overlay"} / node_filesystem_size_bytes{fstype!~"tmpfs|overlay"})) > 0.9
+        for: 5m
+        labels:
+          severity: alta
+          service: infra
+        annotations:
+          summary: "Disco acima de 90% de utilização"
+          description: "Partição com espaço disponível inferior a 10% por mais de 5 minutos."

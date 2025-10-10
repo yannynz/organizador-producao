@@ -1,5 +1,6 @@
 package git.yannynz.organizadorproducao.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
@@ -10,6 +11,13 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
+    private final String[] allowedOrigins;
+
+    public WebSocketConfig(
+            @Value("${app.cors.allowed-origins:http://localhost:4200,http://localhost,http://nginx-container,http://nginx-container:80,http://frontend-container}") String[] allowedOrigins) {
+        this.allowedOrigins = allowedOrigins;
+    }
+
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
         config.enableSimpleBroker("/topic", "/topic/prioridades");
@@ -18,7 +26,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws/orders").setAllowedOrigins("http://localhost", "http://frontend-container", "http://nginx-container:80", "http://192.168.10.13", "http://192.168.10.29");
-        }
-
+        registry.addEndpoint("/ws/orders").setAllowedOrigins(allowedOrigins);
+    }
 }

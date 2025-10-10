@@ -1,8 +1,17 @@
 package git.yannynz.organizadorproducao.service;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import git.yannynz.organizadorproducao.model.Order;
+import git.yannynz.organizadorproducao.monitoring.MessageProcessingMetrics;
 import git.yannynz.organizadorproducao.repository.OrderRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,14 +19,8 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-
-import java.util.Locale;
-import java.util.Optional;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import git.yannynz.organizadorproducao.model.Order;
+import git.yannynz.organizadorproducao.repository.OrderRepository;
 
 /**
  * Serviço dedicado a processar eventos de "Dobras" vindos do RabbitMQ.
@@ -50,44 +53,50 @@ public class DobrasFileService {
     private final ObjectMapper objectMapper;
     private final OrderRepository orderRepository;
     private final SimpMessagingTemplate messagingTemplate;
+    private final MessageProcessingMetrics messageProcessingMetrics;
 
     public DobrasFileService(ObjectMapper objectMapper,
                              OrderRepository orderRepository,
-                             SimpMessagingTemplate messagingTemplate) {
+                             SimpMessagingTemplate messagingTemplate,
+                             MessageProcessingMetrics messageProcessingMetrics) {
         this.objectMapper = objectMapper;
         this.orderRepository = orderRepository;
         this.messagingTemplate = messagingTemplate;
+        this.messageProcessingMetrics = messageProcessingMetrics;
     }
 
-        @RabbitListener(queues = QUEUE_NAME, containerFactory = "stringListenerFactory")
+    @RabbitListener(queues = QUEUE_NAME, containerFactory = "stringListenerFactory")
     public void handleDobrasQueue(String message) {
         try {
-            if (message == null || message.isBlank()) {
-                log.warn("[DOBRAS] Mensagem vazia ou nula recebida na fila {}", QUEUE_NAME);
-                return;
-            }
-
-            JsonNode json = objectMapper.readTree(message);
-            String fileName = json.path("file_name").asText(null);
-
-            if (fileName == null || fileName.isBlank()) {
-                log.warn("[DOBRAS] Campo 'file_name' ausente/blank na mensagem: {}", message);
-                return;
-            }
-
-            Optional<String> nrOpt = extractOrderNumber(fileName);
-            if (nrOpt.isEmpty()) {
-                // Não é do padrão de fim de dobra -> ignorar silenciosamente
-                log.debug("[DOBRAS] Arquivo fora do padrão de dobras, ignorado: {}", fileName);
-                return;
-            }
-
-            String orderNumber = nrOpt.get();
-            updateOrderStatusToTirada(orderNumber);
-
+            messageProcessingMetrics.recordProcessing(QUEUE_NAME, () -> processMessage(message));
         } catch (Exception e) {
             log.error("[DOBRAS] Erro ao processar mensagem na fila {}: {}", QUEUE_NAME, e.getMessage(), e);
         }
+    }
+
+    private void processMessage(String message) throws Exception {
+        if (message == null || message.isBlank()) {
+            log.warn("[DOBRAS] Mensagem vazia ou nula recebida na fila {}", QUEUE_NAME);
+            return;
+        }
+
+        JsonNode json = objectMapper.readTree(message);
+        String fileName = json.path("file_name").asText(null);
+
+        if (fileName == null || fileName.isBlank()) {
+            log.warn("[DOBRAS] Campo 'file_name' ausente/blank na mensagem: {}", message);
+            return;
+        }
+
+        Optional<String> nrOpt = extractOrderNumber(fileName);
+        if (nrOpt.isEmpty()) {
+            // Não é do padrão de fim de dobra -> ignorar silenciosamente
+            log.debug("[DOBRAS] Arquivo fora do padrão de dobras, ignorado: {}", fileName);
+            return;
+        }
+
+        String orderNumber = nrOpt.get();
+        updateOrderStatusToTirada(orderNumber);
     }
 
     /**

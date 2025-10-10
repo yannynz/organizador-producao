@@ -53,19 +53,42 @@ Arquitetura
 - `docker-compose.yml` define os containers:
   - `postgres-container`: banco com healthcheck, timezone configurado, volume `pgdata17`
   - `rabbitmq-container`: gerencia filas e WebSocket
+  - `rabbitmq-exporter`: expõe métricas detalhadas do broker para o Prometheus
   - `backend-container`: Spring Boot, depende de Postgres + RabbitMQ
   - `frontend-container`: container usado apenas para build — o conteúdo final é servido pelo Nginx
   - `nginx-container`: container final que expõe o frontend na porta 80
+  - `postgres-exporter`: coleta conexões, transações e locks do PostgreSQL
+  - `node-exporter`: métricas do host (CPU, memória, disco, rede)
+  - `cadvisor`: métricas dos containers Docker (CPU, memória, reinícios, uptime)
 - `prometheus-container`: coleta métricas do backend Spring Boot (Micrometer + Actuator)
 - `grafana-container`: visualização das métricas com datasource provisionado para o Prometheus
 
 Monitoramento e Métricas
 ------------------------
-- O backend expõe métricas Micrometer em `http://localhost:8081/actuator/prometheus`. Esse endpoint é habilitado via Spring Boot Actuator e já exporta estatísticas JVM, HTTP e do agendamento.
-- O Prometheus usa `monitoring/prometheus.yml` para coletar as métricas do backend a cada 15s. Ajuste esse arquivo para incluir novos jobs ou mudar o intervalo.
-- O Grafana é iniciado com datasource `Prometheus` pré-configurado (provisionado em `monitoring/grafana/provisioning/datasources/datasource.yml`). Faça login em `http://localhost:3000` usando **usuário** `admin` e **senha** `admin123`.
-- Após logar, importe um dashboard existente (ex.: [Spring Boot Statistics, ID 11378](https://grafana.com/grafana/dashboards/11378)) ou crie um painel do zero com consultas PromQL como `sum(rate(http_server_requests_seconds_count{uri!~"^/actuator.*"}[1m]))`.
-- Para alterar as credenciais do Grafana, edite as variáveis `GF_SECURITY_ADMIN_USER` e `GF_SECURITY_ADMIN_PASSWORD` no `docker-compose.yml`. Os dados persistem no volume nomeado `grafana-data`.
+- O backend expõe métricas Micrometer em `http://localhost:8081/actuator/prometheus`, incluindo:
+  - Latência HTTP p95/p99, RPS e contagem de erros 4xx/5xx (`organizador_http_server_*`)
+  - Tempo de processamento de mensagens por fila (`organizador_message_processing_seconds_*`)
+  - Sessões WebSocket ativas (`organizador_websocket_active_sessions`) e métricas JVM (heap, GC, threads)
+- Exportadores adicionais:
+  - `rabbitmq-exporter` (porta `9419`): filas, publish/consume rate, rejeições, consumidores
+  - `postgres-exporter` (porta `9187`): conexões, transações, locks, deadlocks, métricas de I/O
+  - `node-exporter` (porta `9100`) e `cadvisor` (porta `8082`): CPU, memória, disco, rede, uptime e reinícios dos containers
+- O Prometheus usa `monitoring/prometheus.yml` para registrar todos os jobs (backend, exportadores, Prometheus). As regras de alerta ficam em `monitoring/prometheus-alerts.yml` e são montadas em `/etc/prometheus/alerts.yml`.
+- Alertas configurados (avaliados no Prometheus):
+  - Latência HTTP p95 > 500ms por 5min (`ApiHighLatencyP95`) — severidade **alta**
+  - Erros 5xx > 1% por 2min (`ApiErrorRateHigh`) — **alta**
+  - Backlog > 1000 mensagens por 10min (`RabbitMqBacklogHigh`) — **média**
+  - Uso de heap > 85% por 5min (`JvmHeapHighUsage`) — **média**
+  - Conexões PostgreSQL > 90% do limite por 2min (`PostgresConnectionsNearLimit`) — **alta**
+  - Containers com >3 reinícios em 10min (`ContainerRestartsBurst`) — **alta**
+  - Disco com >90% de utilização por 5min (`DiskUsageCritical`) — **alta**
+- Grafana já é provisionado com datasource Prometheus (`monitoring/grafana/provisioning/datasources/datasource.yml`) e cinco dashboards prontos (`monitoring/grafana/provisioning/dashboards/json`):
+  1. **Visão Geral** (`organizador-geral`): KPIs principais, filas e infraestrutura
+  2. **Backend** (`organizador-backend`): endpoints, mensagens, JVM e WebSocket
+  3. **RabbitMQ** (`organizador-rabbitmq`): backlog, taxas, rejeições e consumidores
+  4. **PostgreSQL** (`organizador-postgres`): conexões, I/O, locks, deadlocks, crescimento
+  5. **Infraestrutura** (`organizador-infra`): host (CPU/mem/disco/rede) e containers (CPU, memória, uptime, reinícios)
+- Acesse o Grafana em `http://localhost:3000` (login `admin` / senha `admin123`). Para alterar credenciais, ajuste `GF_SECURITY_ADMIN_USER` / `GF_SECURITY_ADMIN_PASSWORD` no `docker-compose.yml`. Os dados persistem no volume `grafana-data`.
 
 Scripts úteis
 -------------
