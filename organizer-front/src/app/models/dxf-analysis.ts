@@ -1,0 +1,32 @@
+export interface DxfAnalysis {
+  analysisId: string;
+  orderNr: string | null;
+  orderId: number | null;
+  score: number | null;
+  scoreLabel: string | null;
+  scoreStars: number | null;
+  totalCutLengthMm: number | null;
+  curveCount: number | null;
+  intersectionCount: number | null;
+  minRadiusMm: number | null;
+  cacheHit: boolean;
+  analyzedAt: string;
+  fileName: string;
+  fileHash: string | null;
+  imagePath: string | null;
+  imageUrl: string | null;
+  imageBucket: string | null;
+  imageKey: string | null;
+  imageUri: string | null;
+  imageChecksum: string | null;
+  imageSizeBytes: number | null;
+  imageContentType: string | null;
+  imageUploadStatus: string | null;
+  imageUploadMessage: string | null;
+  imageUploadedAt: string | null;
+  imageEtag: string | null;
+  imageWidth: number | null;
+  imageHeight: number | null;
+  metrics: Record<string, unknown> | null;
+  explanations: string[] | null;
+}

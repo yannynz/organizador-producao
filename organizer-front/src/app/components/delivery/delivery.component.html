@@ -42,7 +42,7 @@
           <td [ngStyle]="{'background-color': getPriorityColor(order.prioridade)}">
             {{ order.prioridade }}
           </td>
-          <td>{{ getStatusDescription(order.status ?? -1) }}</td>
+          <td>{{ getStatusDescription(order.status) }}</td>
           <td>{{ order.dataH | date: 'dd/MM HH:mm' }}</td>
           <td><div class="d-flex flex-wrap gap-1" *ngIf="order.emborrachada || order.destacador || order.pertinax || order.poliester || order.papelCalibrado">
               <span class="badge bg-success" *ngIf="order.emborrachada">Emborrachada</span>
@@ -91,7 +91,7 @@
               <td [style.color]="getPriorityColor(order.prioridade)">
                 {{ order.prioridade }}
               </td>
-              <td>{{ getStatusDescription(order.status ?? -1) }}</td>
+              <td>{{ getStatusDescription(order.status) }}</td>
               <td>{{ order.dataH | date: 'dd/MM HH:mm' }}</td>
               <td>{{ order.observacao || 'Sem observações' }}</td>
             </tr>

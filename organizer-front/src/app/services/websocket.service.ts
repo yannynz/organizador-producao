@@ -48,6 +48,12 @@ export class WebsocketService {
     return this.rxStompService.watch('/topic/prioridades');
  }
 
+  public watchDxfAnalysis(): Observable<any> {
+    return this.rxStompService
+      .watch('/topic/dxf-analysis')
+      .pipe(map((msg) => JSON.parse(msg.body)));
+  }
+
   public sendCreateOrder(order: any): void {
     this.rxStompService.publish({ destination: '/app/orders/create', body: JSON.stringify(order) });
   }

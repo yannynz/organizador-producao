@@ -7,12 +7,22 @@
         <button type="button" class="btn-close" (click)="onClose()"></button>
       </div>
       <div class="modal-body">
+
         <form [formGroup]="form">
           <table class="table table-bordered align-middle">
             <tbody>
-              <tr><th>ID</th><td>{{ form.get('id')?.value }}</td></tr>
-              <tr><th>NR</th><td>{{ form.get('nr')?.value }}</td></tr>
-              <tr><th>Cliente</th><td>{{ form.get('cliente')?.value }}</td></tr>
+              <tr>
+                <th>ID</th>
+                <td>{{ form.get('id')?.value }}</td>
+              </tr>
+              <tr>
+                <th>NR</th>
+                <td>{{ form.get('nr')?.value }}</td>
+              </tr>
+              <tr>
+                <th>Cliente</th>
+                <td>{{ form.get('cliente')?.value }}</td>
+              </tr>
               <tr>
                 <th>Prioridade</th>
                 <td>
@@ -32,7 +42,11 @@
                   </select>
                 </td>
               </tr>
-              <tr><th>Observações</th><td><textarea formControlName="observacao" class="form-control" placeholder="Compartilhe observações relevantes para a equipe"></textarea></td></tr>
+              <tr>
+                <th>Observações</th>
+                <td><textarea formControlName="observacao" class="form-control"
+                    placeholder="Compartilhe observações relevantes para a equipe"></textarea></td>
+              </tr>
               <tr>
                 <th>Emborrachada</th>
                 <td><input type="checkbox" formControlName="emborrachada" /></td>
@@ -62,14 +76,8 @@
                 <th>Data requerida</th>
                 <td>
                   <div class="picker-container" #pickerContainer>
-                    <input
-                      type="text"
-                      class="form-control"
-                      [value]="form.get('dataRequeridaEntrega')?.value"
-                      readonly
-                      (click)="togglePicker($event)"
-                      placeholder="Clique para escolher data e hora requerida"
-                    />
+                    <input type="text" class="form-control" [value]="form.get('dataRequeridaEntrega')?.value" readonly
+                      (click)="togglePicker($event)" placeholder="Clique para escolher data e hora requerida" />
 
                     <div class="picker-backdrop" *ngIf="pickerOpen" (click)="closePicker()"></div>
 
@@ -78,35 +86,20 @@
 
                       <div class="calendar-grid">
                         <div *ngFor="let d of weekDays" class="calendar-weekday">{{ d }}</div>
-                        <div
-                          *ngFor="let day of monthCells"
-                          class="calendar-day"
-                          [class.outside]="day === null"
-                          [class.selected]="day === selectedDay"
-                          (click)="day !== null ? selectDay(day) : null"
-                        >
+                        <div *ngFor="let day of monthCells" class="calendar-day" [class.outside]="day === null"
+                          [class.selected]="day === selectedDay" (click)="day !== null ? selectDay(day) : null">
                           {{ day === null ? '' : day }}
                         </div>
                       </div>
 
                       <div class="clock" *ngIf="!selectingMinutes">
-                        <div
-                          class="clock-hour outer"
-                          *ngFor="let h of outerHours"
-                          [class.selected]="selectedHour === h"
-                          [ngStyle]="getClockNumberStyle(h, 'outer')"
-                          (click)="selectHour(h)"
-                        >
+                        <div class="clock-hour outer" *ngFor="let h of outerHours" [class.selected]="selectedHour === h"
+                          [ngStyle]="getClockNumberStyle(h, 'outer')" (click)="selectHour(h)">
                           {{ h.toString().padStart(2, '0') }}
                         </div>
 
-                        <div
-                          class="clock-hour inner"
-                          *ngFor="let h of innerHours"
-                          [class.selected]="selectedHour === h"
-                          [ngStyle]="getClockNumberStyle(h, 'inner')"
-                          (click)="selectHour(h)"
-                        >
+                        <div class="clock-hour inner" *ngFor="let h of innerHours" [class.selected]="selectedHour === h"
+                          [ngStyle]="getClockNumberStyle(h, 'inner')" (click)="selectHour(h)">
                           {{ h.toString().padStart(2, '0') }}
                         </div>
 
@@ -115,13 +108,8 @@
                       </div>
 
                       <div class="clock" *ngIf="selectingMinutes">
-                        <div
-                          class="clock-minute"
-                          *ngFor="let m of minuteSteps"
-                          [class.selected]="selectedMinute === m"
-                          [ngStyle]="getClockNumberStyle(m, 'minute')"
-                          (click)="selectMinute(m)"
-                        >
+                        <div class="clock-minute" *ngFor="let m of minuteSteps" [class.selected]="selectedMinute === m"
+                          [ngStyle]="getClockNumberStyle(m, 'minute')" (click)="selectMinute(m)">
                           {{ m.toString().padStart(2, '0') }}
                         </div>
 
@@ -130,7 +118,8 @@
                       </div>
 
                       <div class="picker-footer">
-                        <button type="button" class="btn btn-outline-secondary btn-sm" (click)="closePicker()">Cancelar</button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm"
+                          (click)="closePicker()">Cancelar</button>
                         <button type="button" class="btn btn-primary btn-sm" (click)="applyDateTime()">OK</button>
                       </div>
                     </div>
@@ -139,39 +128,156 @@
               </tr>
               <tr>
                 <th>Desenhista</th>
-                <td><input type="text" class="form-control" formControlName="usuarioImportacao" placeholder="Nome do desenhista responsavel" /></td>
+                <td><input type="text" class="form-control" formControlName="usuarioImportacao"
+                    placeholder="Nome do desenhista responsavel" /></td>
               </tr>
               <tr>
                 <th>Materiais</th>
                 <td>
-                  <label class="me-3"><input type="checkbox" formControlName="pertinax"/> Pertinax</label>
-                  <label class="me-3"><input type="checkbox" formControlName="poliester"/> Poliéster</label>
-                  <label><input type="checkbox" formControlName="papelCalibrado"/> Papel Calibrado</label>
+                  <label class="me-3"><input type="checkbox" formControlName="pertinax" /> Pertinax</label>
+                  <label class="me-3"><input type="checkbox" formControlName="poliester" /> Poliéster</label>
+                  <label><input type="checkbox" formControlName="papelCalibrado" /> Papel Calibrado</label>
                   <small class="text-muted d-block mt-2">Marque os materiais adicionais que acompanham o pedido.</small>
                 </td>
               </tr>
-              <tr><th>Entrada</th><td>{{ form.get('dataH')?.value | date:'dd/MM/yyyy HH:mm' }}</td></tr>
-              <tr><th>Data de Corte</th><td>{{ form.get('dataCortada')?.value | date:'dd/MM/yyyy HH:mm' }}</td></tr>
-              <tr><th>Data de Tiragem</th><td>{{ form.get('dataTirada')?.value | date:'dd/MM/yyyy HH:mm' }}</td></tr>
-              <tr><th>Montador</th><td>{{ form.get('montador')?.value }}</td></tr>
-              <tr><th>Data de Montagem</th><td>{{ form.get('dataMontagem')?.value | date:'dd/MM/yyyy HH:mm' }}</td></tr>
-              <tr><th>Vincador</th><td>{{ form.get('vincador')?.value }}</td></tr>
-              <tr><th>Data Vinco</th><td>{{ form.get('dataVinco')?.value | date:'dd/MM/yyyy HH:mm' }}</td></tr>
-              <tr><th>Emborrachador</th><td>{{ form.get('emborrachador')?.value }}</td></tr>
-              <tr><th>Data de Emborrachamento</th><td>{{ form.get('dataEmborrachamento')?.value | date:'dd/MM/yyyy HH:mm' }}</td></tr>
-              <tr><th>Saída</th><td>{{ form.get('dataEntrega')?.value | date:'dd/MM/yyyy HH:mm' }}</td></tr>
-              <tr><th>Retorno</th><td>{{ form.get('dataHRetorno')?.value | date:'dd/MM/yyyy HH:mm' }}</td></tr>
-              <tr><th>Veículo</th><td>{{ form.get('veiculo')?.value }}</td></tr>
-              <tr><th>Entregador</th><td>{{ form.get('entregador')?.value }}</td></tr>
-              <tr><th>Recebida por</th><td>{{ form.get('recebedor')?.value }}</td></tr>
+              <tr>
+                <th>Entrada</th>
+                <td>{{ form.get('dataH')?.value | date:'dd/MM/yyyy HH:mm' }}</td>
+              </tr>
+              <tr>
+                <th>Data de Corte</th>
+                <td>{{ form.get('dataCortada')?.value | date:'dd/MM/yyyy HH:mm' }}</td>
+              </tr>
+              <tr>
+                <th>Data de Tiragem</th>
+                <td>{{ form.get('dataTirada')?.value | date:'dd/MM/yyyy HH:mm' }}</td>
+              </tr>
+              <tr>
+                <th>Montador</th>
+                <td>{{ form.get('montador')?.value }}</td>
+              </tr>
+              <tr>
+                <th>Data de Montagem</th>
+                <td>{{ form.get('dataMontagem')?.value | date:'dd/MM/yyyy HH:mm' }}</td>
+              </tr>
+              <tr>
+                <th>Vincador</th>
+                <td>{{ form.get('vincador')?.value }}</td>
+              </tr>
+              <tr>
+                <th>Data Vinco</th>
+                <td>{{ form.get('dataVinco')?.value | date:'dd/MM/yyyy HH:mm' }}</td>
+              </tr>
+              <tr>
+                <th>Emborrachador</th>
+                <td>{{ form.get('emborrachador')?.value }}</td>
+              </tr>
+              <tr>
+                <th>Data de Emborrachamento</th>
+                <td>{{ form.get('dataEmborrachamento')?.value | date:'dd/MM/yyyy HH:mm' }}</td>
+              </tr>
+              <tr>
+                <th>Saída</th>
+                <td>{{ form.get('dataEntrega')?.value | date:'dd/MM/yyyy HH:mm' }}</td>
+              </tr>
+              <tr>
+                <th>Retorno</th>
+                <td>{{ form.get('dataHRetorno')?.value | date:'dd/MM/yyyy HH:mm' }}</td>
+              </tr>
+              <tr>
+                <th>Veículo</th>
+                <td>{{ form.get('veiculo')?.value }}</td>
+              </tr>
+              <tr>
+                <th>Entregador</th>
+                <td>{{ form.get('entregador')?.value }}</td>
+              </tr>
+              <tr>
+                <th>Recebida por</th>
+                <td>{{ form.get('recebedor')?.value }}</td>
+              </tr>
+              <tr>
+                <th>Complexidade</th>
+                <td>
+                  <div *ngIf="dxfLoading" class="text-muted small mb-2">Carregando análise DXF…</div>
+                  <div *ngIf="!dxfLoading && !dxfAnalysis && !dxfError" class="text-muted small mb-2">
+                    Sem análise DXF disponível.
+                  </div>
+                  <div *ngIf="dxfError" class="alert alert-danger small mb-2">
+                    {{ dxfError }}
+                  </div>
+                  <div *ngIf="!dxfLoading && dxfAnalysis as analysis" class="card dxf-analysis-card mb-2">
+                    <div class="card-body">
+                      <div class="text-muted small mb-2">
+                        Processado em {{ formatAnalyzedAt(analysis) || '-' }}
+                      </div>
+                      <div class="dxf-stars gap-2" *ngIf="displayScore(analysis) as starScore">
+                        <span class="dxf-score-number">{{ starScore | number: '1.1-1' }}</span>
+                        <div class="d-flex align-items-center ms-2">
+                          <span class="dxf-star" *ngFor="let idx of dxfStarIndices">
+                            <span class="dxf-star-empty">&#9734;</span>
+                            <span
+                              class="dxf-star-fill"
+                              [ngStyle]="{ width: starFillPercent(idx, analysis) }"
+                              >&#9733;</span
+                            >
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
             </tbody>
           </table>
         </form>
+        <section class="dxf-last-session mt-4" *ngIf="dxfAnalysis as analysis">
+          <h6 class="section-title d-flex align-items-center justify-content-between">
+            <span>Imagem da faca</span>
+            <span class="text-muted small" *ngIf="formatUploadedAt(analysis) as uploadedAt">
+              Enviado em {{ uploadedAt }}
+            </span>
+          </h6>
+          <div class="d-flex flex-column flex-md-row gap-3">
+            <div class="dxf-last-session-meta">
+              <div>
+                <strong>MinIO</strong>: {{ analysis.imageBucket }}/{{ analysis.imageKey }}
+              </div>
+              <div class="mb-1" *ngIf="analysis.imageSizeBytes">
+                <strong>Tamanho</strong>: {{ analysis.imageSizeBytes | filesize }}
+              </div>
+              <div class="alert alert-warning small mt-2 mb-0" *ngIf="hasUploadWarning(analysis)">
+                Upload pendente ou não confirmado no bucket configurado.
+              </div>
+            </div>
+            <div
+              class="dxf-last-session-photo text-center"
+              *ngIf="dxfImageSource(analysis) as imageSrc; else dxfPhotoFallback"
+            >
+              <img
+                [src]="imageSrc"
+                [alt]="analysis.fileName || 'DXF render'"
+                class="img-fluid border rounded shadow-sm"
+              />
+              <div class="mt-2">
+                <a
+                  class="btn btn-outline-primary btn-sm"
+                  [href]="dxfImageLink(analysis)"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >Abrir em nova guia</a
+                >
+              </div>
+            </div>
+          </div>
+          <ng-template #dxfPhotoFallback>
+            <div class="alert alert-secondary small mb-0">
+              Imagem não disponível no bucket configurado.
+            </div>
+          </ng-template>
+        </section>
       </div>
       <div class="modal-footer">
-        <!-- <button class="btn btn-outline-primary" (click)="onOpenOp()"> -->
-        <!--   Abrir OP -->
-        <!-- </button> -->
         <button class="btn btn-danger" (click)="onDelete()">Deletar</button>
         <button class="btn btn-secondary" (click)="onClose()">Fechar</button>
         <button class="btn btn-primary" (click)="onSave()">Atualizar</button>

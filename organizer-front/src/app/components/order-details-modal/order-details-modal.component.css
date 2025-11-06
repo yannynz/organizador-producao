@@ -1,0 +1,68 @@
+.dxf-analysis-section {
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  background: #fafafa;
+}
+
+.dxf-analysis-section .btn {
+  min-width: 90px;
+}
+
+.dxf-stars {
+  display: flex;
+  align-items: center;
+}
+
+.dxf-star {
+  position: relative;
+  display: inline-block;
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.dxf-star-empty,
+.dxf-star-fill {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  font-size: 1.1rem;
+  line-height: 1.1rem;
+}
+
+.dxf-star-empty {
+  color: #d1d5db;
+}
+
+.dxf-star-fill {
+  color: #f4b400;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.dxf-score-number {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.dxf-history {
+  font-size: 0.85rem;
+}
+
+.dxf-last-session .section-title {
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.dxf-last-session-meta {
+  min-width: 220px;
+}
+
+.dxf-last-session-photo img {
+  max-height: 320px;
+  object-fit: contain;
+  background: #fff;
+}

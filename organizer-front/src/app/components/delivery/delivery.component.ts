@@ -274,11 +274,14 @@ confirmDelivery(): void {
       order.cliente.toLowerCase().includes(term) ||
       order.prioridade.toLowerCase().includes(term) ||
       (order.status !== undefined && order.status !== null && order.status.toString().includes(term)) ||
-      this.getStatusDescription(order.status ?? -1).toLowerCase().includes(term)
+      this.getStatusDescription(order.status).toLowerCase().includes(term)
     );
   }
 
-  getStatusDescription(status: number): string {
+  getStatusDescription(status?: number | null): string {
+    if (status === undefined || status === null) {
+      return 'Desconhecido';
+    }
     switch (status) {
       case OrderStatus.EmProducao:
         return 'Em produção';

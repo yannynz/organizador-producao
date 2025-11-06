@@ -8,4 +8,5 @@ export const environment = {
   apiBaseUrl: '/api',
   apiUrl: '/api/orders',
   wsUrl: websocketUrl,
+  imagePublicBaseUrl: '',
 };

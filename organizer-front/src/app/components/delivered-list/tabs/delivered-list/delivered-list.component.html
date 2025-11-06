@@ -83,11 +83,9 @@
     </li>
 
     <li class="page-item"
-        [class.disabled]="localMode ? (currentPage >= Math.ceil(localAll.length / pageSize))
-                                    : !(pageMeta[currentPage]?.hasMore)">
+        [class.disabled]="currentPage >= Math.max(1, Math.ceil(localAll.length / pageSize))">
       <button class="page-link" (click)="gotoNext()"
-              [disabled]="localMode ? (currentPage >= Math.ceil(localAll.length / pageSize))
-                                     : !(pageMeta[currentPage]?.hasMore)">»</button>
+              [disabled]="currentPage >= Math.max(1, Math.ceil(localAll.length / pageSize))">»</button>
     </li>
   </ul>
 </nav>
@@ -100,4 +98,3 @@
   (update)="handleUpdate($event)"
   (remove)="handleDelete($event)">
 </app-order-details-modal>
-

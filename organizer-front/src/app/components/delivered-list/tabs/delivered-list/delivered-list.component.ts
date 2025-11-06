@@ -6,7 +6,6 @@ import { OrderDetailsModalComponent } from '../../../../components/order-details
 import { OrderService } from '../../../../services/orders.service';
 import { WebsocketService } from '../../../../services/websocket.service';
 import { orders } from '../../../../models/orders';
-import { CursorPage } from '../../../../models/cursor-page';
 import { OrderFilters } from '../../../../models/order-filters';
 import { Subscription } from 'rxjs';
 
@@ -58,13 +57,6 @@ export class DeliveredListComponent implements OnInit, OnDestroy {
   // ===== paginação =====
   public pageSize = 50;
 
-  // server-mode (cursor)
-  private pageCursors: (string | null)[] = [null]; // page 1 começa com cursor null
-  public pageCache: Record<number, orders[]> = {};
-  public pageMeta: Record<
-    number,
-    { nextCursor: string | null; hasMore: boolean } | undefined
-  > = {};
   currentPage = 1;
   pagesToShow: number[] = [1];
   public Math = Math;
@@ -112,36 +104,21 @@ export class DeliveredListComponent implements OnInit, OnDestroy {
           (o.status === 4 || o.status === 5) &&
           this.applyFiltersLocal([o], this.currentFilters).length > 0;
 
-        if (this.localMode) {
-          // atualiza fonte completa + re-corta a página atual
-          const idx = this.localAll.findIndex((x) => x.id === o.id);
-          this.localAll =
-            idx > -1
-              ? this.localAll.map((x) => (x.id === o.id ? o : x))
-              : passes
-                ? [o, ...this.localAll]
-                : this.localAll;
-          if (!passes)
-            this.localAll = this.localAll.filter((x) => x.id !== o.id);
+        const idx = this.localAll.findIndex((x) => x.id === o.id);
+        this.localAll =
+          idx > -1
+            ? this.localAll.map((x) => (x.id === o.id ? o : x))
+            : passes
+              ? [o, ...this.localAll]
+              : this.localAll;
+        if (!passes)
+          this.localAll = this.localAll.filter((x) => x.id !== o.id);
 
-          this.localAll = this.sortRows(this.localAll);
+        this.localAll = this.sortRows(this.localAll);
 
-          const start = (this.currentPage - 1) * this.pageSize;
-          this.rows = this.localAll.slice(start, start + this.pageSize);
-          this.updatePagesList();
-        } else {
-          // server-mode: atualiza somente se o item estiver visível na página corrente
-          const idx = this.rows.findIndex((x) => x.id === o.id);
-          if (passes && idx > -1) {
-            this.rows[idx] = o;
-            this.rows = this.sortRows(this.rows);
-            this.pageCache[this.currentPage] = this.rows;
-          } else if (!passes && idx > -1) {
-            this.rows.splice(idx, 1);
-            this.pageCache[this.currentPage] = this.rows;
-          }
-          // para manter simples, não revalido as outras páginas em cache
-        }
+        const start = (this.currentPage - 1) * this.pageSize;
+        this.rows = this.localAll.slice(start, start + this.pageSize);
+        this.updatePagesList();
       }),
     );
   }
@@ -152,16 +129,12 @@ export class DeliveredListComponent implements OnInit, OnDestroy {
 
   // ===== ações =====
   reload() {
-    // reseta paginação
+    // sempre trabalhamos em modo local
     this.currentPage = 1;
-    this.pageCursors = [null];
-    this.pageCache = {};
-    this.pageMeta = {};
     this.pagesToShow = [1];
-    this.localMode = false;
+    this.localMode = true;
     this.localAll = [];
 
-    // tenta server-mode, cai para local se der erro
     this.gotoPage(1);
   }
 
@@ -200,7 +173,8 @@ export class DeliveredListComponent implements OnInit, OnDestroy {
     this.orderService.deleteOrder(id).subscribe(() => {
       this.websocket.sendDeleteOrder(id);
       this.rows = this.rows.filter((x) => x.id !== id);
-      this.pageCache[this.currentPage] = this.rows;
+      this.localAll = this.localAll.filter((x) => x.id !== id);
+      this.updatePagesList();
       this.closeDetails();
     });
   }
@@ -209,93 +183,40 @@ export class DeliveredListComponent implements OnInit, OnDestroy {
   gotoPage(p: number) {
     if (p < 1) return;
 
-    if (this.localMode) {
-      // client-side
-      const maxPages = Math.max(
-        1,
-        Math.ceil(this.localAll.length / this.pageSize),
-      );
-      if (p > maxPages) return;
-      this.currentPage = p;
-      const start = (p - 1) * this.pageSize;
-      this.rows = this.localAll.slice(start, start + this.pageSize);
-      this.updatePagesList();
+    if (!this.localAll.length) {
+      this.fetchLocalAndGo(p);
       return;
     }
 
-    // server-mode
-    if (this.pageCache[p]) {
-      this.currentPage = p;
-      this.rows = this.pageCache[p];
-      this.updatePagesList(); // usa length do pageCursors
-      return;
-    }
-
-    const startCursor = this.pageCursors[p - 1] ?? null;
-    this.loading = true;
-    this.orderService
-      .searchDeliveredCursor({
-        limit: this.pageSize,
-        cursor: startCursor,
-        strategy: 'DATE_ID',
-        filters: this.currentFilters,
-      })
-      .subscribe(
-        (res: CursorPage<orders>) => {
-          this.localMode = false;
-
-          this.pageCache[p] = res.items;
-          this.pageMeta[p] = {
-            nextCursor: res.nextCursor,
-            hasMore: res.hasMore,
-          };
-
-          // garante que o array de cursores tenha a posição p
-          this.pageCursors[p] = res.nextCursor ?? null;
-
-          this.currentPage = p;
-          this.rows = res.items;
-          this.loading = false;
-
-          this.updatePagesList();
-        },
-        (_) => {
-          // fallback local
-          this.fetchLocalAndGo(p);
-        },
-      );
+    const maxPages = Math.max(
+      1,
+      Math.ceil(this.localAll.length / this.pageSize),
+    );
+    if (p > maxPages) p = maxPages;
+    this.currentPage = p;
+    const start = (p - 1) * this.pageSize;
+    this.rows = this.localAll.slice(start, start + this.pageSize);
+    this.updatePagesList();
   }
 
   gotoPrev() {
     if (this.currentPage > 1) this.gotoPage(this.currentPage - 1);
   }
   gotoNext() {
-    if (this.localMode) {
-      const maxPages = Math.max(
-        1,
-        Math.ceil(this.localAll.length / this.pageSize),
-      );
-      if (this.currentPage < maxPages) this.gotoPage(this.currentPage + 1);
-    } else {
-      const meta = this.pageMeta[this.currentPage];
-      if (meta?.hasMore) this.gotoPage(this.currentPage + 1);
-    }
+    const maxPages = Math.max(
+      1,
+      Math.ceil(this.localAll.length / this.pageSize),
+    );
+    if (this.currentPage < maxPages) this.gotoPage(this.currentPage + 1);
   }
 
   private updatePagesList() {
-    if (this.localMode) {
-      const n = Math.max(1, Math.ceil(this.localAll.length / this.pageSize));
-      this.pagesToShow = Array.from({ length: n }, (_, i) => i + 1);
-    } else {
-      // número de páginas conhecidas até agora (1..N). Cresce conforme navegamos.
-      const n = Math.max(1, this.pageCursors.length);
-      this.pagesToShow = Array.from({ length: n }, (_, i) => i + 1);
-      // Se a página atual tem hasMore, podemos opcionalmente exibir um fantasma p+1:
-      // aqui mantive só as conhecidas para não confundir.
-    }
+    const n = Math.max(1, Math.ceil(this.localAll.length / this.pageSize));
+    this.pagesToShow = Array.from({ length: n }, (_, i) => i + 1);
   }
 
   private fetchLocalAndGo(p: number) {
+    this.loading = true;
     this.orderService.getOrders().subscribe(
       (all) => {
         const filtered = this.sortRows(

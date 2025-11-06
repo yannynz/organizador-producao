@@ -1,16 +1,17 @@
 package git.yannynz.organizadorproducao;
 
-import git.yannynz.organizadorproducao.service.FileWatcherService;
-import org.springframework.beans.factory.annotation.Autowired;
+import git.yannynz.organizadorproducao.config.DXFAnalysisProperties;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 @SpringBootApplication
 @EnableScheduling
 @EnableAsync
+@EnableConfigurationProperties(DXFAnalysisProperties.class)
 public class OrganizadorProducao implements CommandLineRunner {
 
     public static void main(String[] args) {

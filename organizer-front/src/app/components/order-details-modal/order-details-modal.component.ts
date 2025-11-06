@@ -4,6 +4,7 @@ import {
   Input,
   Output,
   OnChanges,
+  OnInit,
   SimpleChanges,
   OnDestroy,
   Inject,
@@ -16,16 +17,22 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { orders } from '../../models/orders';
 import { OpService } from '../../services/op.service';
+import { DxfAnalysis } from '../../models/dxf-analysis';
+import { DxfAnalysisService } from '../../services/dxf-analysis.service';
+import { WebsocketService } from '../../services/websocket.service';
+import { FilesizePipe } from '../../pipes/filesize.pipe';
+import { environment } from '../../enviroment';
+import { Subscription, filter } from 'rxjs';
 import { DateTime } from 'luxon';
 
 @Component({
   selector: 'app-order-details-modal',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, FilesizePipe],
   templateUrl: './order-details-modal.component.html',
   styleUrls: ['./order-details-modal.component.css'],
 })
-export class OrderDetailsModalComponent implements OnChanges, OnDestroy {
+export class OrderDetailsModalComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChild('pickerContainer') pickerContainer?: ElementRef<HTMLElement>;
 
   @Input() statusDescriptions: { [key: number]: string } = {};
@@ -60,14 +67,33 @@ export class OrderDetailsModalComponent implements OnChanges, OnDestroy {
   private readonly outerHourRadius = 90;
   private readonly innerHourRadius = 55;
   private readonly minuteRadius = 90;
+  private readonly imagePublicBaseUrl: string;
+  private readonly apiBaseUrl: string;
+  private readonly defaultProtocol: string;
   private ignoreDocumentClick = false;
+  private dxfLatestSub?: Subscription;
+  private dxfHistorySub?: Subscription;
+  private dxfWebsocketSub?: Subscription;
+
+  dxfAnalysis: DxfAnalysis | null = null;
+  dxfHistory: DxfAnalysis[] = [];
+  dxfLoading = false;
+  dxfError: string | null = null;
 
   constructor(
     private fb: FormBuilder,
     private opService: OpService,
+    private dxfAnalysisService: DxfAnalysisService,
+    private websocketService: WebsocketService,
     @Inject(PLATFORM_ID) platformId: object
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
+    this.imagePublicBaseUrl = this.normalizeBaseUrl(environment.imagePublicBaseUrl);
+    this.apiBaseUrl = this.normalizeBaseUrl(environment.apiBaseUrl);
+    this.defaultProtocol =
+      this.isBrowser && typeof window !== 'undefined' && window.location?.protocol
+        ? window.location.protocol
+        : 'http:';
     this.form = this.fb.group({
       id: [''],
       nr: ['', Validators.required],
@@ -105,15 +131,32 @@ export class OrderDetailsModalComponent implements OnChanges, OnDestroy {
   }
 
   /** Ciclo Angular */
+  ngOnInit(): void {
+    this.ensureWebsocketSubscription();
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['selectedOrder']) this.applySelectedOrder(this.selectedOrder);
-    if (changes['open']?.currentValue) this.applySelectedOrder(this.selectedOrder);
+    if (changes['selectedOrder']) {
+      this.applySelectedOrder(this.selectedOrder);
+      if (this.open) {
+        this.refreshDxfAnalysis();
+      }
+    }
+    if (changes['open']?.currentValue) {
+      this.applySelectedOrder(this.selectedOrder);
+      this.refreshDxfAnalysis();
+    }
     if (changes['open'] && !changes['open'].currentValue && !this.open) {
       this.form.reset(this.initialFormValue);
+      this.resetDxfState();
     }
   }
 
-  ngOnDestroy(): void {}
+  ngOnDestroy(): void {
+    this.dxfLatestSub?.unsubscribe();
+    this.dxfHistorySub?.unsubscribe();
+    this.dxfWebsocketSub?.unsubscribe();
+  }
 
   /** === Ações === */
   onClose(): void {
@@ -199,6 +242,243 @@ export class OrderDetailsModalComponent implements OnChanges, OnDestroy {
     return {
       transform: `rotate(${angle}deg) translate(${radius}px) rotate(${-angle}deg)`
     };
+  }
+
+  refreshDxfAnalysis(): void {
+    if (!this.open) {
+      return;
+    }
+
+    const nr = this.selectedOrder?.nr;
+    if (!nr) {
+      this.resetDxfState();
+      return;
+    }
+
+    this.dxfLoading = true;
+    this.dxfError = null;
+
+    this.dxfLatestSub?.unsubscribe();
+    this.dxfLatestSub = this.dxfAnalysisService.getLatestByOrder(nr).subscribe({
+      next: (analysis) => {
+        this.dxfAnalysis = analysis;
+        this.dxfLoading = false;
+        if (analysis) {
+          this.mergeHistoryWithLatest(analysis);
+        } else {
+          this.dxfHistory = [];
+        }
+      },
+      error: () => {
+        this.dxfLoading = false;
+        this.dxfError = 'Falha ao carregar análise DXF.';
+      },
+    });
+
+    this.loadDxfHistory(nr);
+    this.ensureWebsocketSubscription();
+  }
+
+  starFillPercent(index: number, analysis: DxfAnalysis | null = this.dxfAnalysis): string {
+    const value = this.ratingValue(analysis);
+    const diff = value - index;
+    let percent = 0;
+    if (diff >= 1) {
+      percent = 100;
+    } else if (diff > 0) {
+      percent = Math.round(diff * 100);
+    }
+    return `${percent}%`;
+  }
+
+  hasUploadWarning(analysis: DxfAnalysis | null = this.dxfAnalysis): boolean {
+    if (!analysis?.imageUploadStatus) {
+      return false;
+    }
+    const status = analysis.imageUploadStatus.toLowerCase();
+    return status !== 'uploaded' && status !== 'exists';
+  }
+
+  dxfImageSource(analysis: DxfAnalysis | null = this.dxfAnalysis): string | null {
+    if (!analysis) {
+      return null;
+    }
+    return this.resolvePublicImageUrl(analysis);
+  }
+
+  dxfImageLink(analysis: DxfAnalysis | null = this.dxfAnalysis): string | null {
+    return this.dxfImageSource(analysis);
+  }
+
+  formatAnalyzedAt(analysis: DxfAnalysis | null = this.dxfAnalysis): string | null {
+    if (!analysis?.analyzedAt) {
+      return null;
+    }
+    const parsed = DateTime.fromISO(analysis.analyzedAt);
+    if (!parsed.isValid) {
+      return analysis.analyzedAt;
+    }
+    return parsed.setZone(this.saoPauloZone).toFormat(this.displayFormatLuxon);
+  }
+
+  formatUploadedAt(analysis: DxfAnalysis | null = this.dxfAnalysis): string | null {
+    if (!analysis?.imageUploadedAt) {
+      return null;
+    }
+    const parsed = DateTime.fromISO(analysis.imageUploadedAt);
+    if (!parsed.isValid) {
+      return analysis.imageUploadedAt;
+    }
+    return parsed.setZone(this.saoPauloZone).toFormat(this.displayFormatLuxon);
+  }
+
+  dxfHistoryWithoutCurrent(): DxfAnalysis[] {
+    if (!this.dxfAnalysis) {
+      return this.dxfHistory;
+    }
+    return this.dxfHistory.filter((item) => item.analysisId !== this.dxfAnalysis?.analysisId);
+  }
+
+  formatIso(value?: string | null): string {
+    if (!value) {
+      return '-';
+    }
+    const parsed = DateTime.fromISO(value);
+    if (!parsed.isValid) {
+      return value;
+    }
+    return parsed.setZone(this.saoPauloZone).toFormat(this.displayFormatLuxon);
+  }
+
+  readonly dxfStarIndices = [0, 1, 2, 3, 4];
+
+  ratingValue(analysis: DxfAnalysis | null = this.dxfAnalysis): number {
+    if (!analysis) {
+      return 0;
+    }
+    const base = analysis.scoreStars ?? analysis.score ?? 0;
+    return Math.max(0, Math.min(5, base));
+  }
+
+  displayScore(analysis: DxfAnalysis | null = this.dxfAnalysis): number | null {
+    if (!analysis) {
+      return null;
+    }
+    const value = analysis.scoreStars ?? analysis.score;
+    return value !== null && value !== undefined ? this.roundHalf(value) : null;
+  }
+
+  private roundHalf(value: number): number {
+    return Math.round(value * 2) / 2;
+  }
+
+  private loadDxfHistory(orderNr: string): void {
+    this.dxfHistorySub?.unsubscribe();
+    this.dxfHistorySub = this.dxfAnalysisService.listHistory(orderNr, 5).subscribe({
+      next: (history) => {
+        this.dxfHistory = history ?? [];
+        if (this.dxfAnalysis) {
+          this.mergeHistoryWithLatest(this.dxfAnalysis);
+        }
+      },
+      error: () => {
+        this.dxfHistory = this.dxfAnalysis ? [this.dxfAnalysis] : [];
+      },
+    });
+  }
+
+  private mergeHistoryWithLatest(latest: DxfAnalysis): void {
+    const filtered = this.dxfHistory.filter((item) => item.analysisId !== latest.analysisId);
+    this.dxfHistory = [latest, ...filtered].slice(0, 5);
+  }
+
+  private ensureWebsocketSubscription(): void {
+    if (this.dxfWebsocketSub || !this.isBrowser) {
+      return;
+    }
+    this.dxfWebsocketSub = this.websocketService
+      .watchDxfAnalysis()
+      .pipe(filter((payload): payload is DxfAnalysis => !!payload))
+      .subscribe((payload) => this.handleIncomingDxfAnalysis(payload));
+  }
+
+  private handleIncomingDxfAnalysis(payload: DxfAnalysis): void {
+    if (!payload?.analysisId) {
+      return;
+    }
+
+    const currentNr = this.selectedOrder?.nr;
+    if (currentNr && payload.orderNr === currentNr) {
+      this.dxfAnalysis = payload;
+      this.dxfLoading = false;
+      this.dxfError = null;
+      this.mergeHistoryWithLatest(payload);
+    }
+  }
+
+  private resolvePublicImageUrl(analysis: DxfAnalysis): string | null {
+    const directCandidates = [analysis.imageUri, analysis.imageUrl].map((value) => this.pickHttpUrl(value));
+    for (const candidate of directCandidates) {
+      if (candidate) {
+        return candidate;
+      }
+    }
+
+    const baseBuilt = this.buildFromBase(analysis.imageKey);
+    if (baseBuilt) {
+      return baseBuilt;
+    }
+    return null;
+  }
+
+  private pickHttpUrl(value: string | null | undefined): string | null {
+    if (!value) {
+      return null;
+    }
+    const trimmed = value.trim();
+    if (!trimmed) {
+      return null;
+    }
+    if (trimmed.startsWith('data:')) {
+      return trimmed;
+    }
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+      return trimmed;
+    }
+    if (trimmed.startsWith('//')) {
+      return `${this.defaultProtocol}${trimmed}`;
+    }
+    return null;
+  }
+
+  private buildFromBase(key: string | null | undefined): string | null {
+    if (!this.imagePublicBaseUrl || !key) {
+      return null;
+    }
+    const trimmedKey = key.trim();
+    if (!trimmedKey) {
+      return null;
+    }
+    const normalizedKey = trimmedKey.startsWith('/') ? trimmedKey.substring(1) : trimmedKey;
+    return `${this.imagePublicBaseUrl}/${normalizedKey}`;
+  }
+
+  private normalizeBaseUrl(value: string | undefined | null): string {
+    if (!value) {
+      return '';
+    }
+    const trimmed = value.trim();
+    if (!trimmed) {
+      return '';
+    }
+    return trimmed.endsWith('/') ? trimmed.slice(0, -1) : trimmed;
+  }
+
+  private resetDxfState(): void {
+    this.dxfAnalysis = null;
+    this.dxfHistory = [];
+    this.dxfLoading = false;
+    this.dxfError = null;
   }
 
   clockHandStyle(): Record<string, string> {

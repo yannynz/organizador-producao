@@ -62,6 +62,7 @@ Arquitetura
   - `cadvisor`: métricas dos containers Docker (CPU, memória, reinícios, uptime)
 - `prometheus-container`: coleta métricas do backend Spring Boot (Micrometer + Actuator)
 - `grafana-container`: visualização das métricas com datasource provisionado para o Prometheus
+- `minio` e `minio-init`: storage S3 compatível para os renders DXF. O init aguarda o serviço ficar disponível, cria o bucket `facas-renders` e aplica permissão de leitura anônima (apenas para ambientes locais).
 
 Monitoramento e Métricas
 ------------------------
@@ -84,11 +85,45 @@ Monitoramento e Métricas
   - Disco com >90% de utilização por 5min (`DiskUsageCritical`) — **alta**
 - Grafana já é provisionado com datasource Prometheus (`monitoring/grafana/provisioning/datasources/datasource.yml`) e cinco dashboards prontos (`monitoring/grafana/provisioning/dashboards/json`):
   1. **Visão Geral** (`organizador-geral`): KPIs principais, filas e infraestrutura
-  2. **Backend** (`organizador-backend`): endpoints, mensagens, JVM e WebSocket
+  2. **Backend** (`organizador-backend`): endpoints, mensagens, JVM, WebSocket e seção **DXF Analysis** (processados na última hora, uploads por status, tamanho médio das imagens)
   3. **RabbitMQ** (`organizador-rabbitmq`): backlog, taxas, rejeições e consumidores
   4. **PostgreSQL** (`organizador-postgres`): conexões, I/O, locks, deadlocks, crescimento
   5. **Infraestrutura** (`organizador-infra`): host (CPU/mem/disco/rede) e containers (CPU, memória, uptime, reinícios)
 - Acesse o Grafana em `http://localhost:3000` (login `admin` / senha `admin123`). Para alterar credenciais, ajuste `GF_SECURITY_ADMIN_USER` / `GF_SECURITY_ADMIN_PASSWORD` no `docker-compose.yml`. Os dados persistem no volume `grafana-data`.
+
+DXF Storage (MinIO)
+-------------------
+- O `docker-compose.yml` já inclui healthcheck no MinIO e um job `minio-init` com retry automático. Em ambientes limpos:
+  ```bash
+  docker compose up -d minio minio-init
+  docker compose logs -f minio-init
+  ```
+- Para reaplicar a criação/permissão do bucket a qualquer momento:
+  ```bash
+  docker compose run --rm minio-init
+  ```
+- Valide o bucket `facas-renders` pelo console (`http://localhost:9091`) ou via CLI:
+  ```bash
+  docker compose run --rm minio-init mc ls local/facas-renders
+  ```
+- Ajuste o FileWatcherApp (`FileWatcherApp/appsettings.Production.json` ou variáveis `DOTNET_`) para publicar direto no MinIO:
+  ```json
+  "DXFAnalysis": {
+    "PersistLocalImageCopy": false,
+    "ImageStorage": {
+      "Enabled": true,
+      "Provider": "s3",
+      "Endpoint": "http://localhost:9000",
+      "AccessKey": "minio",
+      "SecretKey": "minio123",
+      "Bucket": "facas-renders",
+      "KeyPrefix": "renders",
+      "UsePathStyle": true,
+      "PublicBaseUrl": "http://localhost:9000/facas-renders"
+    }
+  }
+  ```
+  Reinicie o worker após aplicar a configuração e reprocessar um DXF: os campos `imageBucket`, `imageKey`, `imageUri` e `imageUploadStatus` passam a ser preenchidos, permitindo que o frontend exiba a miniatura real.
 
 Scripts úteis
 -------------
@@ -103,6 +138,12 @@ Scripts úteis
   cd src
   ./mvnw spring-boot:run
   ```
+- Reexecutar o fluxo DXF (DEV):
+  ```bash
+  ./scripts/dxf-replay.sh
+  docker compose up --build
+  ```
+  O script (executa `sudo` internamente) replica o ciclo manual: cria o arquivo CNC em `/home/laser`, move para `FACASOK/` e copia todos os `.dxf` de `~/Documents` para `/home/dobras/`.
 - Resetar ambiente Docker:
   ```bash
   docker compose down --volumes

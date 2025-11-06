@@ -13,8 +13,8 @@ git/yannynz/organizadorproducao/controller/OrderController.class
 git/yannynz/organizadorproducao/model/Order.class
 git/yannynz/organizadorproducao/config/WebConfig.class
 git/yannynz/organizadorproducao/config/RabbitMQConfig.class
-git/yannynz/organizadorproducao/config/MyWebSocketHandler.class
 git/yannynz/organizadorproducao/config/WebSocketConfig.class
+git/yannynz/organizadorproducao/config/MyWebSocketHandler.class
 git/yannynz/organizadorproducao/model/FileInfo.class
 git/yannynz/organizadorproducao/monitoring/WebSocketMetrics.class
 git/yannynz/organizadorproducao/monitoring/MessageProcessingMetrics.class
