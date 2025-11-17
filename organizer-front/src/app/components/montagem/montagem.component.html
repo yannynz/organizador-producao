@@ -41,6 +41,22 @@
     </div>
   </form>
 
+  <ng-template #complexidadeStarsTemplate let-score="score">
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+      <div class="complexidade-stars">
+        <span
+          *ngFor="let idx of dxfStarIndices"
+          class="complexidade-star"
+          [class.filled]="score >= idx + 1"
+          [class.half]="score >= idx + 0.5 && score < idx + 1"
+        >
+          &#9733;
+        </span>
+      </div>
+      <small class="text-muted">{{ score | number: '1.1-1' }}</small>
+    </div>
+  </ng-template>
+
   <!-- Desktop layout -->
   <div class="d-none d-lg-block">
     <div *ngIf="!tiradas || tiradas.length === 0" class="text-muted pb-3">
@@ -56,6 +72,7 @@
             <th>Status</th>
             <th style="min-width: 180px">Montagem</th>
             <th style="min-width: 180px">Vinco</th>
+            <th style="min-width: 160px">Complexidade</th>
             <th>Atributos</th>
             <th>Obs</th>
             <th style="width: 120px">Criado</th>
@@ -101,6 +118,22 @@
               <ng-template #pendenteVincoDesktop>
                 <span class="text-muted">Pendente</span>
               </ng-template>
+            </td>
+            <td class="complexidade-cell">
+              <ng-container [ngSwitch]="complexidadeEstado(p.nr)">
+                <div class="text-muted small" *ngSwitchCase="'loading'">
+                  Carregando...
+                </div>
+                <ng-container *ngSwitchCase="'ready'">
+                  <ng-container
+                    *ngTemplateOutlet="
+                      complexidadeStarsTemplate;
+                      context: { score: complexidadeValor(p.nr) }
+                    "
+                  ></ng-container>
+                </ng-container>
+                <div class="text-muted small" *ngSwitchDefault>—</div>
+              </ng-container>
             </td>
             <td>
               <div class="d-flex flex-wrap gap-1">
@@ -211,6 +244,24 @@
             <div class="text-muted" *ngIf="p.dataVinco">
               {{ p.dataVinco | date: "dd/MM HH:mm" }}
             </div>
+          </div>
+
+          <div class="mt-3 small">
+            <div class="fw-semibold">Complexidade</div>
+            <ng-container [ngSwitch]="complexidadeEstado(p.nr)">
+              <div class="text-muted" *ngSwitchCase="'loading'">
+                Carregando...
+              </div>
+              <ng-container *ngSwitchCase="'ready'">
+                <ng-container
+                  *ngTemplateOutlet="
+                    complexidadeStarsTemplate;
+                    context: { score: complexidadeValor(p.nr) }
+                  "
+                ></ng-container>
+              </ng-container>
+              <div class="text-muted" *ngSwitchDefault>—</div>
+            </ng-container>
           </div>
 
           <div

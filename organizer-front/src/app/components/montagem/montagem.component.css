@@ -66,3 +66,28 @@
   align-self: stretch;
   padding-inline: 1.1rem;
 }
+
+.complexidade-cell {
+  min-width: 150px;
+}
+
+.complexidade-stars {
+  display: inline-flex;
+  gap: 0.15rem;
+  font-size: 1rem;
+  color: #d1d1d1;
+}
+
+.complexidade-star {
+  line-height: 1;
+  color: inherit;
+}
+
+.complexidade-star.filled {
+  color: #f6a609;
+}
+
+.complexidade-star.half {
+  color: #f6a609;
+  opacity: 0.55;
+}

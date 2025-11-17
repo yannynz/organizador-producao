@@ -6,8 +6,11 @@ import { WebsocketService } from '../../services/websocket.service';
 import { OrderService } from '../../services/orders.service';
 import { orders } from '../../models/orders';
 import { OrderStatus } from '../../models/order-status.enum';
+import { DxfAnalysisService } from '../../services/dxf-analysis.service';
+import { DxfAnalysis } from '../../models/dxf-analysis';
 
 type AcaoMontagem = 'montar' | 'vincar' | 'montarVincar';
+type ComplexidadeEstado = 'loading' | 'ready' | 'empty';
 
 @Component({
   selector: 'app-montagem',
@@ -27,8 +30,13 @@ export class MontagemComponent implements OnInit {
     OrderStatus.MontadaCorte,
   ]);
 
+  readonly dxfStarIndices = [0, 1, 2, 3, 4];
+
   tiradas: orders[] = [];
   pedidoEncontrado: orders | null = null;
+
+  private readonly complexidadePorNr: Record<string, number> = {};
+  private readonly complexidadeEstadoPorNr: Record<string, ComplexidadeEstado> = {};
 
   form = this.fb.group({
     nr: [null as unknown as number],
@@ -39,6 +47,7 @@ export class MontagemComponent implements OnInit {
     private fb: FormBuilder,
     private orderService: OrderService,
     private ws: WebsocketService,
+    private dxfAnalysisService: DxfAnalysisService,
   ) {}
 
   ngOnInit(): void {
@@ -52,6 +61,7 @@ export class MontagemComponent implements OnInit {
         this.tiradas = this.ordenarLista(
           lista.filter((o) => this.statusVisiveis.has(o.status ?? -1)),
         );
+        this.precarregarComplexidades(this.tiradas);
       },
       error: () => {
         this.msg = {
@@ -304,6 +314,7 @@ export class MontagemComponent implements OnInit {
         novaLista[idx] = order;
         this.tiradas = this.ordenarLista(novaLista);
       }
+      this.recarregarComplexidade(order);
     } else if (idx !== -1) {
       const novaLista = [...this.tiradas];
       novaLista.splice(idx, 1);
@@ -386,4 +397,71 @@ export class MontagemComponent implements OnInit {
   }
 
   trackById = (_: number, o: orders) => o.id;
+
+  complexidadeEstado(nr?: string | number | null): ComplexidadeEstado | undefined {
+    const chave = this.normalizarNr(nr);
+    if (!chave) {
+      return undefined;
+    }
+    return this.complexidadeEstadoPorNr[chave];
+  }
+
+  complexidadeValor(nr?: string | number | null): number {
+    const chave = this.normalizarNr(nr);
+    if (!chave) {
+      return 0;
+    }
+    return this.complexidadePorNr[chave] ?? 0;
+  }
+
+  private precarregarComplexidades(lista: orders[]): void {
+    lista.forEach((order) => this.carregarComplexidade(order));
+  }
+
+  private recarregarComplexidade(order: orders): void {
+    const chave = this.normalizarNr(order.nr);
+    if (!chave) {
+      return;
+    }
+    const estado = this.complexidadeEstadoPorNr[chave];
+    const precisaForcar = estado === 'empty';
+    this.carregarComplexidade(order, precisaForcar);
+  }
+
+  private carregarComplexidade(order: orders, force = false): void {
+    const nr = this.normalizarNr(order.nr);
+    if (!nr) {
+      return;
+    }
+    const estadoAtual = this.complexidadeEstadoPorNr[nr];
+    if (estadoAtual === 'loading') {
+      return;
+    }
+    if (!force && (estadoAtual === 'ready' || estadoAtual === 'empty')) {
+      return;
+    }
+
+    this.complexidadeEstadoPorNr[nr] = 'loading';
+    this.dxfAnalysisService.getLatestByOrder(nr).subscribe({
+      next: (analysis) => {
+        if (analysis) {
+          this.complexidadePorNr[nr] = this.extrairPontuacao(analysis);
+          this.complexidadeEstadoPorNr[nr] = 'ready';
+        } else {
+          delete this.complexidadePorNr[nr];
+          this.complexidadeEstadoPorNr[nr] = 'empty';
+        }
+      },
+      error: () => {
+        delete this.complexidadePorNr[nr];
+        this.complexidadeEstadoPorNr[nr] = 'empty';
+      },
+    });
+  }
+
+  private extrairPontuacao(analysis: DxfAnalysis): number {
+    const base = analysis.scoreStars ?? analysis.score ?? 0;
+    const ajustado = Math.max(0, Math.min(5, base));
+    return Math.round(ajustado * 10) / 10;
+  }
 }
