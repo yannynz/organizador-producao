@@ -1,5 +1,5 @@
 Organizador Produção
-=====================
+====================
 
 Sistema web para gestão de ordens de produção, com frontend em Angular, backend em Spring Boot, WebSocket, RabbitMQ, PostgreSQL e Nginx.
 
