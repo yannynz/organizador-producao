@@ -31,6 +31,9 @@ class OpImportServiceVincoTest {
     @Mock
     private SimpMessagingTemplate messagingTemplate;
 
+    @Mock
+    private ClienteAutoEnrichmentService clienteAuto;
+
     private ObjectMapper mapper;
 
     private OpImportService service;
@@ -38,7 +41,7 @@ class OpImportServiceVincoTest {
     @BeforeEach
     void setUp() {
         mapper = new ObjectMapper();
-        service = new OpImportService(opImportRepository, orderRepository, mapper, messagingTemplate);
+        service = new OpImportService(opImportRepository, orderRepository, mapper, messagingTemplate, clienteAuto);
     }
 
     @Test

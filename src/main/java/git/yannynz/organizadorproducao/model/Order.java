@@ -1,9 +1,8 @@
 package git.yannynz.organizadorproducao.model;
 
-import java.util.Objects;
 import jakarta.persistence.*;
 import java.time.ZonedDateTime;
-
+import java.util.Objects;
 
 @Entity
 @Table(name = "orders")
@@ -19,8 +18,8 @@ public class Order {
     private ZonedDateTime dataEntrega;
     private String entregador;
     private String observacao;
-    private String veiculo;  
-    private ZonedDateTime dataHRetorno;  
+    private String veiculo;
+    private ZonedDateTime dataHRetorno;
     private String recebedor;
     private String montador;
     private ZonedDateTime dataMontagem;
@@ -46,45 +45,122 @@ public class Order {
     @Column(name = "data_vinco")
     private ZonedDateTime dataVinco;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cliente_id")
+    private Cliente clienteRef;
 
-    public Order() {}
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "transportadora_id")
+    private Transportadora transportadora;
 
-    public String getVincador() { return vincador; }
-    public void setVincador(String vincador) { this.vincador = vincador; }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "endereco_id")
+    private ClienteEndereco endereco;
 
-    public ZonedDateTime getDataVinco() { return dataVinco; }
-    public void setDataVinco(ZonedDateTime dataVinco) { this.dataVinco = dataVinco; }
+    @Column(name = "horario_func_aplicado")
+    private String horarioFuncAplicado;
 
-    public String getModalidadeEntrega() { return modalidadeEntrega; }
-    public void setModalidadeEntrega(String modalidadeEntrega) { this.modalidadeEntrega = modalidadeEntrega; }
+    @Column(name = "fora_horario")
+    private Boolean foraHorario;
 
-    public String getUsuarioImportacao() { return usuarioImportacao; }
-    public void setUsuarioImportacao(String usuarioImportacao) { this.usuarioImportacao = usuarioImportacao; }
+    public Order() {
+    }
 
-    public boolean isPertinax() { return pertinax; }
-    public void setPertinax(boolean pertinax) { this.pertinax = pertinax; }
-    public boolean isPoliester() { return poliester; }
-    public void setPoliester(boolean poliester) { this.poliester = poliester; }
-    public boolean isPapelCalibrado() { return papelCalibrado; }
-    public void setPapelCalibrado(boolean papelCalibrado) { this.papelCalibrado = papelCalibrado; }
-    public boolean isVaiVinco() { return vaiVinco; }
-    public void setVaiVinco(boolean vaiVinco) { this.vaiVinco = vaiVinco; }
+    public String getVincador() {
+        return vincador;
+    }
 
-    public ZonedDateTime getDataRequeridaEntrega() { return dataRequeridaEntrega; }
-    public void setDataRequeridaEntrega(ZonedDateTime dataRequeridaEntrega){ this.dataRequeridaEntrega = dataRequeridaEntrega; }
+    public void setVincador(String vincador) {
+        this.vincador = vincador;
+    }
 
-    public String getDestacador() { return destacador; }
-    public void setDestacador(String destacador) { this.destacador = destacador; }
+    public ZonedDateTime getDataVinco() {
+        return dataVinco;
+    }
 
+    public void setDataVinco(ZonedDateTime dataVinco) {
+        this.dataVinco = dataVinco;
+    }
 
-    public ZonedDateTime getDataCortada() { return dataCortada; }
+    public String getModalidadeEntrega() {
+        return modalidadeEntrega;
+    }
 
-    public void setDataCortada(ZonedDateTime dataCortada) { this.dataCortada = dataCortada; }
+    public void setModalidadeEntrega(String modalidadeEntrega) {
+        this.modalidadeEntrega = modalidadeEntrega;
+    }
 
-    public ZonedDateTime getDataTirada() { return dataTirada; }
-    
-    public void setDataTirada(ZonedDateTime dataTirada) { this.dataTirada = dataTirada; }
+    public String getUsuarioImportacao() {
+        return usuarioImportacao;
+    }
 
+    public void setUsuarioImportacao(String usuarioImportacao) {
+        this.usuarioImportacao = usuarioImportacao;
+    }
+
+    public boolean isPertinax() {
+        return pertinax;
+    }
+
+    public void setPertinax(boolean pertinax) {
+        this.pertinax = pertinax;
+    }
+
+    public boolean isPoliester() {
+        return poliester;
+    }
+
+    public void setPoliester(boolean poliester) {
+        this.poliester = poliester;
+    }
+
+    public boolean isPapelCalibrado() {
+        return papelCalibrado;
+    }
+
+    public void setPapelCalibrado(boolean papelCalibrado) {
+        this.papelCalibrado = papelCalibrado;
+    }
+
+    public boolean isVaiVinco() {
+        return vaiVinco;
+    }
+
+    public void setVaiVinco(boolean vaiVinco) {
+        this.vaiVinco = vaiVinco;
+    }
+
+    public ZonedDateTime getDataRequeridaEntrega() {
+        return dataRequeridaEntrega;
+    }
+
+    public void setDataRequeridaEntrega(ZonedDateTime dataRequeridaEntrega) {
+        this.dataRequeridaEntrega = dataRequeridaEntrega;
+    }
+
+    public String getDestacador() {
+        return destacador;
+    }
+
+    public void setDestacador(String destacador) {
+        this.destacador = destacador;
+    }
+
+    public ZonedDateTime getDataCortada() {
+        return dataCortada;
+    }
+
+    public void setDataCortada(ZonedDateTime dataCortada) {
+        this.dataCortada = dataCortada;
+    }
+
+    public ZonedDateTime getDataTirada() {
+        return dataTirada;
+    }
+
+    public void setDataTirada(ZonedDateTime dataTirada) {
+        this.dataTirada = dataTirada;
+    }
 
     public boolean isEmborrachada() {
         return emborrachada;
@@ -205,9 +281,49 @@ public class Order {
     public void setObservacao(String observacao) {
         this.observacao = observacao;
     }
-    
+
     public String getMontador() {
         return montador;
+    }
+
+    public Cliente getClienteRef() {
+        return clienteRef;
+    }
+
+    public void setClienteRef(Cliente clienteRef) {
+        this.clienteRef = clienteRef;
+    }
+
+    public Transportadora getTransportadora() {
+        return transportadora;
+    }
+
+    public void setTransportadora(Transportadora transportadora) {
+        this.transportadora = transportadora;
+    }
+
+    public ClienteEndereco getEndereco() {
+        return endereco;
+    }
+
+    public void setEndereco(ClienteEndereco endereco) {
+        this.endereco = endereco;
+    }
+
+    public String getHorarioFuncAplicado() {
+        return horarioFuncAplicado;
+    }
+
+    public void setHorarioFuncAplicado(String horarioFuncAplicado) {
+        this.horarioFuncAplicado = horarioFuncAplicado;
+    }
+
+    public Boolean getForaHorario() {
+        return foraHorario;
+    }
+
+    public void setForaHorario(Boolean foraHorario) {
+        this.foraHorario = foraHorario;
     }
 
     public void setMontador(String montador) {
@@ -217,12 +333,12 @@ public class Order {
     public ZonedDateTime getDataMontagem() {
         return dataMontagem;
     }
-    
+
     public void setDataMontagem(ZonedDateTime dataMontagem) {
         this.dataMontagem = dataMontagem;
     }
 
-  @Override
+    @Override
     public String toString() {
         return "Order{" +
                 "id=" + id +
@@ -240,8 +356,10 @@ public class Order {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         Order order = (Order) o;
 

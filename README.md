@@ -3,6 +3,13 @@ Organizador Produção
 
 Sistema web para gestão de ordens de produção, com frontend em Angular, backend em Spring Boot, WebSocket, RabbitMQ, PostgreSQL e Nginx.
 
+Documentação principal:
+
+- [Product Requirements (PRD)](docs/PRD.md)
+- [Functional Requirements (FRD)](docs/FRD.md)
+- [System Design (SDS)](docs/SDS.md)
+- [DXF Complexity Engine](docs/dxf-complexity-engine.md) e [Complexidade de Facas (FileWatcherApp)](../FileWatcherApp/docs/complexidade-facas.md)
+
 Tecnologias
 -----------
 - Frontend: Angular, Bootstrap

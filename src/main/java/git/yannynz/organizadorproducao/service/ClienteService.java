@@ -1,0 +1,108 @@
+package git.yannynz.organizadorproducao.service;
+
+import git.yannynz.organizadorproducao.model.Cliente;
+import git.yannynz.organizadorproducao.repository.ClienteRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.Optional;
+
+import git.yannynz.organizadorproducao.repository.TransportadoraRepository;
+
+@Service
+public class ClienteService {
+
+    private final ClienteRepository repo;
+    private final TransportadoraRepository transportadoraRepo;
+
+    public ClienteService(ClienteRepository repo, TransportadoraRepository transportadoraRepo) {
+        this.repo = repo;
+        this.transportadoraRepo = transportadoraRepo;
+    }
+
+    public Page<Cliente> search(String query, Pageable pageable) {
+        return repo.search(query, pageable);
+    }
+
+    public Optional<Cliente> findById(Long id) {
+        return repo.findById(id);
+    }
+
+    @Transactional
+    public Cliente create(Cliente cliente) {
+        if (cliente.getNomeOficial() == null || cliente.getNomeOficial().isBlank()) {
+            throw new IllegalArgumentException("Nome oficial é obrigatório");
+        }
+        cliente.setNomeNormalizado(normalize(cliente.getNomeOficial()));
+        
+        if (cliente.getTransportadoraId() != null) {
+            transportadoraRepo.findById(cliente.getTransportadoraId())
+                .ifPresent(cliente::setTransportadora);
+        }
+        
+        return repo.save(cliente);
+    }
+
+    @Transactional
+    public Cliente update(Long id, Cliente update) {
+        return repo.findById(id).map(existing -> {
+            if (update.getNomeOficial() != null) {
+                existing.setNomeOficial(update.getNomeOficial());
+                existing.setNomeNormalizado(normalize(update.getNomeOficial()));
+            }
+            if (update.getApelidos() != null) existing.setApelidos(update.getApelidos());
+            if (update.getPadraoEntrega() != null) existing.setPadraoEntrega(update.getPadraoEntrega());
+            if (update.getHorarioFuncionamento() != null) existing.setHorarioFuncionamento(update.getHorarioFuncionamento());
+            if (update.getObservacoes() != null) existing.setObservacoes(update.getObservacoes());
+            if (update.getAtivo() != null) existing.setAtivo(update.getAtivo());
+            
+            if (update.getTransportadoraId() != null) {
+                 if (update.getTransportadoraId() == -1) { // Special value to clear? Or just nullable.
+                     existing.setTransportadora(null);
+                 } else {
+                     transportadoraRepo.findById(update.getTransportadoraId())
+                         .ifPresent(existing::setTransportadora);
+                 }
+            } else if (update.getTransportadora() == null && update.getTransportadoraId() == null) {
+                // If both are null in update payload, typically means "no change" or "clear". 
+                // For JSON Patch, null means no change. To clear, we need explicit nullification or a specific flag.
+                // Let's assume if transportadoraId is sent as null in JSON, it's ignored. 
+                // If the frontend sends a specific value (e.g. null explicitly), Jackson maps it.
+                // But here we use a transient field. 
+                // Let's assume frontend sends `transportadoraId: null` means unset? No, `transportadoraId: undefined` is missing.
+                // If user selects "Nenhuma", frontend should send null?
+                // Let's rely on `transportadoraId` being populated. 
+                // If the form sends `transportadoraId: null`, Java object has null.
+                // We need a way to distinguish "unset" vs "no change". 
+                // For now, let's just check if it's present in the request. 
+                // A simple approach: If `transportadoraId` is set (not null), update it. 
+                // If the user wants to remove, they might send 0 or -1 or we need a specific check.
+                // Let's support clearing via a dedicated setter or assuming if passed (even null) we update? 
+                // Ideally PATCH only updates what's present. 
+                // I'll assume if `transportadoraId` > 0 update. If 0 or -1, clear. 
+            }
+            
+            // Better logic: If the payload has the field. 
+            // Since we receive the whole object `Cliente`, Jackson populates fields. 
+            // If `transportadoraId` is null, it might be unselected.
+            // Let's just allow updating if non-null for now to support "Adding". 
+            // To support "Removing", we might need `transportadoraId` to be nullable and handled explicitly.
+            
+            if (update.getTransportadoraId() != null) {
+                 transportadoraRepo.findById(update.getTransportadoraId())
+                     .ifPresent(existing::setTransportadora);
+            }
+            // Logic to clear:
+            // if (update.getTransportadoraId() == null && /* explicit clear signal */) existing.setTransportadora(null);
+            
+            return repo.save(existing);
+        }).orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
+    }
+
+    private String normalize(String s) {
+        if (s == null) return "";
+        return java.text.Normalizer.normalize(s, java.text.Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "").toUpperCase().trim();
+    }
+}

@@ -1,0 +1,1 @@
+ALTER TABLE clientes ADD COLUMN cnpj_cpf VARCHAR(20);
