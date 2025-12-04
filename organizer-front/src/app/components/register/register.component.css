@@ -1,0 +1,27 @@
+.container {
+    max-width: 100%;
+    padding: 0 15px;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+    background-color: #fff;
+    border-bottom: 1px solid #e9ecef;
+    font-weight: bold;
+    font-size: 1.2rem;
+    text-align: center;
+    padding: 1rem;
+}
+
+.btn-success {
+    padding: 0.75rem;
+    font-weight: 500;
+}
+
+.form-label {
+    font-weight: 500;
+}

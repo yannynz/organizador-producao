@@ -1,5 +1,14 @@
 <div class="container-fluid py-4 rubber-container">
-  <h3 class="mb-3">Emborrachamento</h3>
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+  <h3 class="mb-0">Emborrachamento</h3>
+  <div class="flex-grow-1" style="max-width: 400px; min-width: 250px;">
+     <div class="input-group">
+        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+        <input type="text" class="form-control border-start-0 ps-0" placeholder="Buscar por NR ou Cliente..." [(ngModel)]="searchTerm" (input)="filterOrders()">
+        <button class="btn btn-outline-secondary" type="button" *ngIf="searchTerm" (click)="searchTerm=''; filterOrders()"><i class="bi bi-x"></i></button>
+     </div>
+  </div>
+</div>
 
   <div
     *ngIf="msg.type"
@@ -18,27 +27,13 @@
         <label class="form-label" for="responsavelRubber">
           Nome do emborrachador
         </label>
-        <div class="name-field-wrap">
-          <input
-            id="responsavelRubber"
-            type="text"
-            class="form-control form-control-lg"
-            formControlName="emborrachador"
-            autocomplete="name"
-            placeholder="Quem está emborrachando agora"
-          />
-          <button
-            type="button"
-            class="btn btn-outline-secondary name-clear-btn"
-            (click)="limpar()"
-            [disabled]="loading"
-          >
-            Limpar
-          </button>
-        </div>
+        <app-user-selector 
+            formControlName="emborrachador" 
+            [availableUsers]="users" 
+            placeholder="Selecione ou aguarde auto-preenchimento">
+        </app-user-selector>
         <div class="form-text mt-2">
-          Informe uma vez o responsável e utilize os botões de cada faca para
-          dar baixa.
+          O responsável é preenchido automaticamente. Adicione membros se necessário.
         </div>
       </div>
     </div>
@@ -46,12 +41,11 @@
 
   <!-- Desktop layout -->
   <div class="d-none d-lg-block">
-    <div *ngIf="!paraBorracha || paraBorracha.length === 0" class="text-muted pb-3">
-      Nenhuma faca aguardando borracha no momento.
+    <div *ngIf="!filteredParaBorracha || filteredParaBorracha.length === 0" class="text-muted pb-3">
+      Nenhuma faca encontrada.
     </div>
 
-    <div *ngIf="paraBorracha?.length" class="table-responsive">
-      <table class="table table-sm table-hover align-middle table-rubber">
+    <div *ngIf="filteredParaBorracha?.length" class="table-responsive">
         <thead class="table-light">
           <tr>
             <th style="width: 80px">NR</th>
@@ -62,94 +56,116 @@
             <th>Atributos</th>
             <th>Obs</th>
             <th style="width: 120px">Criado</th>
-            <th style="width: 120px">Ação</th>
+            <th style="min-width: 180px">Ação</th> <!-- Largura aumentada -->
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let p of paraBorracha; trackBy: trackById">
-            <td class="fw-semibold fs-5">{{ p.nr }}</td>
-            <td>
-              <div class="fw-semibold">{{ p.cliente }}</div>
-              <div class="small text-muted" *ngIf="p.observacao">
-                {{ p.observacao }}
-              </div>
-            </td>
-            <td>
-              <span class="badge" [ngClass]="statusBadgeClass(p.status)">
-                {{ getStatusLabel(p.status) }}
-              </span>
-            </td>
-            <td>
-              <div>
-                <span *ngIf="p.montador; else pendenteMontagemDesktop">
-                  {{ p.montador }}
+          <ng-container *ngFor="let p of filteredParaBorracha; trackBy: trackById">
+            <tr>
+              <td class="fw-semibold fs-5">{{ p.nr }}</td>
+              <td>
+                <div class="fw-semibold">{{ p.cliente }}</div>
+                <div class="small text-muted" *ngIf="p.observacao">
+                  {{ p.observacao }}
+                </div>
+              </td>
+              <td>
+                <span class="badge" [ngClass]="statusBadgeClass(p.status)">
+                  {{ getStatusLabel(p.status) }}
                 </span>
-              </div>
-              <div class="small text-muted" *ngIf="p.dataMontagem">
-                {{ p.dataMontagem | date: 'dd/MM HH:mm' }}
-              </div>
-              <ng-template #pendenteMontagemDesktop>
-                <span class="text-muted">Pendente</span>
-              </ng-template>
-            </td>
-            <td>
-              <div>
-                <span *ngIf="p.vincador; else pendenteVincoDesktop">
-                  {{ p.vincador }}
-                </span>
-              </div>
-              <div class="small text-muted" *ngIf="p.dataVinco">
-                {{ p.dataVinco | date: 'dd/MM HH:mm' }}
-              </div>
-              <ng-template #pendenteVincoDesktop>
-                <span class="text-muted">Pendente</span>
-              </ng-template>
-            </td>
-            <td>
-              <div class="d-flex flex-wrap gap-1">
-                <span class="badge bg-success" *ngIf="p.emborrachada">
-                  Emborrachada
-                </span>
-                <span class="badge bg-secondary" *ngIf="p.destacador">
-                  Dest: {{ p.destacador }}
-                </span>
-                <span class="badge bg-info text-dark" *ngIf="p.pertinax">
-                  Pertinax
-                </span>
-                <span class="badge bg-info text-dark" *ngIf="p.poliester">
-                  Poliéster
-                </span>
-                <span class="badge bg-info text-dark" *ngIf="p.papelCalibrado">
-                  Papel cal.
-                </span>
-              </div>
-              <div
-                class="text-muted small"
-                *ngIf="
-                  !(
-                    p.emborrachada ||
-                    p.destacador ||
-                    p.pertinax ||
-                    p.poliester ||
-                    p.papelCalibrado
-                  )
-                "
-              >
-                Sem atributos.
-              </div>
-            </td>
-            <td>{{ p.observacao || '—' }}</td>
-            <td>{{ p.dataH | date: 'dd/MM HH:mm' }}</td>
-            <td>
-              <button
-                class="btn btn-success btn-sm w-100"
-                (click)="borrachaRapido(p.nr)"
-                [disabled]="loading"
-              >
-                Dar baixa
-              </button>
-            </td>
-          </tr>
+              </td>
+              <td>
+                <div>
+                  <span *ngIf="p.montador; else pendenteMontagemDesktop">
+                    {{ p.montador }}
+                  </span>
+                </div>
+                <div class="small text-muted" *ngIf="p.dataMontagem">
+                  {{ p.dataMontagem | date: 'dd/MM HH:mm' }}
+                </div>
+                <ng-template #pendenteMontagemDesktop>
+                  <span class="text-muted">Pendente</span>
+                </ng-template>
+              </td>
+              <td>
+                <div>
+                  <span *ngIf="p.vincador; else pendenteVincoDesktop">
+                    {{ p.vincador }}
+                  </span>
+                </div>
+                <div class="small text-muted" *ngIf="p.dataVinco">
+                  {{ p.dataVinco | date: 'dd/MM HH:mm' }}
+                </div>
+                <ng-template #pendenteVincoDesktop>
+                  <span class="text-muted">Pendente</span>
+                </ng-template>
+              </td>
+              <td>
+                <div class="d-flex flex-wrap gap-1">
+                  <span class="badge bg-success" *ngIf="p.emborrachada">
+                    Emborrachada
+                  </span>
+                  <span class="badge bg-secondary" *ngIf="p.destacador">
+                    Dest: {{ p.destacador }}
+                  </span>
+                  <span class="badge bg-info text-dark" *ngIf="p.pertinax">
+                    Pertinax
+                  </span>
+                  <span class="badge bg-info text-dark" *ngIf="p.poliester">
+                    Poliéster
+                  </span>
+                  <span class="badge bg-info text-dark" *ngIf="p.papelCalibrado">
+                    Papel cal.
+                  </span>
+                </div>
+                <div
+                  class="text-muted small"
+                  *ngIf="
+                    !(
+                      p.emborrachada ||
+                      p.destacador ||
+                      p.pertinax ||
+                      p.poliester ||
+                      p.papelCalibrado
+                    )
+                  "
+                >
+                  Sem atributos.
+                </div>
+              </td>
+              <td>{{ p.observacao || '—' }}</td>
+              <td>{{ p.dataH | date: 'dd/MM HH:mm' }}</td>
+              <td>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-sm btn-outline-secondary" (click)="toggleImage(p.nr)" title="Ver Imagem">
+                    <i class="bi" [ngClass]="expandedNr === p.nr ? 'bi-chevron-up' : 'bi-image'"></i>
+                  </button>
+                  <button
+                    class="btn btn-success btn-sm flex-grow-1"
+                    (click)="borrachaRapido(p.nr)"
+                    [disabled]="loading"
+                  >
+                    Dar baixa
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <!-- Expanded Row Desktop -->
+            <tr *ngIf="expandedNr === p.nr" class="bg-light">
+              <td colspan="9" class="p-3">
+                <div class="d-flex justify-content-center position-relative" style="min-height: 200px;">
+                   <div *ngIf="loadingImage[p.nr]" class="position-absolute top-50 start-50 translate-middle">
+                      <div class="spinner-border text-primary" role="status"></div>
+                   </div>
+                   <img *ngIf="imageUrls[p.nr]" [src]="imageUrls[p.nr]" class="img-fluid border rounded shadow-sm" style="max-height: 500px; object-fit: contain;" alt="Render">
+                   <div *ngIf="!loadingImage[p.nr] && !imageUrls[p.nr]" class="text-muted py-5">
+                      <i class="bi bi-image-alt fs-1 d-block text-center"></i>
+                      <span>Imagem não disponível</span>
+                   </div>
+                </div>
+              </td>
+            </tr>
+          </ng-container>
         </tbody>
       </table>
     </div>
@@ -159,18 +175,18 @@
   <div class="card d-lg-none">
     <div class="card-header d-flex justify-content-between align-items-center gap-2">
       <strong>Facas p/ borracha</strong>
-      <small class="text-muted" *ngIf="paraBorracha?.length">
-        {{ paraBorracha.length }} item(ns)
+      <small class="text-muted" *ngIf="filteredParaBorracha?.length">
+        {{ filteredParaBorracha.length }} item(ns)
       </small>
     </div>
     <div class="card-body">
-      <div *ngIf="!paraBorracha || paraBorracha.length === 0" class="text-muted mb-0">
-        Nenhuma faca aguardando borracha no momento.
+      <div *ngIf="!filteredParaBorracha || filteredParaBorracha.length === 0" class="text-muted mb-0">
+        Nenhuma faca encontrada.
       </div>
-      <div *ngIf="paraBorracha?.length" class="d-grid gap-3">
+      <div *ngIf="filteredParaBorracha?.length" class="d-grid gap-3">
         <div
           class="border rounded p-3 shadow-sm"
-          *ngFor="let p of paraBorracha; trackBy: trackById"
+          *ngFor="let p of filteredParaBorracha; trackBy: trackById"
         >
           <div class="d-flex justify-content-between align-items-start gap-2">
             <div>
@@ -180,6 +196,25 @@
             <span class="badge" [ngClass]="statusBadgeClass(p.status)">
               {{ getStatusLabel(p.status) }}
             </span>
+          </div>
+
+          <!-- Botão Ver Imagem Mobile -->
+          <div class="mt-2 d-grid">
+             <button class="btn btn-outline-primary btn-sm" (click)="toggleImage(p.nr)">
+                <i class="bi" [ngClass]="expandedNr === p.nr ? 'bi-chevron-up' : 'bi-image'"></i>
+                {{ expandedNr === p.nr ? 'Ocultar Imagem' : 'Ver Imagem da Faca' }}
+             </button>
+          </div>
+
+          <!-- Expanded Area Mobile -->
+          <div *ngIf="expandedNr === p.nr" class="mt-2 border-top pt-2 bg-light rounded p-2 text-center">
+             <div *ngIf="loadingImage[p.nr]" class="py-4">
+                <div class="spinner-border text-primary" role="status"></div>
+             </div>
+             <img *ngIf="imageUrls[p.nr]" [src]="imageUrls[p.nr]" class="img-fluid rounded" style="max-height: 300px;" alt="Render">
+             <div *ngIf="!loadingImage[p.nr] && !imageUrls[p.nr]" class="text-muted py-3">
+                <small>Imagem indisponível</small>
+             </div>
           </div>
 
           <div class="mt-3 small">

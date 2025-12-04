@@ -116,4 +116,9 @@ public class Cliente {
   public void setTransportadoraId(Long transportadoraId) {
       this.transportadoraId = transportadoraId;
   }
+
+  @Transient
+  public String getTransportadoraName() {
+      return transportadora != null ? transportadora.getNomeOficial() : null;
+  }
 }

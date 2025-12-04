@@ -16,7 +16,8 @@
     <table class="table table-striped table-hover align-middle">
       <thead class="table-dark">
         <tr>
-          <th>SELECIONE</th>
+          <th style="width: 40px"></th> <!-- Checkbox -->
+          <th style="width: 40px"></th> <!-- Toggle -->
           <th>NR</th>
           <th>CLIENTE</th>
           <th>PRIORIDADE</th>
@@ -28,7 +29,8 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let order of filteredOrders"[id]="'order-' + order.id">
+        <ng-container *ngFor="let order of filteredOrders">
+        <tr [id]="'order-' + order.id">
           <td>
           <input
   type="checkbox"
@@ -37,6 +39,11 @@
   [ngModelOptions]="{ standalone: true }"
 />
         </td>
+          <td class="text-center">
+            <button class="btn btn-sm btn-link text-decoration-none text-dark p-0" (click)="toggleImage(order.nr)" title="Ver Imagem">
+              <i class="bi" [ngClass]="expandedNr === order.nr ? 'bi-chevron-down' : 'bi-chevron-right'"></i>
+            </button>
+          </td>
           <td>{{ order.nr }}</td>
           <td>{{ order.cliente }}</td>
           <td [ngStyle]="{'background-color': getPriorityColor(order.prioridade)}">
@@ -55,6 +62,23 @@
           <td>{{ order.dataRequeridaEntrega ? (order.dataRequeridaEntrega | date: 'dd/MM HH:mm') : '—' }}</td>
           <td>{{ order.observacao || 'Sem observações' }}</td>
         </tr>
+        
+        <!-- Linha Expandida -->
+        <tr *ngIf="expandedNr === order.nr" class="bg-light border-bottom">
+          <td colspan="10" class="p-3">
+            <div class="d-flex justify-content-center position-relative" style="min-height: 200px;">
+               <div *ngIf="loadingImage[order.nr]" class="position-absolute top-50 start-50 translate-middle">
+                  <div class="spinner-border text-primary" role="status"></div>
+               </div>
+               <img *ngIf="imageUrls[order.nr]" [src]="imageUrls[order.nr]" class="img-fluid border rounded shadow-sm" style="max-height: 500px; object-fit: contain;" alt="Render">
+               <div *ngIf="!loadingImage[order.nr] && !imageUrls[order.nr]" class="text-muted py-5">
+                  <i class="bi bi-image-alt fs-1 d-block text-center"></i>
+                  <span>Imagem não disponível</span>
+               </div>
+            </div>
+          </td>
+        </tr>
+        </ng-container>
       </tbody>
     </table>
     <div *ngIf="!filteredOrders.length" class="text-center py-4">
@@ -104,8 +128,11 @@
 
         <div class="mb-3">
           <label for="deliveryPerson" class="form-label">Entregador</label>
-          <input type="text" id="deliveryPerson" formControlName="deliveryPerson" class="form-control"
-            placeholder="Nome do entregador" />
+          <app-user-selector 
+            formControlName="deliveryPerson" 
+            [availableUsers]="users" 
+            placeholder="Nome do entregador">
+          </app-user-selector>
         </div>
 
         <div class="mb-3">

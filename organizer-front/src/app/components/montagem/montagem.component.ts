@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { DateTime } from 'luxon';
 import { WebsocketService } from '../../services/websocket.service';
@@ -8,6 +8,10 @@ import { orders } from '../../models/orders';
 import { OrderStatus } from '../../models/order-status.enum';
 import { DxfAnalysisService } from '../../services/dxf-analysis.service';
 import { DxfAnalysis } from '../../models/dxf-analysis';
+import { AuthService } from '../../services/auth.service';
+import { UserService } from '../../services/user.service';
+import { User } from '../../models/user.model';
+import { UserSelectorComponent } from '../shared/user-selector/user-selector.component';
 
 type AcaoMontagem = 'montar' | 'vincar' | 'montarVincar';
 type ComplexidadeEstado = 'loading' | 'ready' | 'empty';
@@ -15,7 +19,7 @@ type ComplexidadeEstado = 'loading' | 'ready' | 'empty';
 @Component({
   selector: 'app-montagem',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, UserSelectorComponent],
   templateUrl: './montagem.component.html',
 })
 export class MontagemComponent implements OnInit {
@@ -33,7 +37,14 @@ export class MontagemComponent implements OnInit {
   readonly dxfStarIndices = [0, 1, 2, 3, 4];
 
   tiradas: orders[] = [];
+  filteredTiradas: orders[] = [];
+  searchTerm: string = '';
+  users: User[] = [];
   pedidoEncontrado: orders | null = null;
+
+  expandedNr: string | null = null;
+  imageUrls: { [key: string]: string } = {};
+  loadingImage: { [key: string]: boolean } = {};
 
   private readonly complexidadePorNr: Record<string, number> = {};
   private readonly complexidadeEstadoPorNr: Record<string, ComplexidadeEstado> = {};
@@ -48,12 +59,59 @@ export class MontagemComponent implements OnInit {
     private orderService: OrderService,
     private ws: WebsocketService,
     private dxfAnalysisService: DxfAnalysisService,
+    private authService: AuthService,
+    private userService: UserService
   ) {}
 
   ngOnInit(): void {
     this.carregarTiradas();
     this.ouvirWebsocket();
+    this.loadUsers();
+    
+    this.authService.user$.subscribe(user => {
+        if (user) {
+            const current = this.form.get('nome')?.value || '';
+            if (!current) {
+                this.form.patchValue({ nome: user.name });
+            }
+        }
+    });
   }
+
+  toggleImage(nr: string): void {
+    if (this.expandedNr === nr) {
+      this.expandedNr = null;
+      return;
+    }
+
+    this.expandedNr = nr;
+    if (this.imageUrls[nr]) {
+      return; 
+    }
+
+    this.loadingImage[nr] = true;
+    this.dxfAnalysisService.getLatestByOrder(nr).subscribe({
+      next: (analysis) => {
+        if (analysis && analysis.imageUrl) {
+          this.imageUrls[nr] = analysis.imageUrl;
+        } else {
+          this.imageUrls[nr] = ''; // Marca como sem imagem
+        }
+        this.loadingImage[nr] = false;
+      },
+      error: () => {
+        this.imageUrls[nr] = '';
+        this.loadingImage[nr] = false;
+      }
+    });
+  }
+
+  private loadUsers() {
+      this.userService.getAll().subscribe(users => {
+          this.users = users;
+      });
+  }
+
 
   private carregarTiradas(): void {
     this.orderService.getOrders().subscribe({
@@ -62,6 +120,7 @@ export class MontagemComponent implements OnInit {
           lista.filter((o) => this.statusVisiveis.has(o.status ?? -1)),
         );
         this.precarregarComplexidades(this.tiradas);
+        this.filterOrders();
       },
       error: () => {
         this.msg = {
@@ -70,6 +129,18 @@ export class MontagemComponent implements OnInit {
         };
       },
     });
+  }
+
+  filterOrders(): void {
+    if (!this.searchTerm) {
+      this.filteredTiradas = [...this.tiradas];
+    } else {
+      const term = this.searchTerm.toLowerCase();
+      this.filteredTiradas = this.tiradas.filter(o => 
+        o.nr.toLowerCase().includes(term) || 
+        (o.cliente && o.cliente.toLowerCase().includes(term))
+      );
+    }
   }
 
   private ordenarLista(lista: orders[]): orders[] {
@@ -320,6 +391,7 @@ export class MontagemComponent implements OnInit {
       novaLista.splice(idx, 1);
       this.tiradas = novaLista;
     }
+    this.filterOrders();
   }
 
   podeMontar(order: orders): boolean {

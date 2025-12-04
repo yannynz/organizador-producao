@@ -1,0 +1,27 @@
+.user-selector-container {
+  min-height: 48px; /* Matches standard input height mostly */
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.user-selector-container:hover {
+    border-color: #86b7fe; /* Bootstrap focus color roughly */
+}
+
+.user-chip {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.add-btn {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.user-selector-container.disabled {
+    background-color: #e9ecef !important;
+    opacity: 0.65;
+    pointer-events: none;
+}

@@ -44,27 +44,29 @@ public class ClienteAutoEnrichmentService {
                 .orElseGet(() -> createCliente(dto, nomeNormalizado));
 
         boolean dirty = false;
-        if (cliente.getPadraoEntrega() == null && dto.getPadraoEntregaSugerido() != null) {
+        
+        // Update existing data if new data is available
+        if (dto.getPadraoEntregaSugerido() != null && !dto.getPadraoEntregaSugerido().equals(cliente.getPadraoEntrega())) {
             cliente.setPadraoEntrega(dto.getPadraoEntregaSugerido());
             dirty = true;
         }
 
-        if (cliente.getCnpjCpf() == null && dto.getCnpjCpf() != null) {
+        if (dto.getCnpjCpf() != null && !dto.getCnpjCpf().equals(cliente.getCnpjCpf())) {
             cliente.setCnpjCpf(dto.getCnpjCpf());
             dirty = true;
         }
         
-        if (cliente.getInscricaoEstadual() == null && dto.getInscricaoEstadual() != null) {
+        if (dto.getInscricaoEstadual() != null && !dto.getInscricaoEstadual().equals(cliente.getInscricaoEstadual())) {
             cliente.setInscricaoEstadual(dto.getInscricaoEstadual());
             dirty = true;
         }
 
-        if (cliente.getTelefone() == null && dto.getTelefone() != null) {
+        if (dto.getTelefone() != null && !dto.getTelefone().equals(cliente.getTelefone())) {
             cliente.setTelefone(dto.getTelefone());
             dirty = true;
         }
 
-        if (cliente.getEmailContato() == null && dto.getEmailContato() != null) {
+        if (dto.getEmailContato() != null && !dto.getEmailContato().equals(cliente.getEmailContato())) {
             cliente.setEmailContato(dto.getEmailContato());
             dirty = true;
         }
@@ -129,21 +131,16 @@ public class ClienteAutoEnrichmentService {
         c.setNomeNormalizado(nomeNormalizado);
         c.setAtivo(true);
         c.setOrigin("OP");
-        if (dto.getCnpjCpf() != null) {
-            c.setCnpjCpf(dto.getCnpjCpf());
-        }
-        if (dto.getInscricaoEstadual() != null) {
-            c.setInscricaoEstadual(dto.getInscricaoEstadual());
-        }
-        if (dto.getTelefone() != null) {
-            c.setTelefone(dto.getTelefone());
-        }
-        if (dto.getEmailContato() != null) {
-            c.setEmailContato(dto.getEmailContato());
-        }
-        if (dto.getPadraoEntregaSugerido() != null) {
-            c.setPadraoEntrega(dto.getPadraoEntregaSugerido());
-        }
+        c.setCnpjCpf(dto.getCnpjCpf());
+        c.setInscricaoEstadual(dto.getInscricaoEstadual());
+        c.setTelefone(dto.getTelefone());
+        c.setEmailContato(dto.getEmailContato());
+        
+        // Defaults requested by user
+        c.setPadraoEntrega(dto.getPadraoEntregaSugerido() != null ? dto.getPadraoEntregaSugerido() : "A ENTREGAR");
+        c.setHorarioFuncionamento("08:00 - 18:00"); // Default commercial hours
+        c.setTransportadora(null); // Default "Nenhuma"
+
         return clienteRepo.save(c);
     }
 

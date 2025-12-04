@@ -3,6 +3,7 @@
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/config/AsyncConfig.java
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/config/DXFAnalysisProperties.java
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/config/FileWatcherRpcStub.java
+/home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/config/JpaAuditingConfig.java
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/config/MyWebSocketHandler.java
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/config/RabbitListenerStringConfig.java
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/config/RabbitMQConfig.java
@@ -11,6 +12,7 @@
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/config/WebSocketConfig.java
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/config/pagination/CursorPaging.java
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/config/pagination/CursorStrategy.java
+/home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/controller/AuthenticationController.java
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/controller/ClienteController.java
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/controller/DXFAnalysisController.java
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/controller/OpImportController.java
@@ -19,7 +21,22 @@
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/controller/PriorityWebSocketController.java
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/controller/StatusWsController.java
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/controller/TransportadoraController.java
+/home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/controller/UserController.java
+/home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/controller/auth/AuthenticationRequest.java
+/home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/controller/auth/AuthenticationResponse.java
+/home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/controller/auth/ForgotPasswordRequest.java
+/home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/controller/auth/ResetPasswordRequest.java
+/home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/domain/user/PasswordResetToken.java
+/home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/domain/user/PasswordResetTokenRepository.java
+/home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/domain/user/User.java
+/home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/domain/user/UserRepository.java
+/home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/domain/user/UserRole.java
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/health/FileWatcherHealthIndicator.java
+/home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/infra/security/ApplicationSecurityConfig.java
+/home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/infra/security/JwtAuthenticationFilter.java
+/home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/infra/security/JwtService.java
+/home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/infra/security/SecurityAuditorAware.java
+/home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/infra/security/SecurityConfiguration.java
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/jobs/FileWatcherPingScheduler.java
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/model/Cliente.java
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/model/ClienteEndereco.java
@@ -47,6 +64,7 @@
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/repository/OrderRepositoryCustom.java
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/repository/OrderRepositoryImpl.java
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/repository/TransportadoraRepository.java
+/home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/service/AuthenticationService.java
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/service/ClienteAutoEnrichmentService.java
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/service/ClienteService.java
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/service/DXFAnalysisRequestPublisher.java
@@ -54,6 +72,7 @@
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/service/DXFAnalysisService.java
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/service/DestacadorMonitorService.java
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/service/DobrasFileService.java
+/home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/service/EmailService.java
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/service/FileWatcherPingClient.java
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/service/FileWatcherService.java
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/service/OpImportService.java
@@ -62,4 +81,5 @@
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/service/SearchResult.java
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/service/StatusWsPublisher.java
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/service/TransportadoraService.java
+/home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/service/UserService.java
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/service/WebSocketMessage.java

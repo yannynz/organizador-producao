@@ -1,16 +1,22 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { DateTime } from 'luxon';
 import { WebsocketService } from '../../services/websocket.service';
 import { OrderService } from '../../services/orders.service';
 import { orders } from '../../models/orders';
 import { OrderStatus } from '../../models/order-status.enum';
+import { DxfAnalysisService } from '../../services/dxf-analysis.service';
+import { DxfAnalysis } from '../../models/dxf-analysis';
+import { AuthService } from '../../services/auth.service';
+import { UserService } from '../../services/user.service';
+import { User } from '../../models/user.model';
+import { UserSelectorComponent } from '../shared/user-selector/user-selector.component';
 
 @Component({
   selector: 'app-rubber',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, UserSelectorComponent],
   templateUrl: './rubber.component.html',
   styleUrls: ['./rubber.component.css'],
 })
@@ -23,6 +29,13 @@ export class RubberComponent implements OnInit {
 
   // Lista de facas montadas marcadas para borracha (status 7/8 + flag emborrachada true)
   paraBorracha: orders[] = [];
+  filteredParaBorracha: orders[] = [];
+  searchTerm: string = '';
+  users: User[] = [];
+
+  expandedNr: string | null = null;
+  imageUrls: { [key: string]: string } = {};
+  loadingImage: { [key: string]: boolean } = {};
 
   private readonly statusElegiveis = new Set<number>([
     OrderStatus.MontadaCorte,
@@ -40,12 +53,60 @@ export class RubberComponent implements OnInit {
     private fb: FormBuilder,
     private orderService: OrderService,
     private ws: WebsocketService,
+    private dxfAnalysisService: DxfAnalysisService,
+    private authService: AuthService,
+    private userService: UserService
   ) {}
 
   ngOnInit(): void {
     this.carregarParaBorracha();
     this.ouvirWebsocket();
+    this.loadUsers();
+
+    this.authService.user$.subscribe(user => {
+        if (user) {
+            const current = this.form.get('emborrachador')?.value || '';
+            if (!current) {
+                this.form.patchValue({ emborrachador: user.name });
+            }
+        }
+    });
   }
+
+  toggleImage(nr: string): void {
+    if (this.expandedNr === nr) {
+      this.expandedNr = null;
+      return;
+    }
+
+    this.expandedNr = nr;
+    if (this.imageUrls[nr]) {
+      return; 
+    }
+
+    this.loadingImage[nr] = true;
+    this.dxfAnalysisService.getLatestByOrder(nr).subscribe({
+      next: (analysis) => {
+        if (analysis && analysis.imageUrl) {
+          this.imageUrls[nr] = analysis.imageUrl;
+        } else {
+          this.imageUrls[nr] = '';
+        }
+        this.loadingImage[nr] = false;
+      },
+      error: () => {
+        this.imageUrls[nr] = '';
+        this.loadingImage[nr] = false;
+      }
+    });
+  }
+
+  private loadUsers() {
+      this.userService.getAll().subscribe(users => {
+          this.users = users;
+      });
+  }
+
 
   private precisaDeBorracha(o: orders): boolean {
     return o.emborrachada === true;
@@ -57,6 +118,7 @@ export class RubberComponent implements OnInit {
         this.paraBorracha = this.ordenarLista(
           lista.filter((o) => this.elegivelParaBorracha(o)),
         );
+        this.filterOrders();
       },
       error: () => {
         this.msg = {
@@ -65,6 +127,18 @@ export class RubberComponent implements OnInit {
         };
       },
     });
+  }
+
+  filterOrders(): void {
+    if (!this.searchTerm) {
+      this.filteredParaBorracha = [...this.paraBorracha];
+    } else {
+      const term = this.searchTerm.toLowerCase();
+      this.filteredParaBorracha = this.paraBorracha.filter(o => 
+        o.nr.toLowerCase().includes(term) || 
+        (o.cliente && o.cliente.toLowerCase().includes(term))
+      );
+    }
   }
 
   private ouvirWebsocket(): void {
@@ -187,6 +261,7 @@ export class RubberComponent implements OnInit {
             this.paraBorracha = this.paraBorracha.filter(
               (o) => o.id !== saved.id,
             );
+            this.filterOrders();
           },
           error: (err) => {
             this.loading = false;
@@ -263,5 +338,6 @@ export class RubberComponent implements OnInit {
       novaLista.splice(idx, 1);
       this.paraBorracha = novaLista;
     }
+    this.filterOrders();
   }
 }

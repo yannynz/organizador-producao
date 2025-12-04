@@ -1,11 +1,15 @@
 package git.yannynz.organizadorproducao.model;
 
 import jakarta.persistence.*;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.LastModifiedBy;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 
 @Entity
 @Table(name = "orders")
+@EntityListeners(AuditingEntityListener.class)
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -62,6 +66,14 @@ public class Order {
 
     @Column(name = "fora_horario")
     private Boolean foraHorario;
+
+    @CreatedBy
+    @Column(name = "created_by_user_id")
+    private Long createdBy;
+
+    @LastModifiedBy
+    @Column(name = "updated_by_user_id")
+    private Long updatedBy;
 
     public Order() {
     }
@@ -336,6 +348,22 @@ public class Order {
 
     public void setDataMontagem(ZonedDateTime dataMontagem) {
         this.dataMontagem = dataMontagem;
+    }
+
+    public Long getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(Long createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public Long getUpdatedBy() {
+        return updatedBy;
+    }
+
+    public void setUpdatedBy(Long updatedBy) {
+        this.updatedBy = updatedBy;
     }
 
     @Override

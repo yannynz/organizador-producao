@@ -5,8 +5,12 @@
     "/entrega",
     "/entregaVolta",
     "/entregues",
+    "/forgot-password",
+    "/login",
     "/montagem",
     "/op",
-    "/pedidos"
+    "/pedidos",
+    "/register",
+    "/reset-password"
   ]
 }

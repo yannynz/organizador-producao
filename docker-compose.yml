@@ -35,7 +35,14 @@ services:
       SPRING_RABBITMQ_USERNAME: guest
       SPRING_RABBITMQ_PASSWORD: guest
       APP_CORS_ALLOWED_ORIGINS: ${APP_CORS_ALLOWED_ORIGINS:-http://localhost:4200,http://localhost,http://nginx-container,http://nginx-container:80,http://frontend-container}
-      APP_DXF_ANALYSIS_IMAGE_BASE_URL: http://192.168.0.116:9000/facas-renders
+      APP_DXF_ANALYSIS_IMAGE_BASE_URL: http://192.168.10.13:9000/facas-renders
+      APP_FRONTEND_URL: http://${SERVER_HOST:-192.168.10.13}
+
+      # Configuração de E-mail
+      MAIL_HOST: smtp.gmail.com
+      MAIL_PORT: 587
+      MAIL_USERNAME: srecupera765@gmail.com
+      MAIL_PASSWORD: avjq rtew egqc teqs 
 
     depends_on:
       - postgres-container  # Garante que o PostgreSQL esteja pronto antes do backend
@@ -67,9 +74,12 @@ services:
       - "80:80"  # Porta 80 do Nginx para acesso local
     depends_on:
       - frontend-container
+    environment:
+      SERVER_HOST: ${SERVER_HOST:-192.168.10.13}
+    command: /bin/sh -c "envsubst '\$SERVER_HOST' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && exec nginx -g 'daemon off;'"
     volumes:
       - ./organizer-front/dist/organizer-front/browser:/usr/share/nginx/html:ro  # Mapeando o diretório correto de build para o Nginx
-      - ./nginx/organizador.conf:/etc/nginx/nginx.conf:ro  # Usando o arquivo correto de configuração
+      - ./nginx/organizador.conf:/etc/nginx/nginx.conf.template:ro  # Montando como template
       - /etc/localtime:/etc/localtime:ro  # Montando o arquivo localtime
     networks:
       - organizador-producao-mynetwork

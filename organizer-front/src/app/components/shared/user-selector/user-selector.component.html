@@ -1,0 +1,28 @@
+<div class="user-selector-container p-2 border rounded d-flex flex-wrap gap-2 align-items-center bg-white" [class.disabled]="disabled">
+  
+  <!-- Selected Chips -->
+  <div *ngFor="let name of selectedNames" class="badge rounded-pill bg-primary d-flex align-items-center p-2 user-chip shadow-sm">
+    <span class="me-2">{{ name }}</span>
+    <button type="button" class="btn-close btn-close-white" aria-label="Remove" (click)="removeName(name)" [disabled]="disabled"></button>
+  </div>
+
+  <!-- Add Button & Dropdown -->
+  <div class="dropdown" *ngIf="!disabled">
+    <button class="btn btn-sm btn-outline-secondary rounded-circle add-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Adicionar membro">
+      <i class="bi bi-plus-lg"></i>
+    </button>
+    <ul class="dropdown-menu shadow">
+      <li *ngIf="unselectedUsers.length === 0">
+        <span class="dropdown-item text-muted small">Todos selecionados</span>
+      </li>
+      <li *ngFor="let user of unselectedUsers">
+        <a class="dropdown-item" href="javascript:void(0)" (click)="addName(user.name)">
+          {{ user.name }}
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Placeholder if empty -->
+  <span *ngIf="selectedNames.length === 0" class="text-muted small ms-1">{{ placeholder }}</span>
+</div>

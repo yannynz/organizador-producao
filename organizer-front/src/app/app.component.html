@@ -17,8 +17,25 @@
       aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
-        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-      <ul class="navbar-nav text-end">
+
+    <!-- User Info & Logout (Always Visible) -->
+    <div class="d-flex align-items-center ms-auto order-lg-last">
+      <ng-container *ngIf="authService.user$ | async as user; else loginLink">
+        <div class="text-white me-2 d-flex flex-column align-items-end" style="line-height: 1.2;">
+          <small class="d-none d-sm-block" style="font-size: 0.75rem;">Olá,</small>
+          <span class="fw-bold" style="font-size: 0.9rem;">{{ user.name }}</span>
+        </div>
+        <button class="btn btn-sm btn-outline-danger ms-1" (click)="logout()" title="Sair">
+          Sair
+        </button>
+      </ng-container>
+      <ng-template #loginLink>
+        <a class="btn btn-sm btn-outline-secondary text-white ms-2" href="/login">Login</a>
+      </ng-template>
+    </div>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
         <li class="nav-item">
           <a class="nav-link" href="/borracha" routerLinkActive="active">Emborrachamento</a>
         </li>
@@ -34,7 +51,7 @@
         <li class="nav-item">
           <a class="nav-link" href="/entregaVolta" routerLinkActive="active">Entrega Volta</a>
         </li>
-        <li class="nav-item">
+        <li class="nav-item" *ngIf="authService.hasRole('ADMIN') || authService.hasRole('DESENHISTA')">
           <a class="nav-link" href="/admin" routerLinkActive="active">Adm</a>
         </li>
       </ul>

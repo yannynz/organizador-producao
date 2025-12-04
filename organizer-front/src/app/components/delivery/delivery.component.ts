@@ -9,11 +9,16 @@ import { DateTime } from 'luxon';
 import { forkJoin } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { OrderStatus } from '../../models/order-status.enum';
+import { AuthService } from '../../services/auth.service';
+import { UserService } from '../../services/user.service';
+import { User } from '../../models/user.model';
+import { UserSelectorComponent } from '../shared/user-selector/user-selector.component';
+import { DxfAnalysisService } from '../../services/dxf-analysis.service';
 
 @Component({
   selector: 'app-delivery',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, UserSelectorComponent],
   templateUrl: './delivery.component.html',
   styleUrls: ['./delivery.component.css'],
 })
@@ -25,6 +30,13 @@ export class DeliveryComponent implements OnInit {
   searchTerm: string = '';
   adverseOutputForm: FormGroup;
   selectedIds = new Set<number>();
+  users: User[] = [];
+  currentUser: User | null = null;
+
+  expandedNr: string | null = null;
+  imageUrls: { [key: string]: string } = {};
+  loadingImage: { [key: string]: boolean } = {};
+
   private readonly statusElegiveis = new Set<number>([
     OrderStatus.Cortada,
     OrderStatus.ProntoEntrega,
@@ -41,7 +53,10 @@ export class DeliveryComponent implements OnInit {
     private orderService: OrderService,
     private fb: FormBuilder,
     private websocketService: WebsocketService,
-    private modalService: NgbModal
+    private modalService: NgbModal,
+    private authService: AuthService,
+    private userService: UserService,
+    private dxfAnalysisService: DxfAnalysisService
   ) {
     this.deliveryForm = this.fb.group({
       deliveryPerson: ['', Validators.required],
@@ -64,7 +79,53 @@ export class DeliveryComponent implements OnInit {
     this.loadOrders();
     this.listenForNewOrders();
     this.listenForNewOrdersPrioridades();
+    this.loadUsers();
+    
+    this.authService.user$.subscribe(user => {
+        this.currentUser = user;
+        if (user) {
+            const current = this.deliveryForm.get('deliveryPerson')?.value || '';
+            if (!current) {
+                this.deliveryForm.patchValue({ deliveryPerson: user.name });
+            }
+        }
+    });
   }
+
+  toggleImage(nr: string): void {
+    if (this.expandedNr === nr) {
+      this.expandedNr = null;
+      return;
+    }
+
+    this.expandedNr = nr;
+    if (this.imageUrls[nr]) {
+      return; 
+    }
+
+    this.loadingImage[nr] = true;
+    this.dxfAnalysisService.getLatestByOrder(nr).subscribe({
+      next: (analysis) => {
+        if (analysis && analysis.imageUrl) {
+          this.imageUrls[nr] = analysis.imageUrl;
+        } else {
+          this.imageUrls[nr] = '';
+        }
+        this.loadingImage[nr] = false;
+      },
+      error: () => {
+        this.imageUrls[nr] = '';
+        this.loadingImage[nr] = false;
+      }
+    });
+  }
+
+  private loadUsers() {
+      this.userService.getAll().subscribe(users => {
+          this.users = users;
+      });
+  }
+
 
   loadOrders(): void {
   this.orderService.getOrders().subscribe({
@@ -131,6 +192,11 @@ private handleIncomingDeliveryOrder(received: orders) {
 
   preConfirmDelivery(): void {
     this.deliveryForm.reset(); // Resetar formulário
+    
+    if (this.currentUser) {
+        this.deliveryForm.patchValue({ deliveryPerson: this.currentUser.name });
+    }
+
     this.modalService.open(this.deliveryModal); // Abrir o modal de entrega
   }
 

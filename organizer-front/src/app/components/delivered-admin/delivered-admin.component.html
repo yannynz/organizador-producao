@@ -20,6 +20,11 @@
         Transportadoras
       </button>
     </li>
+    <li class="nav-item" *ngIf="isAdmin">
+      <button class="nav-link" [class.active]="tab==='users'" (click)="tab='users'">
+        Usuários
+      </button>
+    </li>
   </ul>
 
   <div class="mt-3" *ngIf="tab==='delivered'">
@@ -36,6 +41,10 @@
 
   <div class="mt-3" *ngIf="tab==='transportadoras'">
     <app-transportadoras-admin></app-transportadoras-admin>
+  </div>
+  
+  <div class="mt-3" *ngIf="tab==='users' && isAdmin">
+    <app-users-admin></app-users-admin>
   </div>
 </div>
 

@@ -1,51 +1,53 @@
 <div class="card">
   <div class="card-body">
-    <div class="d-flex justify-content-between mb-3">
-      <div class="d-flex gap-2 w-50">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+      <div class="d-flex gap-2 flex-grow-1" style="min-width: 280px;">
         <input type="text" class="form-control" placeholder="Buscar transportadora..." [(ngModel)]="searchQuery" (keyup.enter)="search()">
         <button class="btn btn-primary" (click)="search()">Buscar</button>
       </div>
-      <button class="btn btn-success" (click)="openNew()">
+      <button class="btn btn-success text-nowrap" (click)="openNew()">
         <i class="bi bi-plus-lg"></i> Nova Transportadora
       </button>
     </div>
     
-    <table class="table table-striped table-hover align-middle">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Nome / Apelidos</th>
-          <th>Localização</th>
-          <th>Padrão / Horário</th>
-          <th>Status</th>
-          <th>Último Serviço</th>
-          <th>Ações</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let t of transportadoras">
-          <td>{{t.id}}</td>
-          <td>
-            <strong>{{t.nomeOficial}}</strong>
-            <div class="small text-muted" *ngIf="t.apelidos">{{t.apelidos}}</div>
-          </td>
-          <td>{{t.localizacao || '-'}}</td>
-          <td>
-            <div>{{t.padraoEntrega || '-'}}</div>
-            <small class="text-muted" *ngIf="t.horarioFuncionamento">
-              <i class="bi bi-clock"></i> {{t.horarioFuncionamento}}
-            </small>
-          </td>
-          <td>
-            <span class="badge" [class.bg-success]="t.ativo" [class.bg-danger]="!t.ativo">{{t.ativo ? 'Ativo' : 'Inativo'}}</span>
-          </td>
-          <td>{{t.ultimoServicoEm | date:'dd/MM/yy HH:mm'}}</td>
-          <td>
-            <button class="btn btn-sm btn-outline-primary" (click)="openEdit(t)">Editar</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="table-responsive">
+      <table class="table table-striped table-hover align-middle">
+        <thead>
+          <tr>
+            <th style="min-width: 50px;">ID</th>
+            <th style="min-width: 200px;">Nome / Apelidos</th>
+            <th style="min-width: 150px;">Localização</th>
+            <th style="min-width: 180px;">Padrão / Horário</th>
+            <th style="min-width: 100px;">Status</th>
+            <th style="min-width: 140px;">Último Serviço</th>
+            <th style="min-width: 100px;">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let t of transportadoras">
+            <td>{{t.id}}</td>
+            <td>
+              <div class="fw-bold text-truncate" style="max-width: 200px;">{{t.nomeOficial}}</div>
+              <div class="small text-muted text-truncate" style="max-width: 200px;" *ngIf="t.apelidos">{{t.apelidos}}</div>
+            </td>
+            <td>{{t.localizacao || '-'}}</td>
+            <td>
+              <div>{{t.padraoEntrega || '-'}}</div>
+              <small class="text-muted" *ngIf="t.horarioFuncionamento">
+                <i class="bi bi-clock"></i> {{t.horarioFuncionamento}}
+              </small>
+            </td>
+            <td>
+              <span class="badge" [class.bg-success]="t.ativo" [class.bg-danger]="!t.ativo">{{t.ativo ? 'Ativo' : 'Inativo'}}</span>
+            </td>
+            <td>{{t.ultimoServicoEm | date:'dd/MM/yy HH:mm'}}</td>
+            <td>
+              <button class="btn btn-sm btn-outline-primary" (click)="openEdit(t)">Editar</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 

@@ -1,4 +1,5 @@
 /home/ynz/Documents/organizador-producao/src/test/java/git/yannynz/organizadorproducao/OrganizadorProducaoApplicationTests.java
+/home/ynz/Documents/organizador-producao/src/test/java/git/yannynz/organizadorproducao/service/AuthenticationServiceTest.java
 /home/ynz/Documents/organizador-producao/src/test/java/git/yannynz/organizadorproducao/service/ClienteAutoEnrichmentServiceTest.java
 /home/ynz/Documents/organizador-producao/src/test/java/git/yannynz/organizadorproducao/service/DXFAnalysisRequestPublisherTest.java
 /home/ynz/Documents/organizador-producao/src/test/java/git/yannynz/organizadorproducao/service/DXFAnalysisServiceTest.java
