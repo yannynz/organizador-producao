@@ -10,7 +10,7 @@ import { DxfAnalysisService } from '../../services/dxf-analysis.service';
 import { DxfAnalysis } from '../../models/dxf-analysis';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
-import { User } from '../../models/user.model';
+import { User, UserRole } from '../../models/user.model';
 import { UserSelectorComponent } from '../shared/user-selector/user-selector.component';
 
 @Component({
@@ -103,7 +103,7 @@ export class RubberComponent implements OnInit {
 
   private loadUsers() {
       this.userService.getAll().subscribe(users => {
-          this.users = users;
+          this.users = users.filter(u => u.role === UserRole.OPERADOR);
       });
   }
 

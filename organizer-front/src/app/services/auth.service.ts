@@ -100,6 +100,23 @@ export class AuthService {
     return this.http.post<void>(`${this.apiUrl}/reset-password`, { token, newPassword });
   }
 
+  refreshUserProfile(): void {
+      const token = this.getToken();
+      if (!token) return;
+
+      // URL hack: replace /auth with /users/me
+      const meUrl = this.apiUrl.replace('/auth', '/users/me');
+
+      this.http.get<User>(meUrl).subscribe({
+          next: (user) => {
+              this.userSubject.next(user);
+          },
+          error: (err) => {
+             console.error('Failed to refresh user profile', err);
+          }
+      });
+  }
+
   private loadUserFromToken() {
     const token = this.getToken();
     if (token) {
@@ -112,6 +129,7 @@ export class AuthService {
             role: decoded.role as UserRole
         };
         this.userSubject.next(user);
+        this.refreshUserProfile();
       } catch (e) {
         console.error('Invalid token', e);
         this.logout();

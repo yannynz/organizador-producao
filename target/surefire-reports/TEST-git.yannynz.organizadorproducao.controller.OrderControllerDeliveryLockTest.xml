@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="git.yannynz.organizadorproducao.OrganizadorProducaoApplicationTests" time="1.418" tests="6" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="git.yannynz.organizadorproducao.controller.OrderControllerDeliveryLockTest" time="0.152" tests="4" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="21"/>
     <property name="sun.jnu.encoding" value="UTF-8"/>
@@ -54,25 +54,8 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="65.0"/>
   </properties>
-  <testcase name="extractOrderNumber_RecusaFormatoInvalido" classname="git.yannynz.organizadorproducao.OrganizadorProducaoApplicationTests" time="1.214">
-    <system-err><![CDATA[WARNING: A Java agent has been loaded dynamically (/home/ynz/.m2/repository/net/bytebuddy/byte-buddy-agent/1.14.16/byte-buddy-agent-1.14.16.jar)
-WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
-WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
-WARNING: Dynamic loading of agents will be disallowed by default in a future release
-]]></system-err>
-  </testcase>
-  <testcase name="updateOrderStatusToTirada_ReprocessamentoSobrescreveData" classname="git.yannynz.organizadorproducao.OrganizadorProducaoApplicationTests" time="0.047">
-    <system-out><![CDATA[19:53:47.500 [main] INFO git.yannynz.organizadorproducao.service.DobrasFileService -- [DOBRAS] Pedido 777777 reforçado como tirado (reprocessamento)
-]]></system-out>
-  </testcase>
-  <testcase name="extractOrderNumber_CapturaNumeroMesmoComRuido" classname="git.yannynz.organizadorproducao.OrganizadorProducaoApplicationTests" time="0.005"/>
-  <testcase name="handleDobrasQueue_AtualizaPedidoQuandoValido" classname="git.yannynz.organizadorproducao.OrganizadorProducaoApplicationTests" time="0.101">
-    <system-out><![CDATA[19:53:47.556 [main] INFO git.yannynz.organizadorproducao.service.DobrasFileService -- [DOBRAS] Status do pedido 123456 atualizado de 5 para 6
-]]></system-out>
-  </testcase>
-  <testcase name="updateOrderStatusToTirada_PedidoInexistenteNaoDisparaEvento" classname="git.yannynz.organizadorproducao.OrganizadorProducaoApplicationTests" time="0.004">
-    <system-out><![CDATA[19:53:47.640 [main] WARN git.yannynz.organizadorproducao.service.DobrasFileService -- [DOBRAS] Pedido não encontrado (NR=111111)
-]]></system-out>
-  </testcase>
-  <testcase name="extractOrderNumber_AceitaSufixoDxfFcd" classname="git.yannynz.organizadorproducao.OrganizadorProducaoApplicationTests" time="0.002"/>
+  <testcase name="updateOrderStatus_ShouldBlock_WhenUserHasActiveDelivery_AndTargetIsDifferent" classname="git.yannynz.organizadorproducao.controller.OrderControllerDeliveryLockTest" time="0.13"/>
+  <testcase name="updateOrder_ShouldAllow_WhenUserHasNoActiveDelivery" classname="git.yannynz.organizadorproducao.controller.OrderControllerDeliveryLockTest" time="0.006"/>
+  <testcase name="updateOrder_ShouldBlock_WhenUserHasActiveDelivery_AndTargetIsDifferent" classname="git.yannynz.organizadorproducao.controller.OrderControllerDeliveryLockTest" time="0.008"/>
+  <testcase name="updateOrder_ShouldAllow_WhenUserHasActiveDelivery_AndTargetIsTheDeliveryOrder" classname="git.yannynz.organizadorproducao.controller.OrderControllerDeliveryLockTest" time="0.003"/>
 </testsuite>

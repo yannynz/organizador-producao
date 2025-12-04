@@ -24,6 +24,10 @@ public class UserService {
         return repository.findById(id);
     }
 
+    public Optional<User> findByEmail(String email) {
+        return repository.findByEmail(email);
+    }
+
     public User create(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return repository.save(user);

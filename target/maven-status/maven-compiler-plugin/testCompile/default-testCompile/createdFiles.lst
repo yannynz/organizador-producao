@@ -2,6 +2,8 @@ git/yannynz/organizadorproducao/service/OpImportServiceVincoTest.class
 git/yannynz/organizadorproducao/service/AuthenticationServiceTest.class
 git/yannynz/organizadorproducao/service/OrderStatusRulesTest.class
 git/yannynz/organizadorproducao/service/DXFAnalysisServiceTest.class
+git/yannynz/organizadorproducao/controller/UserControllerMeTest.class
+git/yannynz/organizadorproducao/controller/OrderControllerDeliveryLockTest.class
 git/yannynz/organizadorproducao/service/DXFAnalysisRequestPublisherTest.class
 git/yannynz/organizadorproducao/OrganizadorProducaoApplicationTests.class
 git/yannynz/organizadorproducao/service/ClienteAutoEnrichmentServiceTest.class

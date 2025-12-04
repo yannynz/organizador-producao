@@ -3,10 +3,13 @@ package git.yannynz.organizadorproducao.controller;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Objects;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import git.yannynz.organizadorproducao.domain.user.User;
 import git.yannynz.organizadorproducao.model.Order;
 import git.yannynz.organizadorproducao.service.OrderService;
 import git.yannynz.organizadorproducao.service.OpImportService;
@@ -31,6 +35,21 @@ public class OrderController {
 
     @Autowired
     private OpImportService opImportService;
+
+    private void validateUserAvailability(Long targetOrderId) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof User user) {
+            List<Order> activeDeliveries = orderService.findActiveDeliveriesByUser(user.getName());
+            if (!activeDeliveries.isEmpty()) {
+                boolean isTargetOrderActive = activeDeliveries.stream()
+                        .anyMatch(o -> Objects.equals(o.getId(), targetOrderId));
+                
+                if (!isTargetOrderActive) {
+                    throw new RuntimeException("Usuário com entrega ativa não pode realizar outras tarefas na fábrica.");
+                }
+            }
+        }
+    }
 
     @GetMapping
     public List<Order> getAllOrders() {
@@ -52,6 +71,9 @@ public class OrderController {
     @PostMapping("/create")
     public ResponseEntity<Order> createOrder(@RequestBody Order order) {
         try {
+            // Check if user can create order (generally yes, but if strictly factory task...)
+            // Assuming creating order is not "factory task" blocked by delivery, or user creating is Admin/Desenhista.
+            // If operator can create, maybe block. But let's stick to updates for now.
             Order createdOrder = orderService.saveOrder(order);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
 
@@ -60,7 +82,13 @@ public class OrderController {
         }
     }
     @PutMapping("/update/{id}")
-    public ResponseEntity<Order> updateOrder(@PathVariable Long id, @RequestBody Order orderDetails) {
+    public ResponseEntity<?> updateOrder(@PathVariable Long id, @RequestBody Order orderDetails) {
+        try {
+            validateUserAvailability(id);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        }
+
         Optional<Order> orderOptional = orderService.getOrderById(id);
         if (orderOptional.isPresent()) {
             Order order = orderOptional.get();
@@ -122,11 +150,17 @@ public class OrderController {
     }
 
 @PutMapping("/{id}/status")
-public ResponseEntity<Order> updateOrderStatus(
+public ResponseEntity<?> updateOrderStatus(
         @PathVariable Long id, 
         @RequestParam(value = "status", required = false) Integer status,
         @RequestParam(value = "entregador", required = false) String entregador,
         @RequestParam(value = "observacao", required = false) String observacao) {
+
+    try {
+        validateUserAvailability(id);
+    } catch (RuntimeException e) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+    }
 
     Optional<Order> optionalOrder = orderService.getOrderById(id);
     

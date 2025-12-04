@@ -20,6 +20,15 @@ public class UserController {
         return ResponseEntity.ok(service.findAll());
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<User> getMe() {
+        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) return ResponseEntity.status(401).build();
+        return service.findByEmail(auth.getName())
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<User> getById(@PathVariable Long id) {
         return service.findById(id)

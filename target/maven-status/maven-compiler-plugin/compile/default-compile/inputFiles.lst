@@ -25,6 +25,7 @@
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/controller/auth/AuthenticationRequest.java
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/controller/auth/AuthenticationResponse.java
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/controller/auth/ForgotPasswordRequest.java
+/home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/controller/auth/RegisterRequest.java
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/controller/auth/ResetPasswordRequest.java
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/domain/user/PasswordResetToken.java
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/domain/user/PasswordResetTokenRepository.java

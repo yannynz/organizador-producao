@@ -1,4 +1,5 @@
 git/yannynz/organizadorproducao/controller/auth/AuthenticationRequest.class
+git/yannynz/organizadorproducao/controller/auth/RegisterRequest$RegisterRequestBuilder.class
 git/yannynz/organizadorproducao/repository/DXFAnalysisRepository.class
 git/yannynz/organizadorproducao/controller/auth/AuthenticationResponse$AuthenticationResponseBuilder.class
 git/yannynz/organizadorproducao/service/ClienteService.class
@@ -12,6 +13,7 @@ git/yannynz/organizadorproducao/controller/auth/ResetPasswordRequest.class
 git/yannynz/organizadorproducao/config/pagination/CursorPaging.class
 git/yannynz/organizadorproducao/infra/security/SecurityConfiguration.class
 git/yannynz/organizadorproducao/service/FileWatcherPingClient$PingResult.class
+git/yannynz/organizadorproducao/controller/auth/RegisterRequest.class
 git/yannynz/organizadorproducao/monitoring/HttpRequestMetricsFilter.class
 git/yannynz/organizadorproducao/model/Cliente.class
 git/yannynz/organizadorproducao/service/FileWatcherService.class

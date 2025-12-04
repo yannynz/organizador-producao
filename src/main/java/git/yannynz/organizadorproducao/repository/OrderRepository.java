@@ -12,4 +12,5 @@ public interface OrderRepository extends JpaRepository<Order, Long>, OrderReposi
         List<Order> findByStatusIn(List<Integer> statuses);
         Optional<Order> findTopByNrOrderByIdDesc(String nr);
         List<Order> findByNrOrderByIdDesc(String nr);
+        List<Order> findByEntregadorAndStatus(String entregador, Integer status);
 }

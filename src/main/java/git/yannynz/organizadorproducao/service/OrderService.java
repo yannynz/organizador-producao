@@ -55,6 +55,10 @@ public class OrderService {
         return orderRepository.findByNr(nr);
     }
 
+    public List<Order> findActiveDeliveriesByUser(String username) {
+        return orderRepository.findByEntregadorAndStatus(username, 3); // 3 = SaiuEntrega
+    }
+
     public void deleteAllOrders() {
         orderRepository.deleteAll();
     }
