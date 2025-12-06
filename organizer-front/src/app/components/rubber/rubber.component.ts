@@ -103,7 +103,10 @@ export class RubberComponent implements OnInit {
 
   private loadUsers() {
       this.userService.getAll().subscribe(users => {
-          this.users = users.filter(u => u.role === UserRole.OPERADOR);
+          this.users = users.filter(u => 
+            u.active !== false && 
+            (u.role === UserRole.OPERADOR || u.role === UserRole.ADMIN || u.role === UserRole.DESENHISTA)
+          );
       });
   }
 

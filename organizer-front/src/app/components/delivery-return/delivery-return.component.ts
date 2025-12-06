@@ -8,6 +8,7 @@ import { WebsocketService } from '../../services/websocket.service';
 import { HttpResponse, HttpErrorResponse } from '@angular/common/http';
 import { Observable, forkJoin } from 'rxjs';
 import { DateTime } from 'luxon';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-delivery-return',
@@ -31,7 +32,8 @@ export class DeliveryReturnComponent implements OnInit {
   constructor(
     private orderService: OrderService,
     private fb: FormBuilder,
-    private websocketService: WebsocketService
+    private websocketService: WebsocketService,
+    private authService: AuthService
   ) {
     this.returnForm = this.fb.group({
       entregador: ['', Validators.required],
@@ -39,7 +41,16 @@ export class DeliveryReturnComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadOrders();
+    this.authService.user$.subscribe((user) => {
+      if (user) {
+        const current = this.returnForm.get('entregador')?.value;
+        if (!current) {
+          this.returnForm.patchValue({ entregador: user.name });
+        }
+      }
+    });
+    // Não carregamos automaticamente para evitar alerts indesejados, 
+    // mas o nome já vem preenchido.
   }
 
   loadOrders(): void {
