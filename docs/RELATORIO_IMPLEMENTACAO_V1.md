@@ -1,5 +1,5 @@
 # Relatório de Implementação Técnica
-**Data:** 03/12/2025
+**Data:** 06/12/2025
 **Status Geral:** Concluído ✅
 
 Este documento detalha a implementação técnica das funcionalidades de Autenticação (V1, Recuperação e Cadastro), Gestão de Clientes/Transportadoras e melhorias significativas de UX/UI nas telas de produção e logística.
@@ -77,6 +77,8 @@ Abaixo, os principais arquivos verificados que confirmam a implementação:
 | **UX - Busca** | `montagem.component.ts`, `rubber.component.ts` | ✅ Filtros de busca ativos |
 | **Dados - Clientes** | `service/ClienteAutoEnrichmentService.java` | ✅ Padrões e updates corrigidos |
 | **Docker** | `docker-compose.yml` | ✅ Variáveis de ambiente configuradas |
+| **UX - Seletores** | `user.model.ts`, `rubber.component.ts` | ✅ Filtro de Role/Ativo corrigido |
+| **UX - Retorno** | `delivery-return.component.ts` | ✅ Auto-preenchimento login |
 
 ---
 
@@ -84,3 +86,15 @@ Abaixo, os principais arquivos verificados que confirmam a implementação:
 
 1.  **Configuração de Ambiente:** Preencher as variáveis `MAIL_USERNAME`, `MAIL_PASSWORD` e `SERVER_HOST` no arquivo `.env` para produção.
 2.  **Homologação:** Validar o fluxo completo de importação com arquivos reais e o envio de e-mails.
+
+---
+
+## 6. Atualizações Pós-Release (06/12/2025)
+
+### 6.1. Correção de Visibilidade de Colaboradores
+*   **Problema:** Usuários com perfis de gestão (`ADMIN`, `DESENHISTA`) não apareciam para seleção nas etapas de produção, impedindo que eles se atribuíssem tarefas.
+*   **Solução:** O filtro de usuários foi expandido para incluir `OPERADOR`, `ADMIN` e `DESENHISTA`. Adicionalmente, foi incluída a validação do campo `active` para ocultar usuários inativos.
+*   **Impacto:** `RubberComponent` e `MontagemComponent`.
+
+### 6.2. UX em Retorno de Entrega
+*   **Funcionalidade:** A tela de "Entrega (Retorno)" agora detecta o usuário logado e preenche automaticamente o campo de filtro "Entregador", agilizando a baixa de canhotos.
