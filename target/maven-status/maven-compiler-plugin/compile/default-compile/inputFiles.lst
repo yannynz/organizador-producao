@@ -3,6 +3,7 @@
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/config/AsyncConfig.java
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/config/DXFAnalysisProperties.java
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/config/FileWatcherRpcStub.java
+/home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/config/JacksonConfig.java
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/config/JpaAuditingConfig.java
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/config/MyWebSocketHandler.java
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/config/RabbitListenerStringConfig.java

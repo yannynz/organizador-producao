@@ -89,6 +89,7 @@ git/yannynz/organizadorproducao/service/EmailService.class
 git/yannynz/organizadorproducao/model/dto/StatusEvent.class
 git/yannynz/organizadorproducao/health/FileWatcherHealthIndicator.class
 git/yannynz/organizadorproducao/config/WebConfig.class
+git/yannynz/organizadorproducao/config/JacksonConfig.class
 git/yannynz/organizadorproducao/config/WebSocketConfig.class
 git/yannynz/organizadorproducao/service/StatusWsPublisher.class
 git/yannynz/organizadorproducao/config/FileWatcherRpcStub.class
