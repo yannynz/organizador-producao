@@ -1,0 +1,10 @@
+/home/ynz/Documents/organizador-producao/src/test/java/git/yannynz/organizadorproducao/OrganizadorProducaoApplicationTests.java
+/home/ynz/Documents/organizador-producao/src/test/java/git/yannynz/organizadorproducao/controller/OrderControllerDeliveryLockTest.java
+/home/ynz/Documents/organizador-producao/src/test/java/git/yannynz/organizadorproducao/controller/UserControllerMeTest.java
+/home/ynz/Documents/organizador-producao/src/test/java/git/yannynz/organizadorproducao/service/AuthenticationServiceTest.java
+/home/ynz/Documents/organizador-producao/src/test/java/git/yannynz/organizadorproducao/service/ClienteAutoEnrichmentServiceTest.java
+/home/ynz/Documents/organizador-producao/src/test/java/git/yannynz/organizadorproducao/service/DXFAnalysisRequestPublisherTest.java
+/home/ynz/Documents/organizador-producao/src/test/java/git/yannynz/organizadorproducao/service/DXFAnalysisServiceTest.java
+/home/ynz/Documents/organizador-producao/src/test/java/git/yannynz/organizadorproducao/service/OpImportServiceTransportadoraTest.java
+/home/ynz/Documents/organizador-producao/src/test/java/git/yannynz/organizadorproducao/service/OpImportServiceVincoTest.java
+/home/ynz/Documents/organizador-producao/src/test/java/git/yannynz/organizadorproducao/service/OrderStatusRulesTest.java
