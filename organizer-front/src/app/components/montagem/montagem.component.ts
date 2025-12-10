@@ -30,6 +30,7 @@ export class MontagemComponent implements OnInit {
   };
 
   readonly statusVisiveis = new Set<number>([
+    OrderStatus.Cortada,
     OrderStatus.Tirada,
     OrderStatus.MontadaCorte,
   ]);
@@ -156,19 +157,27 @@ export class MontagemComponent implements OnInit {
 
   private rankStatus(status?: number): number {
     switch (status) {
-      case OrderStatus.Tirada:
+      case OrderStatus.Cortada:
         return 0;
-      case OrderStatus.MontadaCorte:
+      case OrderStatus.Tirada:
         return 1;
-      case OrderStatus.MontadaCompleta:
+      case OrderStatus.MontadaCorte:
         return 2;
-      default:
+      case OrderStatus.MontadaCompleta:
         return 3;
+      default:
+        return 4;
     }
   }
 
   private timestampRef(o: orders): number {
-    const candidates = [o.dataVinco, o.dataMontagem, o.dataTirada, o.dataH];
+    const candidates = [
+      o.dataVinco,
+      o.dataMontagem,
+      o.dataTirada,
+      o.dataCortada,
+      o.dataH,
+    ];
     for (const value of candidates) {
       if (value) {
         const time = new Date(value).getTime();
@@ -350,11 +359,13 @@ export class MontagemComponent implements OnInit {
     const status = order.status ?? -1;
     if (
       acao === 'montar' &&
-      ![OrderStatus.Tirada, OrderStatus.MontadaCorte].includes(status)
+      ![OrderStatus.Cortada, OrderStatus.Tirada, OrderStatus.MontadaCorte].includes(
+        status,
+      )
     ) {
       this.msg = {
         type: 'danger',
-        text: 'Somente facas tiradas ou em corte podem ser montadas.',
+        text: 'Somente facas cortadas, tiradas ou em corte podem ser montadas.',
       };
       return false;
     }
@@ -367,11 +378,13 @@ export class MontagemComponent implements OnInit {
     }
     if (
       acao === 'montarVincar' &&
-      ![OrderStatus.Tirada, OrderStatus.MontadaCorte].includes(status)
+      ![OrderStatus.Cortada, OrderStatus.Tirada, OrderStatus.MontadaCorte].includes(
+        status,
+      )
     ) {
       this.msg = {
         type: 'danger',
-        text: 'Ação disponível apenas para facas tiradas ou montadas.',
+        text: 'Ação disponível apenas para facas cortadas, tiradas ou montadas.',
       };
       return false;
     }
@@ -400,7 +413,7 @@ export class MontagemComponent implements OnInit {
   podeMontar(order: orders): boolean {
     return (
       !this.loading &&
-      [OrderStatus.Tirada, OrderStatus.MontadaCorte].includes(
+      [OrderStatus.Cortada, OrderStatus.Tirada, OrderStatus.MontadaCorte].includes(
         order.status ?? -1,
       )
     );
@@ -413,7 +426,7 @@ export class MontagemComponent implements OnInit {
   podeMontarVincar(order: orders): boolean {
     return (
       !this.loading &&
-      [OrderStatus.Tirada, OrderStatus.MontadaCorte].includes(
+      [OrderStatus.Cortada, OrderStatus.Tirada, OrderStatus.MontadaCorte].includes(
         order.status ?? -1,
       )
     );
@@ -421,6 +434,8 @@ export class MontagemComponent implements OnInit {
 
   statusBadgeClass(status?: number): string {
     switch (status) {
+      case OrderStatus.Cortada:
+        return 'bg-info text-dark';
       case OrderStatus.Tirada:
         return 'bg-secondary';
       case OrderStatus.MontadaCorte:
@@ -434,6 +449,8 @@ export class MontagemComponent implements OnInit {
 
   getStatusLabel(status?: number): string {
     switch (status) {
+      case OrderStatus.Cortada:
+        return 'Cortada';
       case OrderStatus.Tirada:
         return 'Tirada';
       case OrderStatus.MontadaCorte:
