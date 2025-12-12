@@ -23,6 +23,10 @@ export class OpService {
     return `${this.opsBase}/ops/${encodeURIComponent(numeroOp)}/arquivo`;
   }
 
+  getOpByNr(numeroOp: string) {
+    return this.http.get<any>(`${this.opsBase}/ops/${encodeURIComponent(numeroOp)}`);
+  }
+
   openOpPdf(numeroOp: string) {
     const url = this.getOpPdfUrl(numeroOp);
     const w = window.open(url, '_blank');

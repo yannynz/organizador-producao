@@ -35,5 +35,12 @@ public class OpImportController {
     repo.save(op);
     return ResponseEntity.noContent().build();
   }
+
+  @GetMapping("/{nr}")
+  public ResponseEntity<OpImport> getByNr(@PathVariable String nr) {
+    return repo.findByNumeroOp(nr)
+        .map(ResponseEntity::ok)
+        .orElse(ResponseEntity.notFound().build());
+  }
 }
 
