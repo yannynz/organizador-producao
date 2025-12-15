@@ -167,3 +167,20 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     transform: translate(-50%, -50%);
   }
 }
+
+/* Snackbar styles */
+.msg-error .mdc-snackbar__surface {
+  background-color: #d32f2f !important; /* Red for error */
+}
+
+.msg-error .mdc-snackbar__label {
+  color: white !important;
+}
+
+.msg-success .mdc-snackbar__surface {
+  background-color: #43a047 !important; /* Green for success */
+}
+
+.msg-success .mdc-snackbar__label {
+  color: white !important;
+}

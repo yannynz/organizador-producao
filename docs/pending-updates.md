@@ -22,3 +22,8 @@
 - Lista de entregues voltou ao modo local (paginando apenas facas status 4/5 no front) enquanto a busca cursorial aguarda implementação no backend.
 - Modal de detalhes ganhou a sessão de imagem do MinIO (`/api/dxf-analysis/{analysisId}/image`), destacando bucket/key e metadados.
 - Docker Compose injeta `APP_DXF_ANALYSIS_IMAGE_BASE_URL=http://localhost:9000/facas-renders`, alinhando o backend com o MinIO padrão da stack.
+
+## Atualizações de Autenticação e Sessão (2025-12-15)
+- **Duração da Sessão Aumentada:** A validade dos tokens JWT foi estendida de 24 horas para 7 dias. Isso significa que os usuários permanecerão logados por mais tempo, exigindo reautenticação apenas uma vez por semana (por exemplo, toda segunda-feira), a menos que façam logout manual.
+- **Notificação de Expiração de Sessão:** Implementada uma notificação visual (`MatSnackBar`) no frontend para informar o usuário de forma clara e amigável quando sua sessão expirar. Ao detectar um erro de autenticação (HTTP 401 ou 403), o sistema agora exibirá a mensagem "Sessão expirada. Por favor, faça login novamente." antes de redirecionar automaticamente para a tela de login. Isso melhora a experiência do usuário, evitando o "estado zumbi" onde o aplicativo parecia logado mas não funcionava.
+- **Estilos de Notificação:** Adicionados estilos globais (`.msg-error`, `.msg-success`) para o `MatSnackBar`, garantindo que as mensagens de notificação sigam os padrões de UI/UX do aplicativo.
