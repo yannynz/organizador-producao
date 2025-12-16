@@ -36,6 +36,8 @@ export class MontagemComponent implements OnInit {
     OrderStatus.MontadaCorte,
   ]);
 
+  readonly priorities = ['VERMELHO', 'AMARELO', 'AZUL', 'VERDE'];
+
   readonly dxfStarIndices = [0, 1, 2, 3, 4];
 
   tiradas: orders[] = [];
@@ -55,6 +57,11 @@ export class MontagemComponent implements OnInit {
   dxfMetrics: any = null;
   loadingMateriais = false;
   private requestsPending = 0;
+
+  // History Modal
+  showHistoryModal = false;
+  historyList: any[] = [];
+  loadingHistory = false;
 
   private readonly complexidadePorNr: Record<string, number> = {};
   private readonly complexidadeEstadoPorNr: Record<string, ComplexidadeEstado> = {};
@@ -164,6 +171,29 @@ export class MontagemComponent implements OnInit {
     this.selectedNr = null;
     this.materiaisOp = [];
     this.dxfMetrics = null;
+  }
+
+  verHistorico(nr: string): void {
+    const order = this.tiradas.find(o => o.nr === nr);
+    if (!order) return;
+
+    this.selectedNr = nr;
+    this.showHistoryModal = true;
+    this.loadingHistory = true;
+    this.orderService.getHistory(order.id).subscribe({
+      next: (list) => {
+        this.historyList = list;
+        this.loadingHistory = false;
+      },
+      error: () => {
+        this.loadingHistory = false;
+      }
+    });
+  }
+
+  fecharHistorico(): void {
+    this.showHistoryModal = false;
+    this.historyList = [];
   }
 
   private loadUsers() {
@@ -614,5 +644,25 @@ export class MontagemComponent implements OnInit {
     const base = analysis.scoreStars ?? analysis.score ?? 0;
     const ajustado = Math.max(0, Math.min(5, base));
     return Math.round(ajustado * 10) / 10;
+  }
+
+  updatePriority(order: orders, event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    const newPriority = select.value;
+    
+    if (!newPriority || newPriority === order.prioridade) return;
+
+    this.orderService.updatePriority(order.id, newPriority).subscribe({
+      next: (updated) => {
+        this.msg = { type: 'success', text: `Prioridade do pedido ${updated.nr} alterada para ${updated.prioridade}. O arquivo será renomeado.` };
+        // A lista será atualizada via WebSocket, mas podemos forçar localmente para feedback instantâneo
+        order.prioridade = updated.prioridade;
+      },
+      error: (err) => {
+        this.msg = { type: 'danger', text: 'Falha ao atualizar prioridade.' };
+        // Reverter select
+        select.value = order.prioridade || '';
+      }
+    });
   }
 }

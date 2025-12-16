@@ -66,4 +66,11 @@ export class OrderService {
     return this.http.delete<void>(url, { params });
   }
 
+  updatePriority(id: number, priority: string): Observable<orders> {
+    return this.http.patch<orders>(`${this.baseUrl}/${id}/priority`, { priority });
+  }
+
+  getHistory(id: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/${id}/history`);
+  }
 }

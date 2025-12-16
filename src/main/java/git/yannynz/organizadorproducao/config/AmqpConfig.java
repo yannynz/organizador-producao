@@ -24,6 +24,11 @@ public class AmqpConfig {
     }
 
     @Bean
+    Queue fileCommandsQueue() {
+        return new Queue("file_commands", true);
+    }
+
+    @Bean
     Binding binding(Queue opImportedQueue, TopicExchange opExchange) {
         return BindingBuilder.bind(opImportedQueue).to(opExchange).with("op.imported");
     }

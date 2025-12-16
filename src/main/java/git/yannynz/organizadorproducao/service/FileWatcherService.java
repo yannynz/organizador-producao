@@ -85,7 +85,16 @@ public class FileWatcherService {
         String priority = clMatcher.group(3);
 
         if (orderRepository.findByNr(orderNumber).isPresent()) {
-            System.out.println("Pedido com NR " + orderNumber + " já existe. Ignorando nova mensagem.");
+            Order existing = orderRepository.findByNr(orderNumber).get();
+            if (!existing.getPrioridade().equalsIgnoreCase(priority)) {
+                String oldPriority = existing.getPrioridade();
+                existing.setPrioridade(priority);
+                orderRepository.save(existing);
+                messagingTemplate.convertAndSend("/topic/orders", existing);
+                System.out.println("Prioridade atualizada via Arquivo: " + orderNumber + " (" + oldPriority + " -> " + priority + ")");
+            } else {
+                System.out.println("Pedido com NR " + orderNumber + " já existe e prioridade mantém-se " + priority + ". Ignorando.");
+            }
             return;
         }
 
@@ -109,7 +118,16 @@ public class FileWatcherService {
         String priority = nrMatcher.group(3);
 
         if (orderRepository.findByNr(orderNumber).isPresent()) {
-            System.out.println("Pedido com NR " + orderNumber + " já existe. Ignorando nova mensagem.");
+            Order existing = orderRepository.findByNr(orderNumber).get();
+            if (!existing.getPrioridade().equalsIgnoreCase(priority)) {
+                String oldPriority = existing.getPrioridade();
+                existing.setPrioridade(priority);
+                orderRepository.save(existing);
+                messagingTemplate.convertAndSend("/topic/orders", existing);
+                System.out.println("Prioridade atualizada via Arquivo: " + orderNumber + " (" + oldPriority + " -> " + priority + ")");
+            } else {
+                System.out.println("Pedido com NR " + orderNumber + " já existe e prioridade mantém-se " + priority + ". Ignorando.");
+            }
             return;
         }
 

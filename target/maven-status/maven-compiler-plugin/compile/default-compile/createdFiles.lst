@@ -5,6 +5,7 @@ git/yannynz/organizadorproducao/controller/auth/AuthenticationResponse$Authentic
 git/yannynz/organizadorproducao/service/ClienteService.class
 git/yannynz/organizadorproducao/model/ClienteEndereco.class
 git/yannynz/organizadorproducao/model/dto/DXFAnalysisRequestDTO.class
+git/yannynz/organizadorproducao/model/dto/FileCommandDTO$FileCommandDTOBuilder.class
 git/yannynz/organizadorproducao/service/DestacadorMonitorService.class
 git/yannynz/organizadorproducao/domain/user/User.class
 git/yannynz/organizadorproducao/repository/OpImportRepository.class
@@ -26,12 +27,14 @@ git/yannynz/organizadorproducao/config/pagination/CursorPaging$Key.class
 git/yannynz/organizadorproducao/model/OpImport.class
 git/yannynz/organizadorproducao/config/AmqpConfig.class
 git/yannynz/organizadorproducao/infra/security/JwtAuthenticationFilter.class
+git/yannynz/organizadorproducao/model/OrderHistory.class
 git/yannynz/organizadorproducao/service/AuthenticationService.class
 git/yannynz/organizadorproducao/controller/OrderController.class
 git/yannynz/organizadorproducao/model/Order.class
 git/yannynz/organizadorproducao/repository/ClienteRepository.class
 git/yannynz/organizadorproducao/config/OpImportedListener.class
 git/yannynz/organizadorproducao/config/DXFAnalysisProperties.class
+git/yannynz/organizadorproducao/model/OrderHistory$OrderHistoryBuilder.class
 git/yannynz/organizadorproducao/repository/OrderRepositoryCustom.class
 git/yannynz/organizadorproducao/config/RabbitMQConfig.class
 git/yannynz/organizadorproducao/domain/user/UserRole.class
@@ -44,6 +47,7 @@ git/yannynz/organizadorproducao/monitoring/MessageProcessingMetrics.class
 git/yannynz/organizadorproducao/controller/auth/AuthenticationResponse.class
 git/yannynz/organizadorproducao/service/DestacadorMonitorService$Sexo.class
 git/yannynz/organizadorproducao/config/pagination/CursorStrategy.class
+git/yannynz/organizadorproducao/service/OrderHistoryService.class
 git/yannynz/organizadorproducao/controller/auth/ForgotPasswordRequest.class
 git/yannynz/organizadorproducao/monitoring/MessageProcessingMetrics$ThrowingSupplier.class
 git/yannynz/organizadorproducao/service/TransportadoraService.class
@@ -69,12 +73,14 @@ git/yannynz/organizadorproducao/controller/AuthenticationController.class
 git/yannynz/organizadorproducao/service/DXFAnalysisService.class
 git/yannynz/organizadorproducao/service/UserService.class
 git/yannynz/organizadorproducao/monitoring/MessageProcessingMetrics$ThrowingRunnable.class
+git/yannynz/organizadorproducao/model/dto/FileCommandDTO.class
 git/yannynz/organizadorproducao/repository/ClienteEnderecoRepository.class
 git/yannynz/organizadorproducao/model/dto/DXFAnalysisView.class
 git/yannynz/organizadorproducao/domain/user/PasswordResetToken.class
 git/yannynz/organizadorproducao/service/FileWatcherPingClient.class
 git/yannynz/organizadorproducao/infra/security/SecurityAuditorAware.class
 git/yannynz/organizadorproducao/controller/auth/AuthenticationRequest$AuthenticationRequestBuilder.class
+git/yannynz/organizadorproducao/service/FileCommandPublisher.class
 git/yannynz/organizadorproducao/service/SearchResult.class
 git/yannynz/organizadorproducao/controller/OrderWebSocketController.class
 git/yannynz/organizadorproducao/controller/DXFAnalysisController.class
@@ -88,6 +94,7 @@ git/yannynz/organizadorproducao/domain/user/User$UserBuilder.class
 git/yannynz/organizadorproducao/service/EmailService.class
 git/yannynz/organizadorproducao/model/dto/StatusEvent.class
 git/yannynz/organizadorproducao/health/FileWatcherHealthIndicator.class
+git/yannynz/organizadorproducao/repository/OrderHistoryRepository.class
 git/yannynz/organizadorproducao/config/WebConfig.class
 git/yannynz/organizadorproducao/config/JacksonConfig.class
 git/yannynz/organizadorproducao/config/WebSocketConfig.class

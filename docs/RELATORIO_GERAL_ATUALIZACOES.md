@@ -61,11 +61,31 @@ Ajustes focados na retenção de sessão e experiência do usuário durante a re
 
 ---
 
+## 📅 15/12/2025 - Sincronização Bidirecional e Histórico (v0.8.0)
+**Status:** Implementado e Validado
+
+Implementação de controle total sobre a fila de produção e rastreabilidade de alterações.
+
+### 1. Sincronização Bidirecional (Web ↔ Arquivo)
+O sistema agora mantém consistência total entre a interface web e os arquivos físicos na rede.
+- **Arquivo → Sistema:** Se um arquivo for renomeado na pasta (ex: mudar sufixo de `_VERMELHO` para `_AZUL`), o sistema detecta a mudança e atualiza a prioridade no banco de dados automaticamente.
+- **Sistema → Arquivo:** Alterar a prioridade na tela de "Montagem" dispara um comando para o servidor de arquivos, que renomeia o arquivo físico (`.CNC` ou `.DXF`) instantaneamente.
+
+### 2. Histórico de Alterações (Audit Log)
+- **Rastreabilidade:** Todas as alterações de **Prioridade** e **Status** agora são gravadas em uma tabela de histórico dedicada (`order_history`).
+- **Dados Gravados:** Data/Hora exata, Usuário responsável (ou "Sistema"), campo alterado, valor antigo e valor novo.
+- **Visualização:** Novo botão "Ver Histórico" na tela de Montagem abre um modal detalhando o ciclo de vida da faca.
+
+### 3. Tecnologia (FileWatcherApp)
+- O serviço externo C# (`FileWatcherApp`) foi atualizado com um novo consumidor RabbitMQ (`FileCommandConsumer`) para processar comandos de renomeação seguros.
+
+---
+
 ## 🔜 Pendências e Próximos Passos (Snapshot Atual)
+
+### Infraestrutura
+- **Acesso Externo:** Avaliar implantação de Cloudflare Tunnel e PWA para acesso remoto.
 
 ### Automação e Inteligência
 - **Calibração de Complexidade:** Ajuste fino dos scores para materiais sensíveis e cortes específicos.
 - **Busca Cursorial:** Finalizar implementação backend para busca paginada eficiente de pedidos entregues.
-
-### Monitoramento
-- **Observabilidade:** Concluir a exibição em tempo real de logs do `FileWatcherApp` no frontend.

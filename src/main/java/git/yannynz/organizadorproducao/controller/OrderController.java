@@ -34,7 +34,57 @@ public class OrderController {
     private OrderService orderService;
 
     @Autowired
+    private git.yannynz.organizadorproducao.service.FileCommandPublisher fileCommandPublisher;
+
+    @Autowired
+    private git.yannynz.organizadorproducao.service.OrderHistoryService orderHistoryService;
+
+    @Autowired
     private OpImportService opImportService;
+
+    @GetMapping("/{id}/history")
+    public ResponseEntity<List<git.yannynz.organizadorproducao.model.OrderHistory>> getOrderHistory(@PathVariable Long id) {
+        return ResponseEntity.ok(orderHistoryService.getHistory(id));
+    }
+
+    // ... existing validateUserAvailability ...
+
+    @org.springframework.web.bind.annotation.PatchMapping("/{id}/priority")
+    public ResponseEntity<?> patchPriority(@PathVariable Long id, @RequestBody java.util.Map<String, String> payload) {
+        String newPriority = payload.get("priority");
+        if (newPriority == null || newPriority.isBlank()) {
+            return ResponseEntity.badRequest().body("Priority is required");
+        }
+
+        Optional<Order> orderOpt = orderService.getOrderById(id);
+        if (orderOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Order order = orderOpt.get();
+        String oldPriority = order.getPrioridade();
+        
+        if (!Objects.equals(oldPriority, newPriority)) {
+            // Update DB
+            order.setPrioridade(newPriority);
+            orderService.saveOrder(order);
+
+            // Log History
+            orderHistoryService.logChange(order, "PRIORIDADE", oldPriority, newPriority);
+
+            // Publish Command to C# Service
+            git.yannynz.organizadorproducao.model.dto.FileCommandDTO command = git.yannynz.organizadorproducao.model.dto.FileCommandDTO.builder()
+                    .action("RENAME_PRIORITY")
+                    .nr(order.getNr())
+                    .newPriority(newPriority)
+                    .directory("LASER") 
+                    .build();
+            
+            fileCommandPublisher.sendCommand(command);
+        }
+
+        return ResponseEntity.ok(order);
+    }
 
     private void validateUserAvailability(Long targetOrderId) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -97,6 +147,10 @@ public class OrderController {
             boolean prevPoliester = order.isPoliester();
             boolean prevPapelCalibrado = order.isPapelCalibrado();
             boolean prevVaiVinco = order.isVaiVinco();
+
+            String oldPriority = order.getPrioridade();
+            int oldStatus = order.getStatus();
+
             order.setNr(orderDetails.getNr());
             order.setCliente(orderDetails.getCliente());
             order.setPrioridade(orderDetails.getPrioridade());
@@ -126,6 +180,13 @@ public class OrderController {
             order.setVaiVinco(orderDetails.isVaiVinco());
             order.setVincador(orderDetails.getVincador());
             order.setDataVinco(orderDetails.getDataVinco());
+
+            if (!Objects.equals(oldPriority, orderDetails.getPrioridade())) {
+                orderHistoryService.logChange(order, "PRIORIDADE", oldPriority, orderDetails.getPrioridade());
+            }
+            if (oldStatus != orderDetails.getStatus()) {
+                orderHistoryService.logChange(order, "STATUS", String.valueOf(oldStatus), String.valueOf(orderDetails.getStatus()));
+            }
 
             OrderStatusRules.applyAutoProntoEntrega(order);
 
@@ -167,8 +228,10 @@ public ResponseEntity<?> updateOrderStatus(
     if (optionalOrder.isPresent()) {
         Order order = optionalOrder.get();
 
-        if (status != null) {
+        if (status != null && order.getStatus() != status) {
+            String oldStatus = String.valueOf(order.getStatus());
             order.setStatus(status);
+            orderHistoryService.logChange(order, "STATUS", oldStatus, String.valueOf(status));
         }
 
         // Definir data de entrega como o momento atual
