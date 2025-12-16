@@ -56,6 +56,16 @@
                 }
               ],
               "outputHashing": "all",
+              "optimization": {
+                "scripts": true,
+                "styles": {
+                  "minify": true,
+                  "inlineCritical": true
+                },
+                "fonts": {
+                  "inline": false
+                }
+              },
               "allowedCommonJsDependencies": [
                 "angular2-uuid",
                 "jquery",
