@@ -11,7 +11,7 @@ import { tap } from 'rxjs/operators';
 import { OrderStatus } from '../../models/order-status.enum';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
-import { User } from '../../models/user.model';
+import { User, UserRole } from '../../models/user.model';
 import { UserSelectorComponent } from '../shared/user-selector/user-selector.component';
 import { DxfAnalysisService } from '../../services/dxf-analysis.service';
 
@@ -79,10 +79,10 @@ export class DeliveryComponent implements OnInit {
     this.loadOrders();
     this.listenForNewOrders();
     this.listenForNewOrdersPrioridades();
-    this.loadUsers();
     
     this.authService.user$.subscribe(user => {
         this.currentUser = user;
+        this.loadUsersForRole(user);
         if (user) {
             const current = this.deliveryForm.get('deliveryPerson')?.value || '';
             if (!current) {
@@ -120,10 +120,16 @@ export class DeliveryComponent implements OnInit {
     });
   }
 
-  private loadUsers() {
-      this.userService.getAll().subscribe(users => {
-          this.users = users;
-      });
+  private loadUsersForRole(user: User | null) {
+      if (!user) { return; }
+      if (user.role === UserRole.ADMIN || user.role === UserRole.DESENHISTA) {
+          this.userService.getAll().subscribe(users => {
+              this.users = users;
+          });
+      } else {
+          // Operador só vê a si mesmo, evitando chamada proibida ao backend.
+          this.users = [user];
+      }
   }
 
 

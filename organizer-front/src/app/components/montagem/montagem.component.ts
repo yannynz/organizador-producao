@@ -85,10 +85,10 @@ export class MontagemComponent implements OnInit {
   ngOnInit(): void {
     this.carregarTiradas();
     this.ouvirWebsocket();
-    this.loadUsers();
     
     this.authService.user$.subscribe(user => {
         this.currentUser = user;
+        this.loadUsersForRole(user);
         if (user) {
             const current = this.form.get('nome')?.value || '';
             if (!current) {
@@ -201,21 +201,19 @@ export class MontagemComponent implements OnInit {
     this.historyList = [];
   }
 
-  private loadUsers() {
-    if (!this.canLoadUsers()) {
-      this.users = [];
-      return;
+  private loadUsersForRole(user: User | null) {
+    if (!user) { return; }
+    if (user.role === UserRole.ADMIN || user.role === UserRole.DESENHISTA) {
+      this.userService.getAll().subscribe(users => {
+          this.users = users.filter(u => 
+            u.active !== false && 
+            (u.role === UserRole.OPERADOR || u.role === UserRole.ADMIN || u.role === UserRole.DESENHISTA)
+          );
+      });
+    } else {
+      // Operador não carrega todos os usuários para evitar 403; usa apenas o próprio.
+      this.users = [user];
     }
-    this.userService.getAll().subscribe(users => {
-        this.users = users.filter(u => 
-          u.active !== false && 
-          (u.role === UserRole.OPERADOR || u.role === UserRole.ADMIN || u.role === UserRole.DESENHISTA)
-        );
-    });
-  }
-
-  canLoadUsers(): boolean {
-    return !!this.currentUser && (this.currentUser.role === UserRole.ADMIN || this.currentUser.role === UserRole.OPERADOR || this.currentUser.role === UserRole.DESENHISTA);
   }
 
 

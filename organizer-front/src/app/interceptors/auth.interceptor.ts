@@ -21,9 +21,12 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   
   return next(request).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 401 || error.status === 403) {
+      if (error.status === 401) {
         notificationService.showMessage('Sessão expirada. Por favor, faça login novamente.', true);
         authService.logout();
+      } else if (error.status === 403) {
+        // Mantém o usuário logado; apenas informa que a ação não é permitida.
+        notificationService.showMessage('Ação não permitida para seu perfil.', true);
       }
       return throwError(() => error);
     })

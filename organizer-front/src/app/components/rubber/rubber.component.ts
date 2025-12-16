@@ -71,9 +71,9 @@ export class RubberComponent implements OnInit {
   ngOnInit(): void {
     this.carregarParaBorracha();
     this.ouvirWebsocket();
-    this.loadUsers();
-
+    
     this.authService.user$.subscribe(user => {
+        this.loadUsersForRole(user);
         if (user) {
             const current = this.form.get('emborrachador')?.value || '';
             if (!current) {
@@ -160,13 +160,19 @@ export class RubberComponent implements OnInit {
     this.dxfMetrics = null;
   }
 
-  private loadUsers() {
-      this.userService.getAll().subscribe(users => {
-          this.users = users.filter(u => 
-            u.active !== false && 
-            (u.role === UserRole.OPERADOR || u.role === UserRole.ADMIN || u.role === UserRole.DESENHISTA)
-          );
-      });
+  private loadUsersForRole(user: User | null) {
+      if (!user) { return; }
+      if (user.role === UserRole.ADMIN || user.role === UserRole.DESENHISTA) {
+          this.userService.getAll().subscribe(users => {
+              this.users = users.filter(u => 
+                u.active !== false && 
+                (u.role === UserRole.OPERADOR || u.role === UserRole.ADMIN || u.role === UserRole.DESENHISTA)
+              );
+          });
+      } else {
+          // Operador não carrega todos os usuários para evitar 403; usa apenas o próprio.
+          this.users = [user];
+      }
   }
 
 
