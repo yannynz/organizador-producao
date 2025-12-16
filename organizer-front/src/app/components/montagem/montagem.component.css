@@ -91,3 +91,50 @@
   color: #f6a609;
   opacity: 0.55;
 }
+
+@media (max-width: 991.98px) {
+  .montagem-container {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .montagem-mobile-card {
+    background: #fff;
+    border-color: #ececec;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  }
+
+  .montagem-mobile-card .info-row {
+    flex-wrap: wrap;
+  }
+
+  .montagem-mobile-card .info-row > * {
+    min-width: 0;
+  }
+
+  .montagem-mobile-card .badge,
+  .montagem-mobile-card .small,
+  .montagem-mobile-card .text-muted,
+  .montagem-mobile-card .fw-semibold,
+  .montagem-mobile-card .fw-bold {
+    word-break: break-word;
+  }
+
+  .montagem-mobile-card .btn-group-sm {
+    width: 100%;
+    display: flex;
+    gap: 0.4rem;
+  }
+
+  .montagem-mobile-card .btn-group-sm .btn {
+    flex: 1 1 0;
+  }
+
+  .montagem-mobile-card .btn-sm {
+    width: 100%;
+  }
+
+  .montagem-mobile-card img {
+    max-width: 100%;
+  }
+}

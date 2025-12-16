@@ -57,7 +57,7 @@
             <th>Atributos</th>
             <th>Obs</th>
             <th style="width: 120px">Criado</th>
-            <th style="min-width: 180px">Ação</th> <!-- Largura aumentada -->
+            <th style="min-width: 260px">Ações</th>
           </tr>
         </thead>
         <tbody>
@@ -137,20 +137,24 @@
               <td>{{ p.observacao || '—' }}</td>
               <td>{{ p.dataH | date: 'dd/MM HH:mm' }}</td>
               <td>
-                <div class="d-flex gap-2">
-                  <button class="btn btn-sm btn-outline-info" (click)="verMateriais(p.nr)" title="Ver Materiais">
-                    <i class="bi bi-list-ul"></i>
-                  </button>
-                  <button class="btn btn-sm btn-outline-secondary" (click)="toggleImage(p.nr)" title="Ver Imagem">
-                    <i class="bi" [ngClass]="expandedNr === p.nr ? 'bi-chevron-up' : 'bi-image'"></i>
-                  </button>
-                  <button
-                    class="btn btn-success btn-sm flex-grow-1"
-                    (click)="borrachaRapido(p.nr)"
-                    [disabled]="loading"
-                  >
-                    Dar baixa
-                  </button>
+                <div class="d-flex flex-column gap-2 align-items-end">
+                  <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-secondary" (click)="toggleImage(p.nr)" title="Ver Imagem">
+                      <i class="bi" [ngClass]="expandedNr === p.nr ? 'bi-chevron-up' : 'bi-image'"></i> Imagem
+                    </button>
+                    <button class="btn btn-outline-info" (click)="verMateriais(p.nr)" title="Ver Materiais">
+                      <i class="bi bi-list-ul"></i> Materiais
+                    </button>
+                  </div>
+                  <div class="d-flex gap-1">
+                    <button
+                      class="btn btn-success btn-sm"
+                      (click)="borrachaRapido(p.nr)"
+                      [disabled]="loading"
+                    >
+                      Dar baixa
+                    </button>
+                  </div>
                 </div>
               </td>
             </tr>

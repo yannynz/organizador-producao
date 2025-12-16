@@ -243,10 +243,10 @@
       </div>
       <div *ngIf="filteredTiradas?.length" class="d-grid gap-3">
         <div
-          class="border rounded p-3"
+          class="border rounded p-3 shadow-sm montagem-mobile-card"
           *ngFor="let p of filteredTiradas; trackBy: trackById"
         >
-          <div class="d-flex justify-content-between align-items-start gap-2">
+          <div class="d-flex justify-content-between align-items-start gap-2 info-row">
             <div>
               <div class="fw-bold">NR {{ p.nr }}</div>
               <div class="small text-muted">{{ p.cliente }}</div>
@@ -254,20 +254,6 @@
             <span class="badge" [ngClass]="statusBadgeClass(p.status)">
               {{ getStatusLabel(p.status) }}
             </span>
-          </div>
-
-          <!-- Priority Mobile -->
-          <div class="mt-2">
-             <label class="form-label small text-muted mb-1">Prioridade</label>
-             <select class="form-select form-select-sm" [value]="p.prioridade" (change)="updatePriority(p, $event)"
-                [ngClass]="{
-                    'text-danger fw-bold': p.prioridade === 'VERMELHO',
-                    'text-warning fw-bold': p.prioridade === 'AMARELO',
-                    'text-primary fw-bold': p.prioridade === 'AZUL',
-                    'text-success fw-bold': p.prioridade === 'VERDE'
-                }">
-                <option *ngFor="let prio of priorities" [value]="prio">{{ prio }}</option>
-             </select>
           </div>
 
           <!-- Botão Ver Materiais Mobile -->

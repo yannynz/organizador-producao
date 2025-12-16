@@ -690,7 +690,12 @@ export class MontagemComponent implements OnInit {
   }
 
   canViewDxfAnalysis(): boolean {
-    return !!this.currentUser && (this.currentUser.role === UserRole.ADMIN || this.currentUser.role === UserRole.DESENHISTA);
+    return (
+      !!this.currentUser &&
+      [UserRole.ADMIN, UserRole.DESENHISTA, UserRole.OPERADOR].includes(
+        this.currentUser.role,
+      )
+    );
   }
 
 }
