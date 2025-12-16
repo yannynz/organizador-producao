@@ -25,6 +25,7 @@ export class AppComponent implements OnInit, OnDestroy {
   constructor(private ws: WebsocketService, public authService: AuthService) {}
 
   ngOnInit(): void {
+    this.authService.loadUserFromToken();
     this.sub = this.ws.watchStatus().subscribe(evt => {
       this.status = evt;
       this.tooltip = evt.online

@@ -21,9 +21,6 @@ export class AuthService {
     private router: Router,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
-    if (isPlatformBrowser(this.platformId)) {
-      this.loadUserFromToken();
-    }
   }
 
   login(credentials: {email: string, password: string}, rememberMe: boolean = false): Observable<AuthResponse> {
@@ -117,7 +114,7 @@ export class AuthService {
       });
   }
 
-  private loadUserFromToken() {
+  public loadUserFromToken() {
     const token = this.getToken();
     if (token) {
       try {

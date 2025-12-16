@@ -81,6 +81,17 @@ O sistema agora mantém consistência total entre a interface web e os arquivos 
 
 ---
 
+## 📅 15/12/2025 - Estabilidade de Inicialização (Hotfix)
+**Status:** Corrigido
+
+Correção crítica na arquitetura de inicialização do Frontend para evitar falhas de carregamento em ambientes de produção.
+
+### Correção de Dependência Circular
+- **Problema:** Um ciclo de dependência (`AuthService` ↔ `AuthInterceptor` ↔ `HttpClient`) causava o erro `TypeError: r.getToken is not a function` durante a inicialização da aplicação, impedindo o carregamento do perfil do usuário.
+- **Solução:** Refatoração da lógica de bootstrap. A chamada `loadUserFromToken()` foi movida do construtor do serviço para o `ngOnInit` do componente raiz (`AppComponent`), garantindo que todas as dependências estejam instanciadas antes do uso.
+
+---
+
 ## 🔜 Pendências e Próximos Passos (Snapshot Atual)
 
 ### Infraestrutura
