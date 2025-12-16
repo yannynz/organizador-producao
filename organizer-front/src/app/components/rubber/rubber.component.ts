@@ -12,6 +12,7 @@ import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { User, UserRole } from '../../models/user.model';
 import { UserSelectorComponent } from '../shared/user-selector/user-selector.component';
+import { OpService } from '../../services/op.service';
 
 @Component({
   selector: 'app-rubber',
@@ -37,6 +38,14 @@ export class RubberComponent implements OnInit {
   imageUrls: { [key: string]: string } = {};
   loadingImage: { [key: string]: boolean } = {};
 
+  // Materiais Modal
+  showMateriaisModal = false;
+  selectedNr: string | null = null;
+  materiaisOp: string[] = [];
+  dxfMetrics: any = null;
+  loadingMateriais = false;
+  private requestsPending = 0;
+
   private readonly statusElegiveis = new Set<number>([
     OrderStatus.MontadaCorte,
     OrderStatus.MontadaCompleta,
@@ -55,7 +64,8 @@ export class RubberComponent implements OnInit {
     private ws: WebsocketService,
     private dxfAnalysisService: DxfAnalysisService,
     private authService: AuthService,
-    private userService: UserService
+    private userService: UserService,
+    private opService: OpService
   ) {}
 
   ngOnInit(): void {
@@ -99,6 +109,55 @@ export class RubberComponent implements OnInit {
         this.loadingImage[nr] = false;
       }
     });
+  }
+
+  verMateriais(nr: string): void {
+    this.selectedNr = nr;
+    this.showMateriaisModal = true;
+    this.loadingMateriais = true;
+    this.materiaisOp = [];
+    this.dxfMetrics = null;
+    this.requestsPending = 2;
+
+    // Carrega OP (materiais)
+    this.opService.getOpByNr(nr).subscribe({
+      next: (op) => {
+        if (op && op.materiais && Array.isArray(op.materiais)) {
+            // Se for lista de strings
+            this.materiaisOp = op.materiais; 
+            // Se for lista de objetos, precisaria adaptar
+        }
+      },
+      error: (err) => console.error('Erro ao carregar OP', err)
+    }).add(() => this.checkLoadingComplete());
+
+    // Carrega DXF (medidas)
+    this.dxfAnalysisService.getLatestByOrder(nr).subscribe({
+      next: (analysis) => {
+        if (analysis) {
+          this.dxfMetrics = analysis.metrics || {};
+          // Se tiver campos explícitos no analysis, adiciona também
+          if (analysis.totalCutLengthMm) {
+             this.dxfMetrics = { ...this.dxfMetrics, 'Comprimento de Corte (mm)': analysis.totalCutLengthMm };
+          }
+        }
+      },
+      error: (err) => console.error('Erro ao carregar DXF', err)
+    }).add(() => this.checkLoadingComplete());
+  }
+
+  private checkLoadingComplete() {
+     this.requestsPending--;
+     if (this.requestsPending <= 0) {
+        this.loadingMateriais = false;
+     }
+  }
+
+  fecharModalMateriais(): void {
+    this.showMateriaisModal = false;
+    this.selectedNr = null;
+    this.materiaisOp = [];
+    this.dxfMetrics = null;
   }
 
   private loadUsers() {

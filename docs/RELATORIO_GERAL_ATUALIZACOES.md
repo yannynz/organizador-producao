@@ -92,11 +92,47 @@ Correção crítica na arquitetura de inicialização do Frontend para evitar fa
 
 ---
 
-## 🔜 Pendências e Próximos Passos (Snapshot Atual)
+## 📅 16/12/2025 - Ajustes de UI/UX, Funcionalidade e Autenticação (Sessão Atual)
+**Status:** Implementado (Aguardando Validações Finais)
 
-### Infraestrutura
+Diversas melhorias de usabilidade, adição de funcionalidades e correção de problemas críticos de autenticação.
+
+### Destaques
+-   **Melhoria de UI/UX na Tela de Montagem:**
+    *   **Problema:** Botões "Ver Imagem", "Ver Histórico" e "Ver Componentes" com layout inadequado no desktop.
+    *   **Solução:** Reorganização e agrupamento dos botões com rótulos de texto explícitos para melhor usabilidade no desktop.
+    *   **Status:** Resolvido e implementado.
+-   **Restrição de Acesso ao Histórico:**
+    *   **Problema:** Botão "Ver Histórico" visível para todos os usuários.
+    *   **Solução:** Implementação de controle de acesso para exibir o botão "Ver Histórico" apenas para usuários com perfis `ADMIN` ou `DESENHISTA`.
+    *   **Status:** Resolvido e implementado.
+-   **Adição de "Ver Materiais" na Tela de Emborrachamento:**
+    *   **Problema:** Ausência de botão para visualizar materiais/componentes na tela de Emborrachamento.
+    *   **Solução:** Adição de funcionalidade e botão "Ver Materiais" com modal para exibição de materiais e métricas DXF.
+    *   **Status:** Resolvido e implementado.
+-   **Correção na Configuração de Exibição de Imagens DXF:**
+    *   **Problema:** Imagens DXF e dados de complexidade não estavam sendo exibidos devido a uma `app.dxf.analysis.image-base-url` vazia e/ou sobrescrita incorretamente por uma variável de ambiente no `docker-compose.yml`.
+    *   **Solução:** Atualização da variável de ambiente `APP_DXF_ANALYSIS_IMAGE_BASE_URL` no `docker-compose.yml` para `http://minio:9000/facas-renders`, permitindo o acesso correto ao Minio dentro da rede Docker.
+    *   **Status:** Configuração de backend para exibição de imagens corrigida. **Aguardando validação do frontend.**
+-   **Resolução do Problema de Re-login de Operadores (Sessão Expirada):**
+    *   **Problema:** Operadores não conseguiam fazer login novamente após a sessão expirar, recebendo um `403 Forbidden` ao tentar buscar o perfil após o login.
+    *   **Causa:** A configuração de segurança no backend (`SecurityConfiguration.java`) estava restringindo o acesso ao endpoint `/api/users/me` (usado para buscar o perfil do usuário logado) apenas para usuários com a role `ADMIN`.
+    *   **Solução:** Alteração da regra de segurança em `SecurityConfiguration.java` para permitir que **qualquer usuário autenticado** (não apenas `ADMIN`) possa acessar o endpoint `/api/users/me`.
+    *   **Status:** Resolvido e implementado.
+
+### 🔜 Pendências e Próximos Passos (Snapshot Atual)
+
+#### **Validação Essencial (Sua Ação):**
+
+1.  **Valide a exibição das imagens DXF e da complexidade** no frontend.
+2.  **Valide o re-login dos operadores.**
+3.  **Verifique o `FileWatcherApp` (serviço externo C#)** para garantir que ele está:
+    *   Consumindo mensagens da fila RabbitMQ nomeada `file_commands`.
+    *   Processando o `FileCommandDTO` e renomeando os arquivos físicos conforme os comandos `RENAME_PRIORITY` enviados pelo backend Java.
+
+#### **Infraestrutura**
 - **Acesso Externo:** Avaliar implantação de Cloudflare Tunnel e PWA para acesso remoto.
 
-### Automação e Inteligência
+#### **Automação e Inteligência**
 - **Calibração de Complexidade:** Ajuste fino dos scores para materiais sensíveis e cortes específicos.
 - **Busca Cursorial:** Finalizar implementação backend para busca paginada eficiente de pedidos entregues.

@@ -44,6 +44,7 @@ export class MontagemComponent implements OnInit {
   filteredTiradas: orders[] = [];
   searchTerm: string = '';
   users: User[] = [];
+  currentUser: User | null = null;
   pedidoEncontrado: orders | null = null;
 
   expandedNr: string | null = null;
@@ -87,6 +88,7 @@ export class MontagemComponent implements OnInit {
     this.loadUsers();
     
     this.authService.user$.subscribe(user => {
+        this.currentUser = user;
         if (user) {
             const current = this.form.get('nome')?.value || '';
             if (!current) {
@@ -664,5 +666,9 @@ export class MontagemComponent implements OnInit {
         select.value = order.prioridade || '';
       }
     });
+  }
+
+  canViewHistory(): boolean {
+    return !!this.currentUser && (this.currentUser.role === 'ADMIN' || this.currentUser.role === 'DESENHISTA');
   }
 }

@@ -25,9 +25,9 @@
     <div class="row g-3">
       <div class="col-12">
         <label class="form-label" for="responsavel">Nome do responsável</label>
-        <app-user-selector 
-            formControlName="nome" 
-            [availableUsers]="users" 
+        <app-user-selector
+            formControlName="nome"
+            [availableUsers]="users"
             placeholder="Quem está na etapa agora">
         </app-user-selector>
         <div class="form-text mt-2">
@@ -90,17 +90,6 @@
                 <span class="badge" [ngClass]="statusBadgeClass(p.status)">
                   {{ getStatusLabel(p.status) }}
                 </span>
-              </td>
-              <td>
-                <select class="form-select form-select-sm" [value]="p.prioridade" (change)="updatePriority(p, $event)" 
-                        [ngClass]="{
-                            'text-danger fw-bold': p.prioridade === 'VERMELHO',
-                            'text-warning fw-bold': p.prioridade === 'AMARELO',
-                            'text-primary fw-bold': p.prioridade === 'AZUL',
-                            'text-success fw-bold': p.prioridade === 'VERDE'
-                        }">
-                    <option *ngFor="let prio of priorities" [value]="prio">{{ prio }}</option>
-                </select>
               </td>
               <td>
                 <div>
@@ -166,37 +155,41 @@
               <td>{{ p.observacao || "—" }}</td>
               <td>{{ p.dataH | date: "dd/MM HH:mm" }}</td>
               <td>
-                <div class="d-flex flex-wrap gap-2 justify-content-end align-items-center">
-                  <button class="btn btn-sm btn-outline-info" (click)="verMateriais(p.nr)" title="Ver Materiais">
-                    <i class="bi bi-list-ul"></i>
-                  </button>
-                  <button class="btn btn-sm btn-outline-secondary" (click)="verHistorico(p.nr)" title="Ver Histórico">
-                    <i class="bi bi-clock-history"></i>
-                  </button>
-                  <button class="btn btn-sm btn-outline-secondary" (click)="toggleImage(p.nr)" title="Ver Imagem">
-                    <i class="bi" [ngClass]="expandedNr === p.nr ? 'bi-chevron-up' : 'bi-image'"></i>
-                  </button>
-                  <button
-                    class="btn btn-success btn-sm"
-                    (click)="acaoRapida(p.nr, 'montar')"
-                    [disabled]="!podeMontar(p)"
-                  >
-                    Montar
-                  </button>
-                  <button
-                    class="btn btn-warning btn-sm"
-                    (click)="acaoRapida(p.nr, 'vincar')"
-                    [disabled]="!podeVincar(p)"
-                  >
-                    Vincar
-                  </button>
-                  <button
-                    class="btn btn-info btn-sm text-white"
-                    (click)="acaoRapida(p.nr, 'montarVincar')"
-                    [disabled]="!podeMontarVincar(p)"
-                  >
-                    Ambos
-                  </button>
+                <div class="d-flex flex-column gap-2 align-items-end">
+                  <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-secondary" (click)="toggleImage(p.nr)" title="Ver Imagem">
+                      <i class="bi" [ngClass]="expandedNr === p.nr ? 'bi-chevron-up' : 'bi-image'"></i> Imagem
+                    </button>
+                    <button class="btn btn-outline-secondary" (click)="verHistorico(p.nr)" title="Ver Histórico" *ngIf="canViewHistory()">
+                      <i class="bi bi-clock-history"></i> Histórico
+                    </button>
+                    <button class="btn btn-outline-info" (click)="verMateriais(p.nr)" title="Ver Materiais">
+                      <i class="bi bi-list-ul"></i> Materiais
+                    </button>
+                  </div>
+                  <div class="d-flex gap-1">
+                    <button
+                      class="btn btn-success btn-sm"
+                      (click)="acaoRapida(p.nr, 'montar')"
+                      [disabled]="!podeMontar(p)"
+                    >
+                      Montar
+                    </button>
+                    <button
+                      class="btn btn-warning btn-sm"
+                      (click)="acaoRapida(p.nr, 'vincar')"
+                      [disabled]="!podeVincar(p)"
+                    >
+                      Vincar
+                    </button>
+                    <button
+                      class="btn btn-info btn-sm text-white"
+                      (click)="acaoRapida(p.nr, 'montarVincar')"
+                      [disabled]="!podeMontarVincar(p)"
+                    >
+                      Ambos
+                    </button>
+                  </div>
                 </div>
               </td>
             </tr>
@@ -271,7 +264,7 @@
              <button class="btn btn-outline-info btn-sm" (click)="verMateriais(p.nr)">
                 <i class="bi bi-list-ul"></i> Ver Materiais
              </button>
-             <button class="btn btn-outline-secondary btn-sm" (click)="verHistorico(p.nr)">
+             <button class="btn btn-outline-secondary btn-sm" (click)="verHistorico(p.nr)" *ngIf="canViewHistory()">
                 <i class="bi bi-clock-history"></i> Ver Histórico
              </button>
           </div>
@@ -449,7 +442,7 @@
         <div *ngIf="loadingMateriais" class="text-center py-4">
             <div class="spinner-border text-primary" role="status"></div>
         </div>
-        
+
         <div *ngIf="!loadingMateriais">
             <h6>Materiais da OP</h6>
             <ul *ngIf="materiaisOp && materiaisOp.length > 0; else semMateriais" class="list-group mb-3">

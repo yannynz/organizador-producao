@@ -35,7 +35,8 @@ public class SecurityConfiguration {
                 .requestMatchers("/api/auth/**", "/actuator/**", "/error").permitAll()
                 .requestMatchers("/api/orders/**").permitAll()
                 .requestMatchers("/ws/orders/**").permitAll()
-                .requestMatchers("/api/users/**").hasRole("ADMIN")
+                .requestMatchers("/api/users/me").authenticated() // Allow any authenticated user to get their own profile
+                .requestMatchers("/api/users/**").hasRole("ADMIN") // Other /api/users endpoints still require ADMIN
                 .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "DESENHISTA")
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .anyRequest().authenticated()

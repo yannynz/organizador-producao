@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y tzdata && \
 WORKDIR /app
 COPY . .
 RUN chmod +x mvnw
+RUN rm -rf ~/.m2 # Clean Maven cache
 RUN ./mvnw clean install -DskipTests
 FROM public.ecr.aws/docker/library/openjdk:17-jdk-slim
 WORKDIR /app
