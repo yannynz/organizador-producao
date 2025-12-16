@@ -9,6 +9,9 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { DateTime } from 'luxon';
 import { format } from 'date-fns';
 import { debounceTime } from 'rxjs/operators';
+import { DxfAnalysisService } from '../../services/dxf-analysis.service';
+import { AuthService } from '../../services/auth.service';
+import { User, UserRole } from '../../models/user.model';
 
 @Component({
   selector: 'app-delivered',
@@ -44,11 +47,18 @@ export class DeliveredComponent implements OnInit {
 
   @ViewChild('orderDetailsModal') orderDetailsModal!: ElementRef;
 
+  expandedNr: string | null = null;
+  imageUrls: { [key: string]: string } = {};
+  loadingImage: { [key: string]: boolean } = {};
+  currentUser: User | null = null; // Add currentUser property
+
   constructor(
     private orderService: OrderService,
     private fb: FormBuilder,
     private websocketService: WebsocketService,
     private modalService: NgbModal,
+    private dxfAnalysisService: DxfAnalysisService,
+    private authService: AuthService, // Inject AuthService
   ) {
     this.editOrderForm = this.fb.group({
       id: [''],
@@ -86,6 +96,14 @@ export class DeliveredComponent implements OnInit {
       .subscribe(() => {
         this.filterOrdersByAnyAttribute();
       });
+
+    this.authService.user$.subscribe(user => {
+      this.currentUser = user;
+    });
+  }
+
+  canViewDxfAnalysis(): boolean {
+    return !!this.currentUser && (this.currentUser.role === UserRole.ADMIN || this.currentUser.role === UserRole.DESENHISTA);
   }
 
   loadOrders(): void {
@@ -395,5 +413,35 @@ export class DeliveredComponent implements OnInit {
         alert('Erro ao salvar a saída adversa: ' + error.message);
       },
     );
+  }
+
+  toggleImage(nr: string): void {
+    if (!this.canViewDxfAnalysis()) { return; }
+
+    if (this.expandedNr === nr) {
+      this.expandedNr = null;
+      return;
+    }
+
+    this.expandedNr = nr;
+    if (this.imageUrls[nr]) {
+      return;
+    }
+
+    this.loadingImage[nr] = true;
+    this.dxfAnalysisService.getLatestByOrder(nr).subscribe({
+      next: (analysis) => {
+        if (analysis && analysis.imageUrl) {
+          this.imageUrls[nr] = analysis.imageUrl;
+        } else {
+          this.imageUrls[nr] = ''; // Marca como sem imagem
+        }
+        this.loadingImage[nr] = false;
+      },
+      error: () => {
+        this.imageUrls[nr] = '';
+        this.loadingImage[nr] = false;
+      }
+    });
   }
 }

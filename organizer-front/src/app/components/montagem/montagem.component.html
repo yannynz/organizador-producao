@@ -25,11 +25,16 @@
     <div class="row g-3">
       <div class="col-12">
         <label class="form-label" for="responsavel">Nome do responsável</label>
-        <app-user-selector
-            formControlName="nome"
-            [availableUsers]="users"
-            placeholder="Quem está na etapa agora">
-        </app-user-selector>
+        <ng-container *ngIf="canLoadUsers(); else manualNameInput">
+          <app-user-selector
+              formControlName="nome"
+              [availableUsers]="users"
+              placeholder="Quem está na etapa agora">
+          </app-user-selector>
+        </ng-container>
+        <ng-template #manualNameInput>
+          <input type="text" formControlName="nome" class="form-control" placeholder="Quem está na etapa agora">
+        </ng-template>
         <div class="form-text mt-2">
           Informe uma vez e use o botão desejado: Montar, Vincar ou ambos.
         </div>
@@ -66,7 +71,6 @@
             <th style="width: 80px">NR</th>
             <th>Cliente</th>
             <th>Status</th>
-            <th style="width: 130px">Prioridade</th>
             <th style="min-width: 180px">Montagem</th>
             <th style="min-width: 180px">Vinco</th>
             <th style="min-width: 160px">Complexidade</th>
@@ -118,20 +122,25 @@
                 </ng-template>
               </td>
               <td class="complexidade-cell">
-                <ng-container [ngSwitch]="complexidadeEstado(p.nr)">
-                  <div class="text-muted small" *ngSwitchCase="'loading'">
-                    Carregando...
-                  </div>
-                  <ng-container *ngSwitchCase="'ready'">
-                    <ng-container
-                      *ngTemplateOutlet="
-                        complexidadeStarsTemplate;
-                        context: { score: complexidadeValor(p.nr) }
-                      "
-                    ></ng-container>
+                <ng-container *ngIf="canViewDxfAnalysis(); else noDxfPermissionDesktop">
+                  <ng-container [ngSwitch]="complexidadeEstado(p.nr)">
+                    <div class="text-muted small" *ngSwitchCase="'loading'">
+                      Carregando...
+                    </div>
+                    <ng-container *ngSwitchCase="'ready'">
+                      <ng-container
+                        *ngTemplateOutlet="
+                          complexidadeStarsTemplate;
+                          context: { score: complexidadeValor(p.nr) }
+                        "
+                      ></ng-container>
+                    </ng-container>
+                    <div class="text-muted small" *ngSwitchDefault>—</div>
                   </ng-container>
-                  <div class="text-muted small" *ngSwitchDefault>—</div>
                 </ng-container>
+                <ng-template #noDxfPermissionDesktop>
+                  <div class="text-muted small">Sem permissão</div>
+                </ng-template>
               </td>
               <td>
                 <div class="d-flex flex-wrap gap-1">
@@ -157,12 +166,14 @@
               <td>
                 <div class="d-flex flex-column gap-2 align-items-end">
                   <div class="btn-group btn-group-sm">
-                    <button class="btn btn-outline-secondary" (click)="toggleImage(p.nr)" title="Ver Imagem">
+                    <button *ngIf="canViewDxfAnalysis(); else noDxfImageButtonDesktop" class="btn btn-outline-secondary" (click)="toggleImage(p.nr)" title="Ver Imagem">
                       <i class="bi" [ngClass]="expandedNr === p.nr ? 'bi-chevron-up' : 'bi-image'"></i> Imagem
                     </button>
-                    <button class="btn btn-outline-secondary" (click)="verHistorico(p.nr)" title="Ver Histórico" *ngIf="canViewHistory()">
-                      <i class="bi bi-clock-history"></i> Histórico
-                    </button>
+                    <ng-template #noDxfImageButtonDesktop>
+                      <button class="btn btn-outline-secondary" disabled title="Sem permissão para ver imagem">
+                        <i class="bi bi-image-alt"></i> Imagem
+                      </button>
+                    </ng-template>
                     <button class="btn btn-outline-info" (click)="verMateriais(p.nr)" title="Ver Materiais">
                       <i class="bi bi-list-ul"></i> Materiais
                     </button>
@@ -271,10 +282,17 @@
 
           <!-- Botão Ver Imagem Mobile - Mais visível -->
           <div class="mt-2 d-grid">
-             <button class="btn btn-outline-primary btn-sm" (click)="toggleImage(p.nr)">
-                <i class="bi" [ngClass]="expandedNr === p.nr ? 'bi-chevron-up' : 'bi-image'"></i>
-                {{ expandedNr === p.nr ? 'Ocultar Imagem' : 'Ver Imagem da Faca' }}
-             </button>
+            <ng-container *ngIf="canViewDxfAnalysis(); else noDxfImageButtonMobile">
+              <button class="btn btn-outline-primary btn-sm" (click)="toggleImage(p.nr)">
+                  <i class="bi" [ngClass]="expandedNr === p.nr ? 'bi-chevron-up' : 'bi-image'"></i>
+                  {{ expandedNr === p.nr ? 'Ocultar Imagem' : 'Ver Imagem da Faca' }}
+              </button>
+            </ng-container>
+            <ng-template #noDxfImageButtonMobile>
+              <button class="btn btn-outline-primary btn-sm" disabled>
+                <i class="bi bi-image-alt"></i> Sem Imagem
+              </button>
+            </ng-template>
           </div>
 
           <!-- Área Expandida Mobile -->
@@ -320,20 +338,25 @@
 
           <div class="mt-3 small">
             <div class="fw-semibold">Complexidade</div>
-            <ng-container [ngSwitch]="complexidadeEstado(p.nr)">
-              <div class="text-muted" *ngSwitchCase="'loading'">
-                Carregando...
-              </div>
-              <ng-container *ngSwitchCase="'ready'">
-                <ng-container
-                  *ngTemplateOutlet="
-                    complexidadeStarsTemplate;
-                    context: { score: complexidadeValor(p.nr) }
-                  "
-                ></ng-container>
+            <ng-container *ngIf="canViewDxfAnalysis(); else noDxfPermissionMobileComplex">
+              <ng-container [ngSwitch]="complexidadeEstado(p.nr)">
+                <div class="text-muted" *ngSwitchCase="'loading'">
+                  Carregando...
+                </div>
+                <ng-container *ngSwitchCase="'ready'">
+                  <ng-container
+                    *ngTemplateOutlet="
+                      complexidadeStarsTemplate;
+                      context: { score: complexidadeValor(p.nr) }
+                    "
+                  ></ng-container>
+                </ng-container>
+                <div class="text-muted" *ngSwitchDefault>—</div>
               </ng-container>
-              <div class="text-muted" *ngSwitchDefault>—</div>
             </ng-container>
+            <ng-template #noDxfPermissionMobileComplex>
+              <div class="text-muted">Sem permissão</div>
+            </ng-template>
           </div>
 
           <div

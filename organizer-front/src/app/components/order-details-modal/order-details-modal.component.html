@@ -276,6 +276,23 @@
             </div>
           </ng-template>
         </section>
+
+        <section class="order-history mt-4" *ngIf="orderHistory.length > 0">
+          <h6 class="section-title">Histórico do Pedido</h6>
+          <div class="list-group">
+            <div class="list-group-item" *ngFor="let entry of orderHistory">
+              <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">{{ entry.userName }}</h5>
+                <small>{{ formatHistoryTimestamp(entry.timestamp) }}</small>
+              </div>
+              <p class="mb-1">
+                <span *ngFor="let change of entry.changes">
+                  <strong>{{ change.field }}</strong> changed from "{{ change.oldValue }}" to "{{ change.newValue }}"<br />
+                </span>
+              </p>
+            </div>
+          </div>
+        </section>
       </div>
       <div class="modal-footer">
         <button class="btn btn-danger" (click)="onDelete()">Deletar</button>

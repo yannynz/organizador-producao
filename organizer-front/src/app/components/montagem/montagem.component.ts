@@ -99,6 +99,8 @@ export class MontagemComponent implements OnInit {
   }
 
   toggleImage(nr: string): void {
+    if (!this.canViewDxfAnalysis()) { return; }
+
     if (this.expandedNr === nr) {
       this.expandedNr = null;
       return;
@@ -127,6 +129,7 @@ export class MontagemComponent implements OnInit {
   }
 
   verMateriais(nr: string): void {
+    if (!this.canViewDxfAnalysis()) { return; }
     this.selectedNr = nr;
     this.showMateriaisModal = true;
     this.loadingMateriais = true;
@@ -199,12 +202,20 @@ export class MontagemComponent implements OnInit {
   }
 
   private loadUsers() {
-      this.userService.getAll().subscribe(users => {
-          this.users = users.filter(u => 
-            u.active !== false && 
-            (u.role === UserRole.OPERADOR || u.role === UserRole.ADMIN || u.role === UserRole.DESENHISTA)
-          );
-      });
+    if (!this.canLoadUsers()) {
+      this.users = [];
+      return;
+    }
+    this.userService.getAll().subscribe(users => {
+        this.users = users.filter(u => 
+          u.active !== false && 
+          (u.role === UserRole.OPERADOR || u.role === UserRole.ADMIN || u.role === UserRole.DESENHISTA)
+        );
+    });
+  }
+
+  canLoadUsers(): boolean {
+    return !!this.currentUser && (this.currentUser.role === UserRole.ADMIN || this.currentUser.role === UserRole.OPERADOR || this.currentUser.role === UserRole.DESENHISTA);
   }
 
 
@@ -612,6 +623,14 @@ export class MontagemComponent implements OnInit {
   }
 
   private carregarComplexidade(order: orders, force = false): void {
+    if (!this.canViewDxfAnalysis()) {
+      const nr = this.normalizarNr(order.nr);
+      if (nr) {
+        delete this.complexidadePorNr[nr];
+        this.complexidadeEstadoPorNr[nr] = 'empty';
+      }
+      return;
+    }
     const nr = this.normalizarNr(order.nr);
     if (!nr) {
       return;
@@ -671,4 +690,9 @@ export class MontagemComponent implements OnInit {
   canViewHistory(): boolean {
     return !!this.currentUser && (this.currentUser.role === 'ADMIN' || this.currentUser.role === 'DESENHISTA');
   }
+
+  canViewDxfAnalysis(): boolean {
+    return !!this.currentUser && (this.currentUser.role === UserRole.ADMIN || this.currentUser.role === UserRole.DESENHISTA);
+  }
+
 }

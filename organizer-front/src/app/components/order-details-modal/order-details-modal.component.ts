@@ -16,9 +16,11 @@ import {
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { orders } from '../../models/orders';
+import { OrderHistory } from '../../models/order-history.model';
 import { OpService } from '../../services/op.service';
 import { DxfAnalysis } from '../../models/dxf-analysis';
 import { DxfAnalysisService } from '../../services/dxf-analysis.service';
+import { OrderHistoryService } from '../../services/order-history.service';
 import { WebsocketService } from '../../services/websocket.service';
 import { FilesizePipe } from '../../pipes/filesize.pipe';
 import { environment } from '../../enviroment';
@@ -74,16 +76,20 @@ export class OrderDetailsModalComponent implements OnInit, OnChanges, OnDestroy 
   private dxfLatestSub?: Subscription;
   private dxfHistorySub?: Subscription;
   private dxfWebsocketSub?: Subscription;
+  private orderHistorySub?: Subscription;
 
   dxfAnalysis: DxfAnalysis | null = null;
   dxfHistory: DxfAnalysis[] = [];
   dxfLoading = false;
   dxfError: string | null = null;
 
+  orderHistory: OrderHistory[] = [];
+
   constructor(
     private fb: FormBuilder,
     private opService: OpService,
     private dxfAnalysisService: DxfAnalysisService,
+    private orderHistoryService: OrderHistoryService,
     private websocketService: WebsocketService,
     @Inject(PLATFORM_ID) platformId: object
   ) {
@@ -140,15 +146,19 @@ export class OrderDetailsModalComponent implements OnInit, OnChanges, OnDestroy 
       this.applySelectedOrder(this.selectedOrder);
       if (this.open) {
         this.refreshDxfAnalysis();
+        this.refreshOrderHistory();
       }
     }
     if (changes['open']?.currentValue) {
       this.applySelectedOrder(this.selectedOrder);
       this.refreshDxfAnalysis();
+      this.refreshOrderHistory();
     }
     if (changes['open'] && !changes['open'].currentValue && !this.open) {
       this.form.reset(this.initialFormValue);
       this.resetDxfState();
+      this.orderHistory = [];
+      this.orderHistorySub?.unsubscribe();
     }
   }
 
@@ -156,6 +166,7 @@ export class OrderDetailsModalComponent implements OnInit, OnChanges, OnDestroy 
     this.dxfLatestSub?.unsubscribe();
     this.dxfHistorySub?.unsubscribe();
     this.dxfWebsocketSub?.unsubscribe();
+    this.orderHistorySub?.unsubscribe();
   }
 
   /** === Ações === */
@@ -269,9 +280,13 @@ export class OrderDetailsModalComponent implements OnInit, OnChanges, OnDestroy 
           this.dxfHistory = [];
         }
       },
-      error: () => {
+      error: (err) => {
         this.dxfLoading = false;
-        this.dxfError = 'Falha ao carregar análise DXF.';
+        if (err.status === 403) {
+          this.dxfError = 'Você não tem permissão para visualizar a análise DXF.';
+        } else {
+          this.dxfError = 'Falha ao carregar análise DXF.';
+        }
       },
     });
 
@@ -479,6 +494,37 @@ export class OrderDetailsModalComponent implements OnInit, OnChanges, OnDestroy 
     this.dxfHistory = [];
     this.dxfLoading = false;
     this.dxfError = null;
+  }
+
+  private refreshOrderHistory(): void {
+    if (!this.open) {
+      return;
+    }
+
+    const orderId = this.selectedOrder?.id;
+    if (!orderId) {
+      this.orderHistory = [];
+      return;
+    }
+
+    this.orderHistorySub?.unsubscribe();
+    this.orderHistorySub = this.orderHistoryService.getHistory(orderId).subscribe({
+      next: (history) => {
+        this.orderHistory = history;
+      },
+      error: (err) => {
+        console.error('Failed to load order history', err);
+        this.orderHistory = [];
+      },
+    });
+  }
+
+  formatHistoryTimestamp(timestamp: string): string {
+    const parsed = DateTime.fromISO(timestamp);
+    if (!parsed.isValid) {
+      return timestamp;
+    }
+    return parsed.setZone(this.saoPauloZone).toFormat(this.displayFormatLuxon);
   }
 
   clockHandStyle(): Record<string, string> {
