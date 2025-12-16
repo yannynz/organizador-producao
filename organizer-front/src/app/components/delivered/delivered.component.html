@@ -42,39 +42,50 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let order of orders">
-        <td>
-          <button class="btn btn-outline-info btn-sm me-2" (click)="openOrderDetails(order)">
-            Detalhes
-          </button>
-          <ng-container *ngIf="canViewDxfAnalysis(); else noDxfImageButtonDelivered">
-            <button class class="btn btn-outline-secondary btn-sm" (click)="toggleImage(order.nr)" title="Ver Imagem">
-              <i class="bi bi-image"></i>
+      <ng-container *ngFor="let order of orders">
+        <tr>
+          <td>{{ order.nr }}</td>
+          <td>{{ order.cliente }}</td>
+          <td [ngStyle]="{'background-color': getPriorityColor(order.prioridade)}">
+            {{ order.prioridade }}
+          </td>
+          <td>{{ order.dataH | date:'dd/MM/yyyy HH:mm' }}</td>
+          <td>{{ order.dataEntrega | date:'dd/MM/yyyy HH:mm' }}</td>
+          <td>{{ getStatusDescription(order.status) }}</td>
+          <td>{{ order.entregador || '—' }}</td>
+          <td>
+            <button class="btn btn-outline-info btn-sm me-2" (click)="openOrderDetails(order)">
+              Detalhes
             </button>
-          </ng-container>
-          <ng-template #noDxfImageButtonDelivered>
-            <button class="btn btn-outline-secondary btn-sm" disabled title="Sem permissão para ver imagem">
-              <i class="bi bi-image-alt"></i>
-            </button>
-          </ng-template>
-        </td>
-      </tr>
-      <tr *ngIf="expandedNr === order.nr" class="bg-light">
-        <td colspan="8" class="p-3">
-          <div class="d-flex justify-content-center position-relative" style="min-height: 200px;">
-             <div *ngIf="loadingImage[order.nr]" class="position-absolute top-50 start-50 translate-middle">
+            <ng-container *ngIf="canViewDxfAnalysis(); else noDxfImageButtonDelivered">
+              <button class="btn btn-outline-secondary btn-sm" (click)="toggleImage(order.nr)" title="Ver Imagem">
+                <i class="bi bi-image"></i>
+              </button>
+            </ng-container>
+            <ng-template #noDxfImageButtonDelivered>
+              <button class="btn btn-outline-secondary btn-sm" disabled title="Sem permissão para ver imagem">
+                <i class="bi bi-image-alt"></i>
+              </button>
+            </ng-template>
+          </td>
+        </tr>
+        <tr *ngIf="expandedNr === order.nr" class="bg-light">
+          <td colspan="8" class="p-3">
+            <div class="d-flex justify-content-center position-relative" style="min-height: 200px;">
+              <div *ngIf="loadingImage[order.nr]" class="position-absolute top-50 start-50 translate-middle">
                 <div class="spinner-border text-primary" role="status">
                   <span class="visually-hidden">Carregando...</span>
                 </div>
-             </div>
-             <img *ngIf="imageUrls[order.nr]" [src]="imageUrls[order.nr]" class="img-fluid border rounded shadow-sm" style="max-height: 500px; object-fit: contain;" alt="Renderização da Faca">
-             <div *ngIf="!loadingImage[order.nr] && !imageUrls[order.nr]" class="text-muted py-5">
+              </div>
+              <img *ngIf="imageUrls[order.nr]" [src]="imageUrls[order.nr]" class="img-fluid border rounded shadow-sm" style="max-height: 500px; object-fit: contain;" alt="Renderização da Faca">
+              <div *ngIf="!loadingImage[order.nr] && !imageUrls[order.nr]" class="text-muted py-5">
                 <i class="bi bi-image-alt fs-1 d-block text-center"></i>
                 <span>Imagem não disponível</span>
-             </div>
-          </div>
-        </td>
-      </tr>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </ng-container>
     </tbody>
   </table>
 </div>
@@ -257,4 +268,3 @@
     <button type="button" class="btn btn-primary" [disabled]="adverseOutputForm.invalid" (click)="addAdverseOutput()">Adicionar</button>
   </div>
 </ng-template>
-
