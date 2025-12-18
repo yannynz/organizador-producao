@@ -92,7 +92,13 @@ export class DeliveryComponent implements OnInit {
     });
   }
 
+  canViewDxfAnalysis(): boolean {
+    return !!this.currentUser && (this.currentUser.role === UserRole.ADMIN || this.currentUser.role === UserRole.DESENHISTA);
+  }
+
   toggleImage(nr: string): void {
+    if (!this.canViewDxfAnalysis()) { return; }
+
     if (this.expandedNr === nr) {
       this.expandedNr = null;
       return;

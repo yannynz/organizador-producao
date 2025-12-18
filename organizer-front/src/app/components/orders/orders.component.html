@@ -38,10 +38,12 @@
           <th class="text-center text-nowrap">ATRIBUTOS</th>
           <th class="text-nowrap">DESENHISTAS</th>
           <th class="observacao-col">OBS</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
-       <tr *ngFor="let order of orders">
+       <ng-container *ngFor="let order of orders">
+        <tr>
           <td class="text-nowrap">{{ order.nr }}</td>
           <td class="cliente-col">{{ order.cliente }}</td>
           <td class="text-nowrap" [ngStyle]="{'background-color': getPriorityColor(order.prioridade)}">
@@ -60,7 +62,36 @@
           </td>
           <td class="text-nowrap">{{ order.usuarioImportacao?.trim() || '-'}}</td>
           <td class="observacao-col">{{ order.observacao || '-' }}</td>
+          <td>
+            <ng-container *ngIf="canViewDxfAnalysis(); else noDxfImageButtonOrders">
+              <button class="btn btn-sm btn-link text-secondary text-decoration-none" (click)="toggleImage(order.nr)" title="Ver Imagem">
+                <i class="bi bi-chevron-down"></i>
+              </button>
+            </ng-container>
+            <ng-template #noDxfImageButtonOrders>
+              <button class="btn btn-sm btn-link text-secondary text-decoration-none disabled" disabled title="Sem permissão para ver imagem">
+                <i class="bi bi-chevron-down"></i>
+              </button>
+            </ng-template>
+          </td>
         </tr>
+        <tr *ngIf="expandedNr === order.nr" class="bg-light">
+          <td colspan="9" class="p-3">
+            <div class="d-flex justify-content-center position-relative" style="min-height: 200px;">
+              <div *ngIf="loadingImage[order.nr]" class="position-absolute top-50 start-50 translate-middle">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Carregando...</span>
+                </div>
+              </div>
+              <img *ngIf="imageUrls[order.nr]" [src]="imageUrls[order.nr]" class="img-fluid border rounded shadow-sm" style="max-height: 500px; object-fit: contain;" alt="Renderização da Faca">
+              <div *ngIf="!loadingImage[order.nr] && !imageUrls[order.nr]" class="text-muted py-5">
+                <i class="bi bi-image-alt fs-1 d-block text-center"></i>
+                <span>Imagem não disponível</span>
+              </div>
+            </div>
+          </td>
+        </tr>
+       </ng-container>
       </tbody>
     </table>
 <div *ngIf="!orders.length" class="text-center py-4">

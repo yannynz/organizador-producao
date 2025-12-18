@@ -40,9 +40,16 @@
 />
         </td>
           <td class="text-center">
-            <button class="btn btn-sm btn-link text-decoration-none text-dark p-0" (click)="toggleImage(order.nr)" title="Ver Imagem">
-              <i class="bi" [ngClass]="expandedNr === order.nr ? 'bi-chevron-down' : 'bi-chevron-right'"></i>
-            </button>
+            <ng-container *ngIf="canViewDxfAnalysis(); else noDxfImageButtonDelivery">
+              <button class="btn btn-sm btn-link text-secondary text-decoration-none" (click)="toggleImage(order.nr)" title="Ver Imagem">
+                <i class="bi bi-chevron-down"></i>
+              </button>
+            </ng-container>
+            <ng-template #noDxfImageButtonDelivery>
+              <button class="btn btn-sm btn-link text-secondary text-decoration-none disabled" disabled title="Sem permissão para ver imagem">
+                <i class="bi bi-chevron-down"></i>
+              </button>
+            </ng-template>
           </td>
           <td>{{ order.nr }}</td>
           <td>{{ order.cliente }}</td>

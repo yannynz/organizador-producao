@@ -11,6 +11,9 @@ import { Subscription, interval } from 'rxjs';
 import { WebsocketService } from '../../services/websocket.service';
 import { CommonModule } from '@angular/common';
 import { OrderService } from '../../services/orders.service';
+import { DxfAnalysisService } from '../../services/dxf-analysis.service';
+import { AuthService } from '../../services/auth.service';
+import { User, UserRole } from '../../models/user.model';
 
 @Component({
   selector: 'app-orders',
@@ -27,12 +30,18 @@ export class OrdersComponent implements OnInit, OnDestroy {
   ordersSubscription: Subscription | undefined;
   selectedOrder: orders | null = null;
   filteredPriority: string | null = null;
+  expandedNr: string | null = null;
+  imageUrls: { [key: string]: string } = {};
+  loadingImage: { [key: string]: boolean } = {};
+  currentUser: User | null = null;
 
 
   constructor(
     private formBuilder: FormBuilder,
     private orderService: OrderService,
-    private websocketService: WebsocketService
+    private websocketService: WebsocketService,
+    private dxfAnalysisService: DxfAnalysisService,
+    private authService: AuthService
   ) {
     this.createOrderForm = this.formBuilder.group({
       nr: ['', Validators.required],
@@ -63,6 +72,10 @@ export class OrdersComponent implements OnInit, OnDestroy {
     this.loadOrders();
     this.listenForWebSocketUpdates();
     this.listenForWebSocketPrioridade();
+
+    this.authService.user$.subscribe(user => {
+      this.currentUser = user;
+    });
   }
 
   filterByPriority(priority: string) {
@@ -279,5 +292,37 @@ export class OrdersComponent implements OnInit, OnDestroy {
     }
   }
 
+  canViewDxfAnalysis(): boolean {
+    return !!this.currentUser && (this.currentUser.role === UserRole.ADMIN || this.currentUser.role === UserRole.DESENHISTA);
+  }
 
+  toggleImage(nr: string): void {
+    if (!this.canViewDxfAnalysis()) { return; }
+
+    if (this.expandedNr === nr) {
+      this.expandedNr = null;
+      return;
+    }
+
+    this.expandedNr = nr;
+    if (this.imageUrls[nr]) {
+      return;
+    }
+
+    this.loadingImage[nr] = true;
+    this.dxfAnalysisService.getLatestByOrder(nr).subscribe({
+      next: (analysis) => {
+        if (analysis && analysis.imageUrl) {
+          this.imageUrls[nr] = analysis.imageUrl;
+        } else {
+          this.imageUrls[nr] = ''; // Marca como sem imagem
+        }
+        this.loadingImage[nr] = false;
+      },
+      error: () => {
+        this.imageUrls[nr] = '';
+        this.loadingImage[nr] = false;
+      }
+    });
+  }
 }
