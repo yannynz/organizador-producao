@@ -1,6 +1,10 @@
 package git.yannynz.organizadorproducao.model;
 import jakarta.persistence.*;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "transportadoras")
@@ -16,8 +20,9 @@ public class Transportadora {
     @Column(name = "nome_normalizado", nullable = false, length = 180)
     private String nomeNormalizado;
 
-    @Column(columnDefinition = "text")
-    private String apelidos;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    private List<String> apelidos = new ArrayList<>();
 
     private String localizacao;
 
@@ -42,8 +47,25 @@ public class Transportadora {
     public String getNomeNormalizado() { return nomeNormalizado; }
     public void setNomeNormalizado(String nomeNormalizado) { this.nomeNormalizado = nomeNormalizado; }
 
-    public String getApelidos() { return apelidos; }
-    public void setApelidos(String apelidos) { this.apelidos = apelidos; }
+    public List<String> getApelidos() { return apelidos; }
+    public void setApelidos(List<String> apelidos) { this.apelidos = apelidos != null ? apelidos : new ArrayList<>(); }
+    /** Accepts comma-separated strings from legacy payloads. */
+    public void setApelidos(String apelidosCsv) {
+        if (apelidosCsv == null) {
+            this.apelidos = new ArrayList<>();
+            return;
+        }
+        String trimmed = apelidosCsv.trim();
+        if (trimmed.isEmpty()) {
+            this.apelidos = new ArrayList<>();
+            return;
+        }
+        String[] parts = trimmed.split("\\s*,\\s*");
+        this.apelidos = new ArrayList<>();
+        for (String p : parts) {
+            if (!p.isBlank()) this.apelidos.add(p.trim());
+        }
+    }
 
     public String getLocalizacao() { return localizacao; }
     public void setLocalizacao(String localizacao) { this.localizacao = localizacao; }

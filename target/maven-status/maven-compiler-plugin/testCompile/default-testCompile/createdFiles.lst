@@ -8,6 +8,7 @@ git/yannynz/organizadorproducao/OrganizadorProducaoApplicationTests.class
 git/yannynz/organizadorproducao/service/ClienteAutoEnrichmentServiceTest.class
 git/yannynz/organizadorproducao/service/OpImportServiceTransportadoraTest.class
 git/yannynz/organizadorproducao/controller/OpImportControllerTest.class
+git/yannynz/organizadorproducao/service/OpImportServiceIntegrationTest.class
 git/yannynz/organizadorproducao/service/OrderStatusRulesTest.class
 git/yannynz/organizadorproducao/service/DXFAnalysisServiceTest.class
 git/yannynz/organizadorproducao/controller/UserControllerMeTest.class

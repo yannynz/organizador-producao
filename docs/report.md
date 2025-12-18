@@ -4,6 +4,17 @@ Este relatório documenta as ações tomadas, as validações realizadas e os po
 
 ---
 
+## 2025-12-18 - Testes integrados com FileWatcherApp
+
+1. Subi o stack do Organizador com `docker compose up --build -d` (Rabbit/Postgres/MinIO/Grafana ok; `/actuator/health` continua `DOWN` por erro de migração ao converter `clientes.apelidos` para `jsonb`).
+2. Ajustei o FileWatcher (rodando em produção) para usar IP `192.168.10.13` e acionei os testes de ponta a ponta.
+3. Prioridade via Organizador: enviei `PATCH /api/orders/4323/priority` (NR 514820 -> AZUL). O `FileCommandPublisher` publicou na fila `file_commands`, mas o FileWatcher não aplicou porque lança `JsonException` ao desserializar o comando (body: `{"action":"RENAME_PRIORITY","nr":"514820","newPriority":"AZUL","directory":"LASER"}`).
+4. Render/complexidade DXF: copiei `NR 120184.dxf` para `test_env/FacasDXF` no FileWatcher; evento chegou ao watcher, porém não apareceu nova análise em `facas.analysis.request`/`dxf_analysis` (histórico mais recente é de 17/12 com URLs de imagem apontando para 192.168.0.116/127.0.0.1).
+5. Extração de endereço por PDF: copiei `Ordem de Produção nº 120430.pdf` para `test_env/Ops`; o backend consumiu `op.imported` e criou `op_import.id=671` com cliente “GONCALVES S/A INDUSTRIA GRAFICA” e endereço resolvido “AVENIDA RIBEIRAO DOS CRISTAIS (G PRETO) 340, PAINEIRA CAJAMAR/SP 07775-240”.
+6. Observação: filas RabbitMQ permanecem vazias após consumo; o fluxo de renomeio de prioridade segue bloqueado pelo erro de desserialização no FileWatcher, e as imagens de DXF existentes apontam para hosts legados.
+
+---
+
 ## 1. Ajuste dos Botões na Tela de Montagem (`montagem.component.html`)
 
 **Problema Original:** Os botões "Ver Imagem", "Ver Histórico" e "Ver Componentes" estavam com layout inadequado no desktop, dificultando a usabilidade.
@@ -124,3 +135,21 @@ O problema foi identificado com base no log `Failed to refresh user profile Obje
 Por favor, tente logar novamente com as credenciais de um operador que estava com problemas. O login agora deve ser bem-sucedido, e o perfil do usuário deve ser carregado corretamente no frontend.
 
 ---
+
+## 2025-12-19 - Migração para `apelidos` em JSONB
+
+1. Criei a migração `V20251218__convert_apelidos_to_jsonb.sql` (Flyway) para converter `clientes.apelidos` e `transportadoras.apelidos` para `jsonb`, com conversão tolerante: preserva JSON existente, transforma listas separadas por vírgula em array e normaliza vazios para `[]`. Define `DEFAULT '[]'::jsonb` em ambas as tabelas.
+2. A expectativa é destravar o `/actuator/health` (Flyway) na próxima subida do backend. Ainda não executei o container após a mudança.
+
+## 2025-12-19 - Validações pós-migração e enriquecimento de OP
+
+1. Ajustei as entidades `Cliente` e `Transportadora` para mapear `apelidos` como `List<String>` com `@JdbcTypeCode(SqlTypes.JSON)` e aceitação de payload legado (string separada por vírgula). Reconstruí a imagem do backend.
+2. Flyway aplicou a migração `V20251218__convert_apelidos_to_jsonb` na subida e o `/actuator/health` passou a responder `UP`.
+3. Reprocessei `op.imported` copiando `Ordem de Produção nº 120432.pdf` para o watcher: `op_import.id=672` criado com `cliente_id=3` e `endereco_id=3` sem erros de JSONB.
+4. Análises DXF agora gravam `image_uri` com MinIO interno (`http://192.168.10.13:9000/facas-renders/...`), e a entrada `analysisId=2f872546-74a3-48fb-817c-561c660fd325` (NR120184) foi gerada após reprocessamento.
+
+## 2025-12-19 - Teste automatizado de importação de OP/PDF
+
+1. Adicionei o teste de integração `src/test/java/git/yannynz/organizadorproducao/service/OpImportServiceIntegrationTest.java` usando Postgres local (jdbc:postgresql://localhost:5433/teste01) e RabbitMQ local para validar o fluxo de importação de OP.
+2. O teste cria uma OP sintética `120432-TST`, invoca `OpImportService.importar` com cliente/endereço sugeridos e confirma `OpImport` persistido com `cliente_ref` e `endereco` associados; os `apelidos` permanecem um array JSONB (não nulo).
+3. Execução: `mvn test -Dtest=OpImportServiceIntegrationTest` (passou). Propriedades de teste desativam `ddl-auto` para evitar DDL automático no JSONB e apontam Rabbit para localhost.
