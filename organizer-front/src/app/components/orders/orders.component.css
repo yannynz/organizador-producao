@@ -32,6 +32,25 @@
   font-size: 0.75rem;
 }
 
+.arrow-btn {
+  border: none;
+  background: none;
+  color: #6c757d;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 2px 6px;
+  line-height: 1;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.arrow-btn:hover:not(:disabled) {
+  color: #0d6efd;
+}
+
+.arrow-btn.expanded {
+  transform: rotate(90deg);
+}
+
 @media (max-width: 768px) {
   .orders-table th,
   .orders-table td {

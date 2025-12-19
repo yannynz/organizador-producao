@@ -41,13 +41,18 @@
         </td>
           <td class="text-center">
             <ng-container *ngIf="canViewDxfAnalysis(); else noDxfImageButtonDelivery">
-              <button class="btn btn-sm btn-link text-secondary text-decoration-none" (click)="toggleImage(order.nr)" title="Ver Imagem">
-                <i class="bi bi-chevron-down"></i>
+              <button
+                class="arrow-btn"
+                [class.expanded]="expandedNr === order.nr"
+                (click)="toggleImage(order.nr)"
+                title="Ver imagem da faca"
+                aria-label="Abrir imagem da faca">
+                &gt;
               </button>
             </ng-container>
             <ng-template #noDxfImageButtonDelivery>
-              <button class="btn btn-sm btn-link text-secondary text-decoration-none disabled" disabled title="Sem permissão para ver imagem">
-                <i class="bi bi-chevron-down"></i>
+              <button class="arrow-btn disabled" disabled title="Sem permissão para ver imagem" aria-label="Sem permissão">
+                &gt;
               </button>
             </ng-template>
           </td>
