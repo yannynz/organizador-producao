@@ -513,14 +513,14 @@ public class DXFAnalysisService {
         if (analysis == null) {
             return null;
         }
-        String storageUri = analysis.getImageUri();
-        if (hasText(storageUri)) {
-            return storageUri;
-        }
         String base = properties.getImageBaseUrl();
         String storageKey = analysis.getImageKey();
         if (hasText(base) && hasText(storageKey)) {
             return joinBaseAndKey(base, storageKey);
+        }
+        String storageUri = analysis.getImageUri();
+        if (hasText(storageUri)) {
+            return storageUri;
         }
         String imagePath = analysis.getImagePath();
         if (!hasText(imagePath)) {
