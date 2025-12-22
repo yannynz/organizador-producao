@@ -1,8 +1,8 @@
 -------------------------------------------------------------------------------
 Test set: git.yannynz.organizadorproducao.controller.OrderControllerDeliveryLockTest
 -------------------------------------------------------------------------------
-Tests run: 4, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.025 s <<< FAILURE! -- in git.yannynz.organizadorproducao.controller.OrderControllerDeliveryLockTest
-git.yannynz.organizadorproducao.controller.OrderControllerDeliveryLockTest.updateOrder_ShouldAllow_WhenUserHasActiveDelivery_AndTargetIsTheDeliveryOrder -- Time elapsed: 0.006 s <<< ERROR!
+Tests run: 4, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.022 s <<< FAILURE! -- in git.yannynz.organizadorproducao.controller.OrderControllerDeliveryLockTest
+git.yannynz.organizadorproducao.controller.OrderControllerDeliveryLockTest.updateOrder_ShouldAllow_WhenUserHasActiveDelivery_AndTargetIsTheDeliveryOrder -- Time elapsed: 0.004 s <<< ERROR!
 java.lang.NullPointerException: Cannot invoke "git.yannynz.organizadorproducao.service.OrderHistoryService.logChange(git.yannynz.organizadorproducao.model.Order, String, String, String)" because "this.orderHistoryService" is null
 	at git.yannynz.organizadorproducao.controller.OrderController.updateOrder(OrderController.java:188)
 	at git.yannynz.organizadorproducao.controller.OrderControllerDeliveryLockTest.updateOrder_ShouldAllow_WhenUserHasActiveDelivery_AndTargetIsTheDeliveryOrder(OrderControllerDeliveryLockTest.java:101)

@@ -690,12 +690,8 @@ export class MontagemComponent implements OnInit {
   }
 
   canViewDxfAnalysis(): boolean {
-    return (
-      !!this.currentUser &&
-      [UserRole.ADMIN, UserRole.DESENHISTA, UserRole.OPERADOR].includes(
-        this.currentUser.role,
-      )
-    );
+    // Qualquer usuário autenticado pode visualizar a análise DXF.
+    return !!this.currentUser;
   }
 
 }

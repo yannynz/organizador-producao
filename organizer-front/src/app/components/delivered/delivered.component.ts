@@ -102,8 +102,9 @@ export class DeliveredComponent implements OnInit {
     });
   }
 
+  // Qualquer usuário autenticado pode visualizar a análise DXF.
   canViewDxfAnalysis(): boolean {
-    return !!this.currentUser && (this.currentUser.role === UserRole.ADMIN || this.currentUser.role === UserRole.DESENHISTA);
+    return !!this.currentUser;
   }
 
   loadOrders(): void {

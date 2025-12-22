@@ -292,8 +292,9 @@ export class OrdersComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Permite a visualização das imagens de análise DXF para qualquer usuário autenticado.
   canViewDxfAnalysis(): boolean {
-    return !!this.currentUser && (this.currentUser.role === UserRole.ADMIN || this.currentUser.role === UserRole.DESENHISTA);
+    return !!this.currentUser;
   }
 
   toggleImage(nr: string): void {
