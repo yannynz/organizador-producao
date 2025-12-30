@@ -89,7 +89,7 @@ app.dxf.analysis.order-number-pattern=(?i)(?:NR|CL)\s*(\d+)
 - **image-local-roots** lista diretórios autorizados para leitura direta de PNGs pelo endpoint `/api/dxf-analysis/{analysisId}/image`. Caminhos relativos dos workers (ex.: `./artifacts/renders/...`) serão resolvidos em relação a cada root configurado.
 - **order-number-pattern** controls how NR/CL identifiers are extracted from filenames when the worker omits the explicit `orderNumber`.
 
-> **Compose**: o `docker-compose.yml` já injeta `APP_DXF_ANALYSIS_IMAGE_BASE_URL=http://192.168.0.116:9000/facas-renders`, apontando para o bucket MinIO padrão (`facas-renders`). Ajuste a URL conforme o host exposto para usuários finais.
+> **Compose**: o `docker-compose.yml` já injeta `APP_DXF_ANALYSIS_IMAGE_BASE_URL=http://192.168.10.13:9000/facas-renders`, apontando para o bucket MinIO padrão (`facas-renders`). Ajuste a URL conforme o host exposto para usuários finais.
 
 ### Storage (MinIO / S3)
 

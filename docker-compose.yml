@@ -35,8 +35,8 @@ services:
       SPRING_RABBITMQ_USERNAME: guest
       SPRING_RABBITMQ_PASSWORD: guest
       APP_CORS_ALLOWED_ORIGINS: ${APP_CORS_ALLOWED_ORIGINS:-http://localhost:4200,http://localhost,http://nginx-container,http://nginx-container:80,http://frontend-container}
-      # Dev: use host resolvable dentro da rede docker (minio:9000). Para expor externamente, sobrescreva APP_DXF_ANALYSIS_IMAGE_BASE_URL.
-      APP_DXF_ANALYSIS_IMAGE_BASE_URL: ${APP_DXF_ANALYSIS_IMAGE_BASE_URL:-http://${MINIO_HOST:-minio}:9000/browser/facas-renders}
+      # Dev: use host acessível externamente para servir as imagens via MinIO.
+      APP_DXF_ANALYSIS_IMAGE_BASE_URL: ${APP_DXF_ANALYSIS_IMAGE_BASE_URL:-http://${MINIO_HOST:-192.168.10.13}:9000/facas-renders}
       APP_FRONTEND_URL: http://${SERVER_HOST:-192.168.10.13}
 
       # Configuração de E-mail
@@ -206,7 +206,7 @@ services:
     environment:
       MINIO_ROOT_USER: minio
       MINIO_ROOT_PASSWORD: minio123
-      MINIO_BROWSER_REDIRECT_URL: http://localhost:9091
+      MINIO_BROWSER_REDIRECT_URL: http://192.168.10.13:9091
     command: server /data --console-address ":9091"
     ports:
       - "9000:9000"   # API S3
