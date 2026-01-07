@@ -211,6 +211,21 @@ public class DXFAnalysisService {
         if (orderNr == null || orderNr.isBlank()) {
             return Optional.empty();
         }
+        String normalized = normalizeOrderNumber(orderNr);
+        if (hasText(normalized)) {
+            Optional<DXFAnalysis> byNormalized = analysisRepository.findTopByOrderNrOrderByAnalyzedAtDesc(normalized);
+            if (byNormalized.isPresent()) {
+                return byNormalized;
+            }
+            Optional<DXFAnalysis> withNrPrefix = analysisRepository.findTopByOrderNrOrderByAnalyzedAtDesc("NR" + normalized);
+            if (withNrPrefix.isPresent()) {
+                return withNrPrefix;
+            }
+            Optional<DXFAnalysis> withClPrefix = analysisRepository.findTopByOrderNrOrderByAnalyzedAtDesc("CL" + normalized);
+            if (withClPrefix.isPresent()) {
+                return withClPrefix;
+            }
+        }
         return analysisRepository.findTopByOrderNrOrderByAnalyzedAtDesc(orderNr.trim());
     }
 
@@ -226,8 +241,18 @@ public class DXFAnalysisService {
             return List.of();
         }
         int safeLimit = Math.max(1, Math.min(limit, 25));
+        String normalized = normalizeOrderNumber(orderNr);
         List<DXFAnalysis> entities = analysisRepository.findByOrderNrOrderByAnalyzedAtDesc(
-                orderNr.trim(), PageRequest.of(0, safeLimit));
+                normalized != null ? normalized : orderNr.trim(), PageRequest.of(0, safeLimit));
+        if (entities.isEmpty() && normalized != null) {
+            entities = analysisRepository.findByOrderNrOrderByAnalyzedAtDesc(orderNr.trim(), PageRequest.of(0, safeLimit));
+        }
+        if (entities.isEmpty() && normalized != null) {
+            entities = analysisRepository.findByOrderNrOrderByAnalyzedAtDesc("NR" + normalized, PageRequest.of(0, safeLimit));
+        }
+        if (entities.isEmpty() && normalized != null) {
+            entities = analysisRepository.findByOrderNrOrderByAnalyzedAtDesc("CL" + normalized, PageRequest.of(0, safeLimit));
+        }
         return entities.stream().map(this::toView).toList();
     }
 
