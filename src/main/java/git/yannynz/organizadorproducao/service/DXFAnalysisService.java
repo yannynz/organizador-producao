@@ -541,7 +541,8 @@ public class DXFAnalysisService {
         String base = properties.getImageBaseUrl();
         String storageKey = analysis.getImageKey();
         if (hasText(base) && hasText(storageKey)) {
-            return joinBaseAndKey(base, storageKey);
+            String normalizedKey = normalizeStorageKey(storageKey);
+            return joinBaseAndKey(base, normalizedKey);
         }
         String storageUri = analysis.getImageUri();
         if (hasText(storageUri)) {
@@ -564,6 +565,22 @@ public class DXFAnalysisService {
         String normalizedBase = base.endsWith("/") ? base.substring(0, base.length() - 1) : base;
         String normalizedKey = key.startsWith("/") ? key.substring(1) : key;
         return normalizedBase + "/" + normalizedKey;
+    }
+
+    /**
+     * Normaliza a chave do storage para aceitar pequenas variações de nomenclatura
+     * (case-insensitive) e a presença/ausência de underscore após NR/CL (ex.: nr119812 -> nr_119812).
+     */
+    private String normalizeStorageKey(String key) {
+        if (!hasText(key)) {
+            return key;
+        }
+        String normalized = key.trim().replace('\\', '/');
+        // Garante lower-case para ser case-insensitive ao montar a URL
+        normalized = normalized.toLowerCase(Locale.ROOT);
+        // Insere underscore entre o prefixo nr/cl e o número, se estiver colado
+        normalized = normalized.replaceAll("(?i)/(nr|cl)(\\d)", "/$1_$2");
+        return normalized;
     }
 
     private boolean hasText(String value) {
