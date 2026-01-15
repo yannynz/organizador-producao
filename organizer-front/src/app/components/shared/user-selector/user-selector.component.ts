@@ -67,7 +67,7 @@ export class UserSelectorComponent implements ControlValueAccessor, OnInit {
     this.triggerChange();
   }
 
-  addManual(event?: KeyboardEvent) {
+  addManual(event?: Event) {
     if (event) {
       event.preventDefault();
     }
