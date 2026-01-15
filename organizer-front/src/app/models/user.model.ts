@@ -13,6 +13,13 @@ export interface User {
   active?: boolean;
 }
 
+export interface AssignableUser {
+  id: number;
+  name: string;
+  role: UserRole;
+  active?: boolean;
+}
+
 export interface AuthResponse {
   token: string;
 }

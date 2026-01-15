@@ -2,10 +2,13 @@ package git.yannynz.organizadorproducao.service;
 
 import git.yannynz.organizadorproducao.domain.user.User;
 import git.yannynz.organizadorproducao.domain.user.UserRepository;
+import git.yannynz.organizadorproducao.domain.user.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,6 +34,17 @@ public class UserService {
     public User create(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return repository.save(user);
+    }
+
+    public List<User> findAssignableUsers(UserRole requesterRole) {
+        EnumSet<UserRole> roles = EnumSet.of(UserRole.OPERADOR, UserRole.ADMIN);
+        if (requesterRole == UserRole.ADMIN || requesterRole == UserRole.DESENHISTA) {
+            roles.add(UserRole.DESENHISTA);
+        }
+        return repository.findByActiveTrueAndRoleIn(roles)
+                .stream()
+                .sorted(Comparator.comparing(User::getName, String.CASE_INSENSITIVE_ORDER))
+                .toList();
     }
 
     public User update(Long id, User userDetails) {

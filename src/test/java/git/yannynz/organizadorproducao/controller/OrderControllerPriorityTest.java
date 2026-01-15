@@ -3,6 +3,7 @@ package git.yannynz.organizadorproducao.controller;
 import git.yannynz.organizadorproducao.model.Order;
 import git.yannynz.organizadorproducao.model.dto.FileCommandDTO;
 import git.yannynz.organizadorproducao.service.FileCommandPublisher;
+import git.yannynz.organizadorproducao.service.OrderHistoryService;
 import git.yannynz.organizadorproducao.service.OrderService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,6 +28,9 @@ public class OrderControllerPriorityTest {
 
     @Mock
     private FileCommandPublisher fileCommandPublisher;
+
+    @Mock
+    private OrderHistoryService orderHistoryService;
 
     @InjectMocks
     private OrderController orderController;

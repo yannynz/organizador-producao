@@ -1,6 +1,23 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { EMPTY } from 'rxjs';
 
 import { DeliveredListComponent } from './delivered-list.component';
+import { WebsocketService } from '../../../../services/websocket.service';
+
+class MockWebsocketService {
+  watchOrders() {
+    return EMPTY;
+  }
+
+  watchPriorities() {
+    return EMPTY;
+  }
+
+  watchDxfAnalysis() {
+    return EMPTY;
+  }
+}
 
 describe('DeliveredListComponent', () => {
   let component: DeliveredListComponent;
@@ -8,7 +25,8 @@ describe('DeliveredListComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DeliveredListComponent]
+      imports: [DeliveredListComponent, HttpClientTestingModule],
+      providers: [{ provide: WebsocketService, useClass: MockWebsocketService }],
     })
     .compileComponents();
     

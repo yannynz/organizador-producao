@@ -23,6 +23,27 @@
     </ul>
   </div>
 
+  <!-- Manual Add -->
+  <div class="manual-input input-group input-group-sm" *ngIf="allowManual && !disabled">
+    <input
+      type="text"
+      class="form-control"
+      [(ngModel)]="manualName"
+      [ngModelOptions]="{ standalone: true }"
+      placeholder="Adicionar nome"
+      aria-label="Adicionar nome"
+      (keydown.enter)="addManual($event)"
+    >
+    <button
+      class="btn btn-outline-secondary"
+      type="button"
+      (click)="addManual()"
+      [disabled]="manualName.trim().length < 2"
+    >
+      Adicionar
+    </button>
+  </div>
+
   <!-- Placeholder if empty -->
   <span *ngIf="selectedNames.length === 0" class="text-muted small ms-1">{{ placeholder }}</span>
 </div>

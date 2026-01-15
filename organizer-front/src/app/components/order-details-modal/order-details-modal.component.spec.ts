@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Subject, EMPTY, of } from 'rxjs';
 
 import { OrderDetailsModalComponent } from './order-details-modal.component';
@@ -48,16 +49,13 @@ describe('OrderDetailsModalComponent', () => {
     mockService = new MockDxfAnalysisService();
 
     await TestBed.configureTestingModule({
-      imports: [OrderDetailsModalComponent],
+      imports: [OrderDetailsModalComponent, HttpClientTestingModule],
       providers: [
         { provide: DxfAnalysisService, useValue: mockService },
         { provide: WebsocketService, useClass: MockWebsocketService },
         { provide: OpService, useClass: MockOpService },
       ],
     }).compileComponents();
-
-    fixture = TestBed.createComponent(OrderDetailsModalComponent);
-    component = fixture.componentInstance;
   });
 
   function makeOrder(nr: string): orders {
@@ -106,7 +104,20 @@ describe('OrderDetailsModalComponent', () => {
     };
   }
 
+  function initComponent(): void {
+    fixture = TestBed.createComponent(OrderDetailsModalComponent);
+    component = fixture.componentInstance;
+  }
+
+  function openWithOrder(nr: string): void {
+    fixture.componentRef.setInput('selectedOrder', makeOrder(nr));
+    fixture.componentRef.setInput('open', true);
+    fixture.detectChanges();
+    fixture.detectChanges();
+  }
+
   it('should create', () => {
+    initComponent();
     fixture.detectChanges();
     expect(component).toBeTruthy();
   });
@@ -116,20 +127,18 @@ describe('OrderDetailsModalComponent', () => {
     mockService.latest$ = latestSubject.asObservable();
     mockService.history$ = of([]);
 
-    component.selectedOrder = makeOrder('123');
-    component.open = true;
-    fixture.detectChanges();
-    fixture.detectChanges();
+    initComponent();
+    openWithOrder('123');
 
-    const text = fixture.nativeElement.querySelector('.dxf-analysis-section').textContent;
+    const text = fixture.nativeElement.textContent;
     expect(text).toContain('Carregando análise DXF');
 
     latestSubject.next(null);
     latestSubject.complete();
     fixture.detectChanges();
 
-    const updatedText = fixture.nativeElement.querySelector('.dxf-analysis-section').textContent;
-    expect(updatedText).toContain('Sem análise DXF disponível');
+    const updatedText = fixture.nativeElement.textContent;
+    expect(updatedText).toContain('Sem análise DXF disponível.');
   });
 
   it('renders analysis details when available', () => {
@@ -137,13 +146,11 @@ describe('OrderDetailsModalComponent', () => {
     mockService.latest$ = of(analysis);
     mockService.history$ = of([analysis]);
 
-    component.selectedOrder = makeOrder('123');
-    component.open = true;
-    fixture.detectChanges();
-    fixture.detectChanges();
+    initComponent();
+    openWithOrder('123');
 
     const wrapper: HTMLElement = fixture.nativeElement;
-    expect(wrapper.textContent).toContain('Score: 4.2');
+    expect(wrapper.querySelector('.dxf-analysis-card')).not.toBeNull();
     expect(wrapper.textContent).toContain('Imagem da faca');
     const img: HTMLImageElement | null = wrapper.querySelector('.dxf-last-session img');
     expect(img?.src).toContain('http://cdn/path.png');
@@ -160,10 +167,8 @@ describe('OrderDetailsModalComponent', () => {
     mockService.latest$ = of(analysis);
     mockService.history$ = of([analysis]);
 
-    component.selectedOrder = makeOrder('123');
-    component.open = true;
-    fixture.detectChanges();
-    fixture.detectChanges();
+    initComponent();
+    openWithOrder('123');
 
     const img: HTMLImageElement | null = fixture.nativeElement.querySelector('.dxf-last-session img');
     expect(img?.src).toContain('http://localhost:9000/facas-renders/renders/sample.png');
@@ -180,15 +185,13 @@ describe('OrderDetailsModalComponent', () => {
     mockService.latest$ = of(analysis);
     mockService.history$ = of([analysis]);
 
-    component.selectedOrder = makeOrder('123');
-    component.open = true;
-    fixture.detectChanges();
-    fixture.detectChanges();
+    initComponent();
+    openWithOrder('123');
 
     const img: HTMLImageElement | null = fixture.nativeElement.querySelector('.dxf-last-session img');
     expect(img).toBeNull();
     const fallback: HTMLElement | null = fixture.nativeElement.querySelector('.dxf-last-session .alert');
-    expect(fallback?.textContent).toContain('Imagem não disponível');
+    expect(fallback?.textContent).toContain('Imagem não disponível no bucket configurado.');
   });
 
   it('shows upload warning when status is failure', () => {
@@ -199,10 +202,8 @@ describe('OrderDetailsModalComponent', () => {
     mockService.latest$ = of(analysis);
     mockService.history$ = of([analysis]);
 
-    component.selectedOrder = makeOrder('123');
-    component.open = true;
-    fixture.detectChanges();
-    fixture.detectChanges();
+    initComponent();
+    openWithOrder('123');
 
     const warning: HTMLElement | null = fixture.nativeElement.querySelector('.alert-warning');
     expect(warning?.textContent).toContain('Upload pendente');

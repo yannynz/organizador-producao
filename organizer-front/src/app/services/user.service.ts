@@ -2,7 +2,7 @@ import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../enviroment';
-import { User } from '../models/user.model';
+import { AssignableUser, User } from '../models/user.model';
 import { isPlatformBrowser } from '@angular/common';
 
 @Injectable({
@@ -18,6 +18,10 @@ export class UserService {
 
   getAll(): Observable<User[]> {
     return this.http.get<User[]>(this.apiUrl);
+  }
+
+  getAssignableUsers(): Observable<AssignableUser[]> {
+    return this.http.get<AssignableUser[]>(`${this.apiUrl}/assignable`);
   }
 
   getById(id: number): Observable<User> {

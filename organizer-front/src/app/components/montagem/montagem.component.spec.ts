@@ -28,7 +28,7 @@ describe('MontagemComponent', () => {
     user$: of({ name: 'Tester', role: 'ADMIN' })
   };
   const userServiceMock = {
-    getAll: jasmine.createSpy('getAll').and.returnValue(of([]))
+    getAssignableUsers: jasmine.createSpy('getAssignableUsers').and.returnValue(of([]))
   };
   const opServiceMock = {
     getOpByNr: jasmine.createSpy('getOpByNr').and.returnValue(of(null))

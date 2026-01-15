@@ -10,7 +10,7 @@ import { DxfAnalysisService } from '../../services/dxf-analysis.service';
 import { DxfAnalysis } from '../../models/dxf-analysis';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
-import { User, UserRole } from '../../models/user.model';
+import { AssignableUser, User } from '../../models/user.model';
 import { UserSelectorComponent } from '../shared/user-selector/user-selector.component';
 import { OpService } from '../../services/op.service';
 
@@ -32,7 +32,7 @@ export class RubberComponent implements OnInit {
   paraBorracha: orders[] = [];
   filteredParaBorracha: orders[] = [];
   searchTerm: string = '';
-  users: User[] = [];
+  users: AssignableUser[] = [];
 
   expandedNr: string | null = null;
   imageUrls: { [key: string]: string } = {};
@@ -161,18 +161,18 @@ export class RubberComponent implements OnInit {
   }
 
   private loadUsersForRole(user: User | null) {
-      if (!user) { return; }
-      if (user.role === UserRole.ADMIN || user.role === UserRole.DESENHISTA) {
-          this.userService.getAll().subscribe(users => {
-              this.users = users.filter(u => 
-                u.active !== false && 
-                (u.role === UserRole.OPERADOR || u.role === UserRole.ADMIN || u.role === UserRole.DESENHISTA)
-              );
-          });
-      } else {
-          // Operador não carrega todos os usuários para evitar 403; usa apenas o próprio.
-          this.users = [user];
+      if (!user) {
+        this.users = [];
+        return;
       }
+      this.userService.getAssignableUsers().subscribe({
+        next: users => {
+          this.users = users;
+        },
+        error: () => {
+          this.users = [user];
+        }
+      });
   }
 
 

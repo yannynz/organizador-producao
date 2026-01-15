@@ -4,6 +4,7 @@ import git.yannynz.organizadorproducao.domain.user.User;
 import git.yannynz.organizadorproducao.domain.user.UserRole;
 import git.yannynz.organizadorproducao.model.Order;
 import git.yannynz.organizadorproducao.service.OpImportService;
+import git.yannynz.organizadorproducao.service.OrderHistoryService;
 import git.yannynz.organizadorproducao.service.OrderService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,6 +32,9 @@ class OrderControllerDeliveryLockTest {
 
     @Mock
     private OpImportService opImportService;
+
+    @Mock
+    private OrderHistoryService orderHistoryService;
 
     @InjectMocks
     private OrderController orderController;

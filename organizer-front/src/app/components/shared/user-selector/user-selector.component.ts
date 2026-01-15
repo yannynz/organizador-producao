@@ -1,12 +1,12 @@
 import { Component, Input, forwardRef, OnInit } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { User } from '../../../models/user.model';
+import { AssignableUser } from '../../../models/user.model';
 
 @Component({
   selector: 'app-user-selector',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './user-selector.component.html',
   styleUrls: ['./user-selector.component.css'],
   providers: [
@@ -18,11 +18,13 @@ import { User } from '../../../models/user.model';
   ]
 })
 export class UserSelectorComponent implements ControlValueAccessor, OnInit {
-  @Input() availableUsers: User[] = [];
+  @Input() availableUsers: AssignableUser[] = [];
   @Input() placeholder: string = 'Selecionar responsável';
+  @Input() allowManual: boolean = false;
 
   selectedNames: string[] = [];
   disabled = false;
+  manualName = '';
 
   onChange: any = () => {};
   onTouched: any = () => {};
@@ -52,15 +54,32 @@ export class UserSelectorComponent implements ControlValueAccessor, OnInit {
 
   // Actions
   addName(name: string) {
-    if (!this.selectedNames.includes(name)) {
-      this.selectedNames.push(name);
-      this.triggerChange();
+    const cleaned = name.trim();
+    if (cleaned.length < 2 || this.hasName(cleaned)) {
+      return;
     }
+    this.selectedNames.push(cleaned);
+    this.triggerChange();
   }
 
   removeName(name: string) {
     this.selectedNames = this.selectedNames.filter(n => n !== name);
     this.triggerChange();
+  }
+
+  addManual(event?: KeyboardEvent) {
+    if (event) {
+      event.preventDefault();
+    }
+    if (!this.allowManual || this.disabled) {
+      return;
+    }
+    const cleaned = this.manualName.trim();
+    if (cleaned.length < 2) {
+      return;
+    }
+    this.addName(cleaned);
+    this.manualName = '';
   }
 
   private triggerChange() {
@@ -69,7 +88,13 @@ export class UserSelectorComponent implements ControlValueAccessor, OnInit {
     this.onTouched();
   }
 
-  get unselectedUsers(): User[] {
-    return this.availableUsers.filter(u => !this.selectedNames.includes(u.name));
+  private hasName(name: string): boolean {
+    const target = name.toLowerCase();
+    return this.selectedNames.some(n => n.toLowerCase() === target);
+  }
+
+  get unselectedUsers(): AssignableUser[] {
+    const selected = new Set(this.selectedNames.map(n => n.toLowerCase()));
+    return this.availableUsers.filter(u => !selected.has(u.name.toLowerCase()));
   }
 }

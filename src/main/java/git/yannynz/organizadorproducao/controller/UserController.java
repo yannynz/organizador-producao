@@ -1,12 +1,16 @@
 package git.yannynz.organizadorproducao.controller;
 
 import git.yannynz.organizadorproducao.domain.user.User;
+import git.yannynz.organizadorproducao.domain.user.UserRole;
+import git.yannynz.organizadorproducao.model.dto.AssignableUserDTO;
 import git.yannynz.organizadorproducao.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/users")
@@ -14,6 +18,23 @@ import java.util.List;
 public class UserController {
 
     private final UserService service;
+
+    @GetMapping("/assignable")
+    public ResponseEntity<List<AssignableUserDTO>> getAssignable(Authentication auth) {
+        UserRole requesterRole = Optional.ofNullable(auth)
+                .map(Authentication::getPrincipal)
+                .filter(User.class::isInstance)
+                .map(User.class::cast)
+                .map(User::getRole)
+                .orElse(null);
+
+        List<AssignableUserDTO> users = service.findAssignableUsers(requesterRole)
+                .stream()
+                .map(user -> new AssignableUserDTO(user.getId(), user.getName(), user.getRole()))
+                .toList();
+
+        return ResponseEntity.ok(users);
+    }
 
     @GetMapping
     public ResponseEntity<List<User>> getAll() {

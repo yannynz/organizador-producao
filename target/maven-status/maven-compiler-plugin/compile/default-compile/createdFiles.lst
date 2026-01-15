@@ -70,6 +70,7 @@ git/yannynz/organizadorproducao/model/dto/DXFAnalysisRequestResponse.class
 git/yannynz/organizadorproducao/controller/auth/ResetPasswordRequest$ResetPasswordRequestBuilder.class
 git/yannynz/organizadorproducao/config/AsyncConfig.class
 git/yannynz/organizadorproducao/controller/AuthenticationController.class
+git/yannynz/organizadorproducao/model/dto/AssignableUserDTO.class
 git/yannynz/organizadorproducao/service/DXFAnalysisService.class
 git/yannynz/organizadorproducao/service/UserService.class
 git/yannynz/organizadorproducao/monitoring/MessageProcessingMetrics$ThrowingRunnable.class

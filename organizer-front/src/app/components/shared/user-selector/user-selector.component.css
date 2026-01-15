@@ -20,6 +20,11 @@
     justify-content: center;
 }
 
+.manual-input {
+    min-width: 200px;
+    max-width: 260px;
+}
+
 .user-selector-container.disabled {
     background-color: #e9ecef !important;
     opacity: 0.65;

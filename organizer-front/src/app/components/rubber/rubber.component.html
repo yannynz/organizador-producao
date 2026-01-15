@@ -29,7 +29,8 @@
         </label>
         <app-user-selector 
             formControlName="emborrachador" 
-            [availableUsers]="users" 
+            [availableUsers]="users"
+            [allowManual]="true"
             placeholder="Selecione ou aguarde auto-preenchimento">
         </app-user-selector>
         <div class="form-text mt-2">
