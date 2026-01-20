@@ -1,1 +1,0 @@
-ALTER TABLE clientes ADD COLUMN telefone VARCHAR(60);

@@ -568,19 +568,16 @@ public class DXFAnalysisService {
     }
 
     /**
-     * Normaliza a chave do storage para aceitar pequenas variações de nomenclatura
-     * (case-insensitive) e a presença/ausência de underscore após NR/CL (ex.: nr119812 -> nr_119812).
+     * Normaliza a chave do storage para garantir o formato correto da URL.
+     * Removemos a normalização agressiva (lower-case + underscore) pois o MinIO é case-sensitive
+     * e devemos respeitar o nome exato do arquivo gerado pelo FileWatcherApp.
      */
     private String normalizeStorageKey(String key) {
         if (!hasText(key)) {
             return key;
         }
-        String normalized = key.trim().replace('\\', '/');
-        // Garante lower-case para ser case-insensitive ao montar a URL
-        normalized = normalized.toLowerCase(Locale.ROOT);
-        // Insere underscore entre o prefixo nr/cl e o número, se estiver colado
-        normalized = normalized.replaceAll("(?i)/(nr|cl)(\\d)", "/$1_$2");
-        return normalized;
+        // Apenas padroniza separadores de diretório
+        return key.trim().replace('\\', '/');
     }
 
     private boolean hasText(String value) {
