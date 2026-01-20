@@ -14,6 +14,8 @@ import { OrderService } from '../../services/orders.service';
 import { DxfAnalysisService } from '../../services/dxf-analysis.service';
 import { AuthService } from '../../services/auth.service';
 import { User, UserRole } from '../../models/user.model';
+import { DxfAnalysis } from '../../models/dxf-analysis';
+import { environment } from '../../enviroment';
 
 @Component({
   selector: 'app-orders',
@@ -34,6 +36,8 @@ export class OrdersComponent implements OnInit, OnDestroy {
   imageUrls: { [key: string]: string } = {};
   loadingImage: { [key: string]: boolean } = {};
   currentUser: User | null = null;
+  
+  private readonly imagePublicBaseUrl = environment.imagePublicBaseUrl;
 
 
   constructor(
@@ -313,8 +317,9 @@ export class OrdersComponent implements OnInit, OnDestroy {
     this.loadingImage[nr] = true;
     this.dxfAnalysisService.getLatestByOrder(nr).subscribe({
       next: (analysis) => {
-        if (analysis && analysis.imageUrl) {
-          this.imageUrls[nr] = analysis.imageUrl;
+        if (analysis) {
+          const resolved = this.resolvePublicImageUrl(analysis);
+          this.imageUrls[nr] = resolved || '';
         } else {
           this.imageUrls[nr] = ''; // Marca como sem imagem
         }
@@ -325,5 +330,39 @@ export class OrdersComponent implements OnInit, OnDestroy {
         this.loadingImage[nr] = false;
       }
     });
+  }
+
+  private resolvePublicImageUrl(analysis: DxfAnalysis): string | null {
+    // 1. Tenta usar URLs diretas (imageUri ou imageUrl)
+    const candidates = [analysis.imageUri, analysis.imageUrl];
+    for (const c of candidates) {
+      if (c && c.trim()) {
+        const trimmed = c.trim();
+        // Se for data URI ou http/https, usa direto
+        if (trimmed.startsWith('data:') || trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+          return trimmed;
+        }
+        // Se começar com //, adiciona protocolo (assume https se não detectar window)
+        if (trimmed.startsWith('//')) {
+           return `https:${trimmed}`;
+        }
+        // Se for relativo/outro, retorna (pode ser relativo à raiz)
+        return trimmed;
+      }
+    }
+
+    // 2. Tenta construir a partir do bucket/key
+    if (this.imagePublicBaseUrl && analysis.imageKey) {
+      const base = this.normalizeBaseUrl(this.imagePublicBaseUrl);
+      const key = analysis.imageKey.startsWith('/') ? analysis.imageKey.substring(1) : analysis.imageKey;
+      return `${base}/${key}`;
+    }
+
+    return null;
+  }
+
+  private normalizeBaseUrl(value: string): string {
+    const trimmed = value.trim();
+    return trimmed.endsWith('/') ? trimmed.slice(0, -1) : trimmed;
   }
 }
