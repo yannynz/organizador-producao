@@ -53,7 +53,7 @@ Os requisitos foram mapeados com base nos repositórios locais, documentação e
    - Imagem (path, width, height) e metadados de upload (bucket, key, uri, checksum, size, contentType, status, message, uploadedAt, etag).
    - Flags `cacheHit`, `raw_payload`, `explanations`.
 2. **API**:
-   - `GET /api/dxf-analysis/order/{nr}` → último registro.
+   - `GET /api/dxf-analysis/order/{nr}` → último registro **com imagem válida** quando houver (fallback para o último sem imagem).
    - `GET /history?limit` → lista (1..25).
    - `GET /{analysisId}` → view.
    - `GET /{analysisId}/image` → redireciona para `imageUrl` (base `app.dxf.analysis.image-base-url`) ou responde 404.

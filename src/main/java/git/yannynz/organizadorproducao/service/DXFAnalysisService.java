@@ -10,6 +10,7 @@ import git.yannynz.organizadorproducao.repository.OrderRepository;
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -211,22 +212,42 @@ public class DXFAnalysisService {
         if (orderNr == null || orderNr.isBlank()) {
             return Optional.empty();
         }
-        String normalized = normalizeOrderNumber(orderNr);
-        if (hasText(normalized)) {
-            Optional<DXFAnalysis> byNormalized = analysisRepository.findTopByOrderNrOrderByAnalyzedAtDesc(normalized);
-            if (byNormalized.isPresent()) {
-                return byNormalized;
+        List<String> candidates = buildOrderCandidates(orderNr);
+        DXFAnalysis latest = null;
+        for (String candidate : candidates) {
+            Optional<DXFAnalysis> found = analysisRepository.findTopByOrderNrOrderByAnalyzedAtDesc(candidate);
+            if (found.isEmpty()) {
+                continue;
             }
-            Optional<DXFAnalysis> withNrPrefix = analysisRepository.findTopByOrderNrOrderByAnalyzedAtDesc("NR" + normalized);
-            if (withNrPrefix.isPresent()) {
-                return withNrPrefix;
-            }
-            Optional<DXFAnalysis> withClPrefix = analysisRepository.findTopByOrderNrOrderByAnalyzedAtDesc("CL" + normalized);
-            if (withClPrefix.isPresent()) {
-                return withClPrefix;
+            DXFAnalysis current = found.get();
+            if (latest == null || isAfter(current.getAnalyzedAt(), latest.getAnalyzedAt())) {
+                latest = current;
             }
         }
-        return analysisRepository.findTopByOrderNrOrderByAnalyzedAtDesc(orderNr.trim());
+
+        if (latest != null && hasImage(latest)) {
+            return Optional.of(latest);
+        }
+
+        DXFAnalysis latestWithImage = null;
+        for (String candidate : candidates) {
+            List<DXFAnalysis> history = analysisRepository.findByOrderNrOrderByAnalyzedAtDesc(candidate, PageRequest.of(0, 10));
+            for (DXFAnalysis item : history) {
+                if (!hasImage(item)) {
+                    continue;
+                }
+                if (latestWithImage == null || isAfter(item.getAnalyzedAt(), latestWithImage.getAnalyzedAt())) {
+                    latestWithImage = item;
+                }
+                break;
+            }
+        }
+
+        if (latestWithImage != null) {
+            return Optional.of(latestWithImage);
+        }
+
+        return Optional.ofNullable(latest);
     }
 
     public Optional<DXFAnalysis> findByAnalysisId(String analysisId) {
@@ -582,5 +603,54 @@ public class DXFAnalysisService {
 
     private boolean hasText(String value) {
         return value != null && !value.isBlank();
+    }
+
+    private List<String> buildOrderCandidates(String orderNr) {
+        List<String> candidates = new ArrayList<>();
+        String normalized = normalizeOrderNumber(orderNr);
+        if (hasText(normalized)) {
+            candidates.add(normalized);
+            candidates.add("NR" + normalized);
+            candidates.add("CL" + normalized);
+        }
+        String trimmed = orderNr.trim();
+        if (hasText(trimmed) && !candidates.contains(trimmed)) {
+            candidates.add(trimmed);
+        }
+        return candidates;
+    }
+
+    private boolean hasImage(DXFAnalysis analysis) {
+        if (analysis == null) {
+            return false;
+        }
+        if (!hasText(analysis.getImageKey())
+                && !hasText(analysis.getImageUri())
+                && !hasText(analysis.getImagePath())) {
+            return false;
+        }
+
+        String status = analysis.getImageUploadStatus();
+        if (hasText(status)) {
+            String normalized = status.trim().toLowerCase(Locale.ROOT);
+            return normalized.equals("uploaded") || normalized.equals("exists");
+        }
+
+        Long sizeBytes = analysis.getImageSizeBytes();
+        if (sizeBytes != null && sizeBytes > 0) {
+            return true;
+        }
+
+        return hasText(analysis.getImageUri()) || hasText(analysis.getImagePath());
+    }
+
+    private boolean isAfter(OffsetDateTime candidate, OffsetDateTime reference) {
+        if (candidate == null) {
+            return false;
+        }
+        if (reference == null) {
+            return true;
+        }
+        return candidate.isAfter(reference);
     }
 }
