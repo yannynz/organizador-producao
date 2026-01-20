@@ -1,11 +1,11 @@
-FROM public.ecr.aws/docker/library/node:18-alpine AS build
+FROM public.ecr.aws/docker/library/node:18-slim AS build
 
 # Configurar o fuso horário para São Paulo
 ENV TZ=America/Sao_Paulo
-RUN apk add --no-cache tzdata && \
+RUN apt-get update && apt-get install -y tzdata && \
     cp /usr/share/zoneinfo/$TZ /etc/localtime && \
     echo $TZ > /etc/timezone && \
-    apk del tzdata
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
