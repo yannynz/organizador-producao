@@ -29,12 +29,13 @@ class OpImportServiceMaterialsTest {
     private ObjectMapper mapper = new ObjectMapper(); // Use real mapper for JSON logic
     @Mock private SimpMessagingTemplate ws;
     @Mock private ClienteAutoEnrichmentService clienteAuto;
+    @Mock private ClienteDefaultsService clienteDefaultsService;
 
     private OpImportService service;
 
     @BeforeEach
     void setUp() {
-        service = new OpImportService(opImportRepo, orderRepo, mapper, ws, clienteAuto);
+        service = new OpImportService(opImportRepo, orderRepo, mapper, ws, clienteAuto, clienteDefaultsService);
     }
 
     @Test

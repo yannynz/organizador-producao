@@ -66,6 +66,33 @@
                 </div>
              </div>
 
+             <h6 class="text-primary mt-4 mb-3"><i class="bi bi-tags"></i> Padrões das Facas</h6>
+             <div class="mb-2">
+               <label class="form-label">Destacador Padrão</label>
+               <select class="form-select form-select-sm" [(ngModel)]="cliente.defaultDestacador">
+                 <option [ngValue]="''">Nenhum</option>
+                 <option value="M">M</option>
+                 <option value="F">F</option>
+                 <option value="MF">M/F</option>
+               </select>
+             </div>
+             <div class="form-check">
+               <input class="form-check-input" type="checkbox" [(ngModel)]="cliente.defaultEmborrachada" id="defaultEmborrachada">
+               <label class="form-check-label" for="defaultEmborrachada">Emborrachada</label>
+             </div>
+             <div class="form-check">
+               <input class="form-check-input" type="checkbox" [(ngModel)]="cliente.defaultPertinax" id="defaultPertinax">
+               <label class="form-check-label" for="defaultPertinax">Pertinax</label>
+             </div>
+             <div class="form-check">
+               <input class="form-check-input" type="checkbox" [(ngModel)]="cliente.defaultPoliester" id="defaultPoliester">
+               <label class="form-check-label" for="defaultPoliester">Poliéster</label>
+             </div>
+             <div class="form-check">
+               <input class="form-check-input" type="checkbox" [(ngModel)]="cliente.defaultPapelCalibrado" id="defaultPapelCalibrado">
+               <label class="form-check-label" for="defaultPapelCalibrado">Papel Calibrado</label>
+             </div>
+
              <div class="form-check mt-3">
                 <input class="form-check-input" type="checkbox" [(ngModel)]="cliente.ativo" id="ativoCheck">
                 <label class="form-check-label" for="ativoCheck">Cadastro Ativo</label>

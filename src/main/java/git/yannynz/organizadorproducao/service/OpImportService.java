@@ -30,14 +30,16 @@ public class OpImportService {
     private final Logger log = LoggerFactory.getLogger(OpImportService.class);
 
     private final ClienteAutoEnrichmentService clienteAuto;
+    private final ClienteDefaultsService clienteDefaultsService;
 
     public OpImportService(OpImportRepository repo, OrderRepository orderRepo, ObjectMapper mapper,
-            SimpMessagingTemplate ws, ClienteAutoEnrichmentService clienteAuto) {
+            SimpMessagingTemplate ws, ClienteAutoEnrichmentService clienteAuto, ClienteDefaultsService clienteDefaultsService) {
         this.repo = repo;
         this.orderRepo = orderRepo;
         this.mapper = mapper;
         this.ws = ws;
         this.clienteAuto = clienteAuto;
+        this.clienteDefaultsService = clienteDefaultsService;
     }
 
     // ---- WS helpers ----
@@ -317,9 +319,13 @@ public class OpImportService {
             
             // Propagate enriched client info
             if (op.getClienteRef() != null) {
-                if (order.getClienteRef() == null) {
+                boolean clienteWasMissing = order.getClienteRef() == null;
+                if (clienteWasMissing) {
                     order.setClienteRef(op.getClienteRef());
                     orderUpdated = true;
+                    if (clienteDefaultsService.applyDefaults(order, op.getClienteRef())) {
+                        orderUpdated = true;
+                    }
                 }
                 // Se o cliente tem transportadora padrão definida e o pedido ainda não tem, preenche
                 if (op.getClienteRef().getTransportadora() != null && order.getTransportadora() == null) {
@@ -539,9 +545,13 @@ public class OpImportService {
 
                 // Sincroniza Cliente/Transportadora/Endereco se ausente no pedido
                 if (op.getClienteRef() != null) {
-                    if (order.getClienteRef() == null) {
+                    boolean clienteWasMissing = order.getClienteRef() == null;
+                    if (clienteWasMissing) {
                         order.setClienteRef(op.getClienteRef());
                         orderUpdated = true;
+                        if (clienteDefaultsService.applyDefaults(order, op.getClienteRef())) {
+                            orderUpdated = true;
+                        }
                     }
                     if (op.getClienteRef().getTransportadora() != null && order.getTransportadora() == null) {
                         order.setTransportadora(op.getClienteRef().getTransportadora());

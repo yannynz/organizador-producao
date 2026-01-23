@@ -35,6 +35,19 @@ public class ClienteService {
             throw new IllegalArgumentException("Nome oficial é obrigatório");
         }
         cliente.setNomeNormalizado(normalize(cliente.getNomeOficial()));
+
+        if (cliente.getDefaultEmborrachada() == null) {
+            cliente.setDefaultEmborrachada(false);
+        }
+        if (cliente.getDefaultPertinax() == null) {
+            cliente.setDefaultPertinax(false);
+        }
+        if (cliente.getDefaultPoliester() == null) {
+            cliente.setDefaultPoliester(false);
+        }
+        if (cliente.getDefaultPapelCalibrado() == null) {
+            cliente.setDefaultPapelCalibrado(false);
+        }
         
         if (cliente.getTransportadoraId() != null) {
             transportadoraRepo.findById(cliente.getTransportadoraId())
@@ -56,6 +69,12 @@ public class ClienteService {
             if (update.getHorarioFuncionamento() != null) existing.setHorarioFuncionamento(update.getHorarioFuncionamento());
             if (update.getObservacoes() != null) existing.setObservacoes(update.getObservacoes());
             if (update.getAtivo() != null) existing.setAtivo(update.getAtivo());
+
+            if (update.getDefaultEmborrachada() != null) existing.setDefaultEmborrachada(update.getDefaultEmborrachada());
+            if (update.getDefaultDestacador() != null) existing.setDefaultDestacador(update.getDefaultDestacador());
+            if (update.getDefaultPertinax() != null) existing.setDefaultPertinax(update.getDefaultPertinax());
+            if (update.getDefaultPoliester() != null) existing.setDefaultPoliester(update.getDefaultPoliester());
+            if (update.getDefaultPapelCalibrado() != null) existing.setDefaultPapelCalibrado(update.getDefaultPapelCalibrado());
             
             if (update.getTransportadoraId() != null) {
                  if (update.getTransportadoraId() == -1) { // Special value to clear? Or just nullable.

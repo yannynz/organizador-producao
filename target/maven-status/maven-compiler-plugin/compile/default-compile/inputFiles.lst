@@ -72,6 +72,7 @@
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/repository/TransportadoraRepository.java
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/service/AuthenticationService.java
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/service/ClienteAutoEnrichmentService.java
+/home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/service/ClienteDefaultsService.java
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/service/ClienteService.java
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/service/DXFAnalysisRequestPublisher.java
 /home/ynz/Documents/organizador-producao/src/main/java/git/yannynz/organizadorproducao/service/DXFAnalysisResultListener.java

@@ -32,5 +32,10 @@ export interface Cliente {
   manualLockMask?: number;
   transportadoraId?: number;
   transportadoraName?: string;
+  defaultEmborrachada?: boolean;
+  defaultDestacador?: string;
+  defaultPertinax?: boolean;
+  defaultPoliester?: boolean;
+  defaultPapelCalibrado?: boolean;
   enderecos?: ClienteEndereco[];
 }

@@ -7,6 +7,7 @@ git/yannynz/organizadorproducao/model/ClienteEndereco.class
 git/yannynz/organizadorproducao/model/dto/DXFAnalysisRequestDTO.class
 git/yannynz/organizadorproducao/model/dto/FileCommandDTO$FileCommandDTOBuilder.class
 git/yannynz/organizadorproducao/service/DestacadorMonitorService.class
+git/yannynz/organizadorproducao/service/ClienteDefaultsService.class
 git/yannynz/organizadorproducao/domain/user/User.class
 git/yannynz/organizadorproducao/repository/OpImportRepository.class
 git/yannynz/organizadorproducao/config/JpaAuditingConfig.class

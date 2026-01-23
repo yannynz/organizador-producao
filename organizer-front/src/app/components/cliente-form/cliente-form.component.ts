@@ -37,6 +37,21 @@ export class ClienteFormComponent implements OnInit {
     if (!this.cliente.enderecos) {
       this.cliente.enderecos = [];
     }
+    if (this.cliente.defaultEmborrachada == null) {
+      this.cliente.defaultEmborrachada = false;
+    }
+    if (this.cliente.defaultPertinax == null) {
+      this.cliente.defaultPertinax = false;
+    }
+    if (this.cliente.defaultPoliester == null) {
+      this.cliente.defaultPoliester = false;
+    }
+    if (this.cliente.defaultPapelCalibrado == null) {
+      this.cliente.defaultPapelCalibrado = false;
+    }
+    if (this.cliente.defaultDestacador == null) {
+      this.cliente.defaultDestacador = '';
+    }
   }
 
   addEndereco() {

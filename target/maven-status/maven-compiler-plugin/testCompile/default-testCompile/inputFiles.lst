@@ -6,6 +6,7 @@
 /home/ynz/Documents/organizador-producao/src/test/java/git/yannynz/organizadorproducao/controller/UserControllerMeTest.java
 /home/ynz/Documents/organizador-producao/src/test/java/git/yannynz/organizadorproducao/service/AuthenticationServiceTest.java
 /home/ynz/Documents/organizador-producao/src/test/java/git/yannynz/organizadorproducao/service/ClienteAutoEnrichmentServiceTest.java
+/home/ynz/Documents/organizador-producao/src/test/java/git/yannynz/organizadorproducao/service/ClienteDefaultsServiceTest.java
 /home/ynz/Documents/organizador-producao/src/test/java/git/yannynz/organizadorproducao/service/DXFAnalysisRequestPublisherTest.java
 /home/ynz/Documents/organizador-producao/src/test/java/git/yannynz/organizadorproducao/service/DXFAnalysisServiceTest.java
 /home/ynz/Documents/organizador-producao/src/test/java/git/yannynz/organizadorproducao/service/FileWatcherServicePriorityTest.java

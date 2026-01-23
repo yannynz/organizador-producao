@@ -57,6 +57,21 @@ public class Cliente {
   @Column(name = "manual_lock_mask")
   private Short manualLockMask;
 
+  @Column(name = "default_emborrachada", nullable = false)
+  private Boolean defaultEmborrachada = false;
+
+  @Column(name = "default_destacador", length = 10)
+  private String defaultDestacador;
+
+  @Column(name = "default_pertinax", nullable = false)
+  private Boolean defaultPertinax = false;
+
+  @Column(name = "default_poliester", nullable = false)
+  private Boolean defaultPoliester = false;
+
+  @Column(name = "default_papel_calibrado", nullable = false)
+  private Boolean defaultPapelCalibrado = false;
+
   @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   private java.util.List<ClienteEndereco> enderecos;
 
@@ -127,6 +142,21 @@ public class Cliente {
 
   public Short getManualLockMask() { return manualLockMask; }
   public void setManualLockMask(Short manualLockMask) { this.manualLockMask = manualLockMask; }
+
+  public Boolean getDefaultEmborrachada() { return defaultEmborrachada; }
+  public void setDefaultEmborrachada(Boolean defaultEmborrachada) { this.defaultEmborrachada = defaultEmborrachada; }
+
+  public String getDefaultDestacador() { return defaultDestacador; }
+  public void setDefaultDestacador(String defaultDestacador) { this.defaultDestacador = defaultDestacador; }
+
+  public Boolean getDefaultPertinax() { return defaultPertinax; }
+  public void setDefaultPertinax(Boolean defaultPertinax) { this.defaultPertinax = defaultPertinax; }
+
+  public Boolean getDefaultPoliester() { return defaultPoliester; }
+  public void setDefaultPoliester(Boolean defaultPoliester) { this.defaultPoliester = defaultPoliester; }
+
+  public Boolean getDefaultPapelCalibrado() { return defaultPapelCalibrado; }
+  public void setDefaultPapelCalibrado(Boolean defaultPapelCalibrado) { this.defaultPapelCalibrado = defaultPapelCalibrado; }
 
   @Transient
   private Long transportadoraId;

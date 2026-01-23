@@ -32,6 +32,9 @@ public class FileWatcherService {
     @Autowired
     private MessageProcessingMetrics messageProcessingMetrics;
 
+    @Autowired
+    private ClienteDefaultsService clienteDefaultsService;
+
     /**
      * Ouve mensagens da fila RabbitMQ associada à pasta /laser.
      * A mensagem contém informações simulando o "arquivo" ou seus dados.
@@ -108,6 +111,8 @@ public class FileWatcherService {
         order.setDataH(creationTime);
         order.setStatus(0); // Status inicial para arquivos CL 
 
+        clienteDefaultsService.applyDefaults(order);
+
         Order savedOrder = orderRepository.save(order);
         messagingTemplate.convertAndSend("/topic/orders", savedOrder);
         System.out.println("Pedido criado e enviado via WebSocket: " + savedOrder);
@@ -140,6 +145,8 @@ public class FileWatcherService {
         order.setPrioridade(priority);
         order.setDataH(creationTime);
         order.setStatus(0); // Status inicial para arquivos NR
+
+        clienteDefaultsService.applyDefaults(order);
 
         Order savedOrder = orderRepository.save(order);
         messagingTemplate.convertAndSend("/topic/orders", savedOrder);

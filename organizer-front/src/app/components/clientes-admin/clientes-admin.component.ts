@@ -38,7 +38,17 @@ export class ClientesAdminComponent implements OnInit {
   }
 
   openNew() {
-    this.selectedCliente = { id: 0, nomeOficial: '', ativo: true, origin: 'MANUAL' };
+    this.selectedCliente = {
+      id: 0,
+      nomeOficial: '',
+      ativo: true,
+      origin: 'MANUAL',
+      defaultEmborrachada: false,
+      defaultDestacador: '',
+      defaultPertinax: false,
+      defaultPoliester: false,
+      defaultPapelCalibrado: false
+    };
     this.showForm = true;
   }
 

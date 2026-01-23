@@ -32,11 +32,17 @@ public class OrderService {
     @Autowired
     private OpImportService opImportService;
 
+    @Autowired
+    private ClienteDefaultsService clienteDefaultsService;
+
     public List<Order> getAllOrders() {
         return orderRepository.findAll();
     }
 
     public Order saveOrder(Order order) {
+        if (order.getId() == null) {
+            clienteDefaultsService.applyDefaults(order);
+        }
         Order savedOrder = orderRepository.save(order);
           opImportService.tryLinkAsync(savedOrder.getNr(), savedOrder.getId());
         return savedOrder;
