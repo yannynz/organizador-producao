@@ -235,7 +235,7 @@ services:
           echo 'Aguardando MinIO...' && sleep 2;
         done &&
         mc mb --ignore-existing local/facas-renders &&
-        mc anonymous set download local/facas-renders &&
+        mc anonymous set public local/facas-renders &&
         echo 'Bucket facas-renders pronto.'
       "
     networks:

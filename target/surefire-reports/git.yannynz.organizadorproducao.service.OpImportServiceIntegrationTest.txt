@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: git.yannynz.organizadorproducao.service.OpImportServiceIntegrationTest
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 6.329 s -- in git.yannynz.organizadorproducao.service.OpImportServiceIntegrationTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 11.41 s -- in git.yannynz.organizadorproducao.service.OpImportServiceIntegrationTest

@@ -69,7 +69,7 @@ Arquitetura
   - `cadvisor`: métricas dos containers Docker (CPU, memória, reinícios, uptime)
 - `prometheus-container`: coleta métricas do backend Spring Boot (Micrometer + Actuator)
 - `grafana-container`: visualização das métricas com datasource provisionado para o Prometheus
-- `minio` e `minio-init`: storage S3 compatível para os renders DXF. O init aguarda o serviço ficar disponível, cria o bucket `facas-renders` e aplica permissão de leitura anônima (apenas para ambientes locais).
+- `minio` e `minio-init`: storage S3 compatível para os renders DXF. O init aguarda o serviço ficar disponível, cria o bucket `facas-renders` e aplica permissão de leitura anônima (ajuste conforme o ambiente).
 
 Monitoramento e Métricas
 ------------------------

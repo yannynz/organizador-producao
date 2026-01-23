@@ -241,4 +241,17 @@ class DXFAnalysisServiceTest {
         assertThat(sizeSummary.count()).isEqualTo(1);
         assertThat(sizeSummary.totalAmount()).isEqualTo(4096.0);
     }
+
+    @Test
+    void toView_shouldDeriveImageUrlFromUriWhenKeyMissing() {
+        properties.setImageBaseUrl("http://public.local/facas-renders");
+        service = new DXFAnalysisService(analysisRepository, orderRepository, messagingTemplate, meterRegistry, properties);
+
+        DXFAnalysis analysis = new DXFAnalysis();
+        analysis.setImageBucket("facas-renders");
+        analysis.setImageUri("http://minio:9000/facas-renders/renders/sample.png?X-Amz-Expires=3600");
+
+        DXFAnalysisView view = service.toView(analysis);
+        assertThat(view.imageUrl()).isEqualTo("http://public.local/facas-renders/renders/sample.png");
+    }
 }

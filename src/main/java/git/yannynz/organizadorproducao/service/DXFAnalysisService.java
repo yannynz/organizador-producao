@@ -566,6 +566,12 @@ public class DXFAnalysisService {
             return joinBaseAndKey(base, normalizedKey);
         }
         String storageUri = analysis.getImageUri();
+        if (hasText(base)) {
+            String derivedKey = deriveStorageKey(storageUri, analysis.getImageBucket(), base);
+            if (hasText(derivedKey)) {
+                return joinBaseAndKey(base, derivedKey);
+            }
+        }
         if (hasText(storageUri)) {
             return storageUri;
         }
@@ -599,6 +605,124 @@ public class DXFAnalysisService {
         }
         // Apenas padroniza separadores de diretório
         return key.trim().replace('\\', '/');
+    }
+
+    private String deriveStorageKey(String storageUri, String bucket, String baseUrl) {
+        String path = extractPathFromUri(storageUri);
+        if (!hasText(path)) {
+            return null;
+        }
+        String bucketKey = extractKeyFromBucketPath(path, bucket);
+        if (hasText(bucketKey)) {
+            return normalizeStorageKey(bucketKey);
+        }
+        String baseKey = extractKeyFromBasePath(path, baseUrl);
+        if (hasText(baseKey)) {
+            return normalizeStorageKey(baseKey);
+        }
+        String firstSegmentKey = extractKeyFromFirstSegment(path);
+        if (hasText(firstSegmentKey)) {
+            return normalizeStorageKey(firstSegmentKey);
+        }
+        return null;
+    }
+
+    private String extractPathFromUri(String uriValue) {
+        if (!hasText(uriValue)) {
+            return null;
+        }
+        String trimmed = uriValue.trim();
+        if (trimmed.startsWith("//")) {
+            trimmed = "http:" + trimmed;
+        }
+        if (!(trimmed.startsWith("http://") || trimmed.startsWith("https://"))) {
+            return null;
+        }
+        try {
+            URI uri = URI.create(trimmed);
+            return uri.getPath();
+        } catch (IllegalArgumentException ex) {
+            return null;
+        }
+    }
+
+    private String extractKeyFromBucketPath(String path, String bucket) {
+        if (!hasText(path) || !hasText(bucket)) {
+            return null;
+        }
+        String normalizedPath = stripLeadingSlash(path);
+        String normalizedBucket = bucket.trim();
+        String marker = normalizedBucket + "/";
+        if (normalizedPath.startsWith(marker)) {
+            String key = normalizedPath.substring(marker.length());
+            return key.isBlank() ? null : key;
+        }
+        int index = normalizedPath.indexOf("/" + marker);
+        if (index >= 0) {
+            String key = normalizedPath.substring(index + marker.length() + 1);
+            return key.isBlank() ? null : key;
+        }
+        return null;
+    }
+
+    private String extractKeyFromBasePath(String path, String baseUrl) {
+        if (!hasText(path) || !hasText(baseUrl)) {
+            return null;
+        }
+        String basePath = normalizeBasePath(baseUrl);
+        if (!hasText(basePath)) {
+            return null;
+        }
+        String normalizedPath = stripLeadingSlash(path);
+        String normalizedBasePath = stripLeadingSlash(basePath);
+        String marker = normalizedBasePath.endsWith("/") ? normalizedBasePath : normalizedBasePath + "/";
+        if (normalizedPath.startsWith(marker)) {
+            String key = normalizedPath.substring(marker.length());
+            return key.isBlank() ? null : key;
+        }
+        return null;
+    }
+
+    private String normalizeBasePath(String baseUrl) {
+        if (!hasText(baseUrl)) {
+            return null;
+        }
+        String trimmed = baseUrl.trim();
+        if (trimmed.startsWith("//")) {
+            trimmed = "http:" + trimmed;
+        }
+        if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+            try {
+                URI uri = URI.create(trimmed);
+                return uri.getPath();
+            } catch (IllegalArgumentException ex) {
+                return null;
+            }
+        }
+        if (trimmed.startsWith("/")) {
+            return trimmed;
+        }
+        return null;
+    }
+
+    private String extractKeyFromFirstSegment(String path) {
+        if (!hasText(path)) {
+            return null;
+        }
+        String normalizedPath = stripLeadingSlash(path);
+        int slashIndex = normalizedPath.indexOf('/');
+        if (slashIndex < 0 || slashIndex == normalizedPath.length() - 1) {
+            return null;
+        }
+        String key = normalizedPath.substring(slashIndex + 1);
+        return key.isBlank() ? null : key;
+    }
+
+    private String stripLeadingSlash(String value) {
+        if (!hasText(value)) {
+            return value;
+        }
+        return value.startsWith("/") ? value.substring(1) : value;
     }
 
     private boolean hasText(String value) {

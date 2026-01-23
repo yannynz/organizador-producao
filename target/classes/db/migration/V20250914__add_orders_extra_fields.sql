@@ -1,0 +1,24 @@
+-- ALTER TABLE orders
+--     ADD COLUMN IF NOT EXISTS destacador VARCHAR(10);
+--
+-- ALTER TABLE orders
+--     ADD COLUMN IF NOT EXISTS modalidade_entrega VARCHAR(50);
+--
+-- ALTER TABLE orders
+--     ADD COLUMN IF NOT EXISTS data_requerida_entrega TIMESTAMPTZ;
+--
+-- ALTER TABLE orders
+--     ADD COLUMN IF NOT EXISTS usuario_importacao VARCHAR(255);
+--
+-- ALTER TABLE op_import 
+--     ADD COLUMN IF NOT EXISTS destacador VARCHAR(10);
+--
+-- ALTER TABLE op_import
+--     ADD COLUMN IF NOT EXISTS modalidade_entrega VARCHAR(50);
+--
+-- ALTER TABLE op_import
+--     ADD COLUMN IF NOT EXISTS data_requerida_entrega TIMESTAMPTZ;
+--
+-- ALTER TABLE op_import 
+--     ADD COLUMN IF NOT EXISTS usuario_importacao VARCHAR(255);
+

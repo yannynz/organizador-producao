@@ -432,7 +432,7 @@ export class OrderDetailsModalComponent implements OnInit, OnChanges, OnDestroy 
   }
 
   private resolvePublicImageUrl(analysis: DxfAnalysis): string | null {
-    const directCandidates = [analysis.imageUri, analysis.imageUrl].map((value) => this.pickHttpUrl(value));
+    const directCandidates = [analysis.imageUrl, analysis.imageUri].map((value) => this.pickHttpUrl(value));
     for (const candidate of directCandidates) {
       if (candidate) {
         return candidate;

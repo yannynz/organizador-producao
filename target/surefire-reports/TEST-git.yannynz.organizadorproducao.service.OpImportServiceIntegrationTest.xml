@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="git.yannynz.organizadorproducao.service.OpImportServiceIntegrationTest" time="6.329" tests="1" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="git.yannynz.organizadorproducao.service.OpImportServiceIntegrationTest" time="11.415" tests="1" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="21"/>
     <property name="sun.jnu.encoding" value="UTF-8"/>
@@ -13,7 +13,7 @@
     <property name="java.vm.specification.version" value="21"/>
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="sun.boot.library.path" value="/usr/lib/jvm/java-21-openjdk-amd64/lib"/>
-    <property name="sun.java.command" value="/home/ynz/Documents/organizador-producao/target/surefire/surefirebooter-20260114214006320_3.jar /home/ynz/Documents/organizador-producao/target/surefire 2026-01-14T21-40-06_244-jvmRun1 surefire-20260114214006320_1tmp surefire_0-20260114214006320_2tmp"/>
+    <property name="sun.java.command" value="/home/ynz/Documents/organizador-producao/target/surefire/surefirebooter-20260122213908802_3.jar /home/ynz/Documents/organizador-producao/target/surefire 2026-01-22T21-39-08_480-jvmRun1 surefire-20260122213908802_1tmp surefire_0-20260122213908802_2tmp"/>
     <property name="jdk.debug" value="release"/>
     <property name="surefire.test.class.path" value="/home/ynz/Documents/organizador-producao/target/test-classes:/home/ynz/Documents/organizador-producao/target/classes:/home/ynz/.m2/repository/org/springframework/boot/spring-boot-starter-web/3.3.0/spring-boot-starter-web-3.3.0.jar:/home/ynz/.m2/repository/org/springframework/boot/spring-boot-starter/3.3.0/spring-boot-starter-3.3.0.jar:/home/ynz/.m2/repository/org/springframework/boot/spring-boot-starter-logging/3.3.0/spring-boot-starter-logging-3.3.0.jar:/home/ynz/.m2/repository/ch/qos/logback/logback-classic/1.5.6/logback-classic-1.5.6.jar:/home/ynz/.m2/repository/ch/qos/logback/logback-core/1.5.6/logback-core-1.5.6.jar:/home/ynz/.m2/repository/org/apache/logging/log4j/log4j-to-slf4j/2.23.1/log4j-to-slf4j-2.23.1.jar:/home/ynz/.m2/repository/org/apache/logging/log4j/log4j-api/2.23.1/log4j-api-2.23.1.jar:/home/ynz/.m2/repository/org/slf4j/jul-to-slf4j/2.0.13/jul-to-slf4j-2.0.13.jar:/home/ynz/.m2/repository/jakarta/annotation/jakarta.annotation-api/2.1.1/jakarta.annotation-api-2.1.1.jar:/home/ynz/.m2/repository/org/yaml/snakeyaml/2.2/snakeyaml-2.2.jar:/home/ynz/.m2/repository/org/springframework/boot/spring-boot-starter-json/3.3.0/spring-boot-starter-json-3.3.0.jar:/home/ynz/.m2/repository/com/fasterxml/jackson/datatype/jackson-datatype-jdk8/2.17.1/jackson-datatype-jdk8-2.17.1.jar:/home/ynz/.m2/repository/com/fasterxml/jackson/datatype/jackson-datatype-jsr310/2.17.1/jackson-datatype-jsr310-2.17.1.jar:/home/ynz/.m2/repository/com/fasterxml/jackson/module/jackson-module-parameter-names/2.17.1/jackson-module-parameter-names-2.17.1.jar:/home/ynz/.m2/repository/org/springframework/boot/spring-boot-starter-tomcat/3.3.0/spring-boot-starter-tomcat-3.3.0.jar:/home/ynz/.m2/repository/org/apache/tomcat/embed/tomcat-embed-core/10.1.24/tomcat-embed-core-10.1.24.jar:/home/ynz/.m2/repository/org/apache/tomcat/embed/tomcat-embed-websocket/10.1.24/tomcat-embed-websocket-10.1.24.jar:/home/ynz/.m2/repository/org/springframework/spring-web/6.1.8/spring-web-6.1.8.jar:/home/ynz/.m2/repository/org/springframework/spring-beans/6.1.8/spring-beans-6.1.8.jar:/home/ynz/.m2/repository/org/springframework/spring-webmvc/6.1.8/spring-webmvc-6.1.8.jar:/home/ynz/.m2/repository/org/springframework/spring-context/6.1.8/spring-context-6.1.8.jar:/home/ynz/.m2/repository/org/springframework/spring-expression/6.1.8/spring-expression-6.1.8.jar:/home/ynz/.m2/repository/org/springframework/boot/spring-boot-starter-data-jpa/3.3.0/spring-boot-starter-data-jpa-3.3.0.jar:/home/ynz/.m2/repository/org/springframework/boot/spring-boot-starter-aop/3.3.0/spring-boot-starter-aop-3.3.0.jar:/home/ynz/.m2/repository/org/aspectj/aspectjweaver/1.9.22/aspectjweaver-1.9.22.jar:/home/ynz/.m2/repository/org/springframework/boot/spring-boot-starter-jdbc/3.3.0/spring-boot-starter-jdbc-3.3.0.jar:/home/ynz/.m2/repository/com/zaxxer/HikariCP/5.1.0/HikariCP-5.1.0.jar:/home/ynz/.m2/repository/org/springframework/spring-jdbc/6.1.8/spring-jdbc-6.1.8.jar:/home/ynz/.m2/repository/org/hibernate/orm/hibernate-core/6.5.2.Final/hibernate-core-6.5.2.Final.jar:/home/ynz/.m2/repository/jakarta/persistence/jakarta.persistence-api/3.1.0/jakarta.persistence-api-3.1.0.jar:/home/ynz/.m2/repository/org/jboss/logging/jboss-logging/3.5.3.Final/jboss-logging-3.5.3.Final.jar:/home/ynz/.m2/repository/org/hibernate/common/hibernate-commons-annotations/6.0.6.Final/hibernate-commons-annotations-6.0.6.Final.jar:/home/ynz/.m2/repository/io/smallrye/jandex/3.1.2/jandex-3.1.2.jar:/home/ynz/.m2/repository/com/fasterxml/classmate/1.7.0/classmate-1.7.0.jar:/home/ynz/.m2/repository/net/bytebuddy/byte-buddy/1.14.16/byte-buddy-1.14.16.jar:/home/ynz/.m2/repository/org/glassfish/jaxb/jaxb-runtime/4.0.5/jaxb-runtime-4.0.5.jar:/home/ynz/.m2/repository/org/glassfish/jaxb/jaxb-core/4.0.5/jaxb-core-4.0.5.jar:/home/ynz/.m2/repository/org/glassfish/jaxb/txw2/4.0.5/txw2-4.0.5.jar:/home/ynz/.m2/repository/com/sun/istack/istack-commons-runtime/4.1.2/istack-commons-runtime-4.1.2.jar:/home/ynz/.m2/repository/jakarta/inject/jakarta.inject-api/2.0.1/jakarta.inject-api-2.0.1.jar:/home/ynz/.m2/repository/org/antlr/antlr4-runtime/4.13.0/antlr4-runtime-4.13.0.jar:/home/ynz/.m2/repository/org/springframework/data/spring-data-jpa/3.3.0/spring-data-jpa-3.3.0.jar:/home/ynz/.m2/repository/org/springframework/data/spring-data-commons/3.3.0/spring-data-commons-3.3.0.jar:/home/ynz/.m2/repository/org/springframework/spring-orm/6.1.8/spring-orm-6.1.8.jar:/home/ynz/.m2/repository/org/springframework/spring-tx/6.1.8/spring-tx-6.1.8.jar:/home/ynz/.m2/repository/org/springframework/spring-aspects/6.1.8/spring-aspects-6.1.8.jar:/home/ynz/.m2/repository/org/springframework/boot/spring-boot-starter-validation/3.3.0/spring-boot-starter-validation-3.3.0.jar:/home/ynz/.m2/repository/org/apache/tomcat/embed/tomcat-embed-el/10.1.24/tomcat-embed-el-10.1.24.jar:/home/ynz/.m2/repository/org/hibernate/validator/hibernate-validator/8.0.1.Final/hibernate-validator-8.0.1.Final.jar:/home/ynz/.m2/repository/jakarta/validation/jakarta.validation-api/3.0.2/jakarta.validation-api-3.0.2.jar:/home/ynz/.m2/repository/org/springframework/boot/spring-boot-starter-actuator/3.3.0/spring-boot-starter-actuator-3.3.0.jar:/home/ynz/.m2/repository/org/springframework/boot/spring-boot-actuator-autoconfigure/3.3.0/spring-boot-actuator-autoconfigure-3.3.0.jar:/home/ynz/.m2/repository/org/springframework/boot/spring-boot-actuator/3.3.0/spring-boot-actuator-3.3.0.jar:/home/ynz/.m2/repository/io/micrometer/micrometer-observation/1.13.0/micrometer-observation-1.13.0.jar:/home/ynz/.m2/repository/io/micrometer/micrometer-commons/1.13.0/micrometer-commons-1.13.0.jar:/home/ynz/.m2/repository/io/micrometer/micrometer-jakarta9/1.13.0/micrometer-jakarta9-1.13.0.jar:/home/ynz/.m2/repository/io/micrometer/micrometer-registry-prometheus/1.13.0/micrometer-registry-prometheus-1.13.0.jar:/home/ynz/.m2/repository/io/micrometer/micrometer-core/1.13.0/micrometer-core-1.13.0.jar:/home/ynz/.m2/repository/org/hdrhistogram/HdrHistogram/2.2.1/HdrHistogram-2.2.1.jar:/home/ynz/.m2/repository/org/latencyutils/LatencyUtils/2.0.3/LatencyUtils-2.0.3.jar:/home/ynz/.m2/repository/io/prometheus/prometheus-metrics-core/1.2.1/prometheus-metrics-core-1.2.1.jar:/home/ynz/.m2/repository/io/prometheus/prometheus-metrics-model/1.2.1/prometheus-metrics-model-1.2.1.jar:/home/ynz/.m2/repository/io/prometheus/prometheus-metrics-config/1.2.1/prometheus-metrics-config-1.2.1.jar:/home/ynz/.m2/repository/io/prometheus/prometheus-metrics-tracer-common/1.2.1/prometheus-metrics-tracer-common-1.2.1.jar:/home/ynz/.m2/repository/io/prometheus/prometheus-metrics-exposition-formats/1.2.1/prometheus-metrics-exposition-formats-1.2.1.jar:/home/ynz/.m2/repository/io/prometheus/prometheus-metrics-shaded-protobuf/1.2.1/prometheus-metrics-shaded-protobuf-1.2.1.jar:/home/ynz/.m2/repository/org/springframework/boot/spring-boot-starter-amqp/3.3.0/spring-boot-starter-amqp-3.3.0.jar:/home/ynz/.m2/repository/org/springframework/spring-messaging/6.1.8/spring-messaging-6.1.8.jar:/home/ynz/.m2/repository/org/springframework/amqp/spring-rabbit/3.1.5/spring-rabbit-3.1.5.jar:/home/ynz/.m2/repository/org/springframework/amqp/spring-amqp/3.1.5/spring-amqp-3.1.5.jar:/home/ynz/.m2/repository/org/springframework/retry/spring-retry/2.0.6/spring-retry-2.0.6.jar:/home/ynz/.m2/repository/com/rabbitmq/amqp-client/5.21.0/amqp-client-5.21.0.jar:/home/ynz/.m2/repository/org/springframework/boot/spring-boot-starter-websocket/3.3.0/spring-boot-starter-websocket-3.3.0.jar:/home/ynz/.m2/repository/org/springframework/spring-websocket/6.1.8/spring-websocket-6.1.8.jar:/home/ynz/.m2/repository/org/postgresql/postgresql/42.7.3/postgresql-42.7.3.jar:/home/ynz/.m2/repository/org/checkerframework/checker-qual/3.42.0/checker-qual-3.42.0.jar:/home/ynz/.m2/repository/io/hypersistence/hypersistence-utils-hibernate-60/3.9.4/hypersistence-utils-hibernate-60-3.9.4.jar:/home/ynz/.m2/repository/javax/xml/bind/jaxb-api/2.3.0/jaxb-api-2.3.0.jar:/home/ynz/.m2/repository/jakarta/xml/bind/jakarta.xml.bind-api/4.0.2/jakarta.xml.bind-api-4.0.2.jar:/home/ynz/.m2/repository/jakarta/activation/jakarta.activation-api/2.1.3/jakarta.activation-api-2.1.3.jar:/home/ynz/.m2/repository/io/hypersistence/hypersistence-tsid/2.1.4/hypersistence-tsid-2.1.4.jar:/home/ynz/.m2/repository/com/hierynomus/smbj/0.14.0/smbj-0.14.0.jar:/home/ynz/.m2/repository/org/slf4j/slf4j-api/2.0.13/slf4j-api-2.0.13.jar:/home/ynz/.m2/repository/org/bouncycastle/bcprov-jdk18on/1.79/bcprov-jdk18on-1.79.jar:/home/ynz/.m2/repository/net/engio/mbassador/1.3.0/mbassador-1.3.0.jar:/home/ynz/.m2/repository/com/hierynomus/asn-one/0.6.0/asn-one-0.6.0.jar:/home/ynz/.m2/repository/org/springframework/boot/spring-boot-devtools/3.3.0/spring-boot-devtools-3.3.0.jar:/home/ynz/.m2/repository/org/springframework/boot/spring-boot/3.3.0/spring-boot-3.3.0.jar:/home/ynz/.m2/repository/org/springframework/boot/spring-boot-autoconfigure/3.3.0/spring-boot-autoconfigure-3.3.0.jar:/home/ynz/.m2/repository/org/springframework/boot/spring-boot-starter-test/3.3.0/spring-boot-starter-test-3.3.0.jar:/home/ynz/.m2/repository/org/springframework/boot/spring-boot-test/3.3.0/spring-boot-test-3.3.0.jar:/home/ynz/.m2/repository/org/springframework/boot/spring-boot-test-autoconfigure/3.3.0/spring-boot-test-autoconfigure-3.3.0.jar:/home/ynz/.m2/repository/com/jayway/jsonpath/json-path/2.9.0/json-path-2.9.0.jar:/home/ynz/.m2/repository/net/minidev/json-smart/2.5.1/json-smart-2.5.1.jar:/home/ynz/.m2/repository/net/minidev/accessors-smart/2.5.1/accessors-smart-2.5.1.jar:/home/ynz/.m2/repository/org/ow2/asm/asm/9.6/asm-9.6.jar:/home/ynz/.m2/repository/org/assertj/assertj-core/3.25.3/assertj-core-3.25.3.jar:/home/ynz/.m2/repository/org/awaitility/awaitility/4.2.1/awaitility-4.2.1.jar:/home/ynz/.m2/repository/org/hamcrest/hamcrest/2.2/hamcrest-2.2.jar:/home/ynz/.m2/repository/org/junit/jupiter/junit-jupiter/5.10.2/junit-jupiter-5.10.2.jar:/home/ynz/.m2/repository/org/junit/jupiter/junit-jupiter-api/5.10.2/junit-jupiter-api-5.10.2.jar:/home/ynz/.m2/repository/org/opentest4j/opentest4j/1.3.0/opentest4j-1.3.0.jar:/home/ynz/.m2/repository/org/junit/platform/junit-platform-commons/1.10.2/junit-platform-commons-1.10.2.jar:/home/ynz/.m2/repository/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:/home/ynz/.m2/repository/org/junit/jupiter/junit-jupiter-params/5.10.2/junit-jupiter-params-5.10.2.jar:/home/ynz/.m2/repository/org/junit/jupiter/junit-jupiter-engine/5.10.2/junit-jupiter-engine-5.10.2.jar:/home/ynz/.m2/repository/org/junit/platform/junit-platform-engine/1.10.2/junit-platform-engine-1.10.2.jar:/home/ynz/.m2/repository/org/mockito/mockito-core/5.11.0/mockito-core-5.11.0.jar:/home/ynz/.m2/repository/net/bytebuddy/byte-buddy-agent/1.14.16/byte-buddy-agent-1.14.16.jar:/home/ynz/.m2/repository/org/objenesis/objenesis/3.3/objenesis-3.3.jar:/home/ynz/.m2/repository/org/mockito/mockito-junit-jupiter/5.11.0/mockito-junit-jupiter-5.11.0.jar:/home/ynz/.m2/repository/org/skyscreamer/jsonassert/1.5.1/jsonassert-1.5.1.jar:/home/ynz/.m2/repository/com/vaadin/external/google/android-json/0.0.20131108.vaadin1/android-json-0.0.20131108.vaadin1.jar:/home/ynz/.m2/repository/org/springframework/spring-core/6.1.8/spring-core-6.1.8.jar:/home/ynz/.m2/repository/org/springframework/spring-jcl/6.1.8/spring-jcl-6.1.8.jar:/home/ynz/.m2/repository/org/springframework/spring-test/6.1.8/spring-test-6.1.8.jar:/home/ynz/.m2/repository/org/xmlunit/xmlunit-core/2.9.1/xmlunit-core-2.9.1.jar:/home/ynz/.m2/repository/org/flywaydb/flyway-core/11.11.2/flyway-core-11.11.2.jar:/home/ynz/.m2/repository/com/fasterxml/jackson/core/jackson-databind/2.17.1/jackson-databind-2.17.1.jar:/home/ynz/.m2/repository/com/fasterxml/jackson/core/jackson-annotations/2.17.1/jackson-annotations-2.17.1.jar:/home/ynz/.m2/repository/org/flywaydb/flyway-database-postgresql/11.11.2/flyway-database-postgresql-11.11.2.jar:/home/ynz/.m2/repository/org/springframework/boot/spring-boot-starter-security/3.3.0/spring-boot-starter-security-3.3.0.jar:/home/ynz/.m2/repository/org/springframework/spring-aop/6.1.8/spring-aop-6.1.8.jar:/home/ynz/.m2/repository/org/springframework/security/spring-security-config/6.3.0/spring-security-config-6.3.0.jar:/home/ynz/.m2/repository/org/springframework/security/spring-security-web/6.3.0/spring-security-web-6.3.0.jar:/home/ynz/.m2/repository/io/jsonwebtoken/jjwt-api/0.12.5/jjwt-api-0.12.5.jar:/home/ynz/.m2/repository/io/jsonwebtoken/jjwt-impl/0.12.5/jjwt-impl-0.12.5.jar:/home/ynz/.m2/repository/io/jsonwebtoken/jjwt-jackson/0.12.5/jjwt-jackson-0.12.5.jar:/home/ynz/.m2/repository/org/projectlombok/lombok/1.18.32/lombok-1.18.32.jar:/home/ynz/.m2/repository/org/springframework/security/spring-security-test/6.3.0/spring-security-test-6.3.0.jar:/home/ynz/.m2/repository/org/springframework/security/spring-security-core/6.3.0/spring-security-core-6.3.0.jar:/home/ynz/.m2/repository/org/springframework/security/spring-security-crypto/6.3.0/spring-security-crypto-6.3.0.jar:/home/ynz/.m2/repository/org/springframework/boot/spring-boot-starter-mail/3.3.0/spring-boot-starter-mail-3.3.0.jar:/home/ynz/.m2/repository/org/springframework/spring-context-support/6.1.8/spring-context-support-6.1.8.jar:/home/ynz/.m2/repository/org/eclipse/angus/jakarta.mail/2.0.3/jakarta.mail-2.0.3.jar:/home/ynz/.m2/repository/org/eclipse/angus/angus-activation/2.0.2/angus-activation-2.0.2.jar:/home/ynz/.m2/repository/com/fasterxml/jackson/datatype/jackson-datatype-hibernate6/2.17.1/jackson-datatype-hibernate6-2.17.1.jar:/home/ynz/.m2/repository/jakarta/transaction/jakarta.transaction-api/2.0.1/jakarta.transaction-api-2.0.1.jar:/home/ynz/.m2/repository/com/fasterxml/jackson/core/jackson-core/2.17.1/jackson-core-2.17.1.jar:"/>
     <property name="sun.cpu.endian" value="little"/>
@@ -30,7 +30,7 @@
     <property name="java.specification.name" value="Java Platform API Specification"/>
     <property name="FILE_LOG_CHARSET" value="UTF-8"/>
     <property name="java.awt.headless" value="true"/>
-    <property name="surefire.real.class.path" value="/home/ynz/Documents/organizador-producao/target/surefire/surefirebooter-20260114214006320_3.jar"/>
+    <property name="surefire.real.class.path" value="/home/ynz/Documents/organizador-producao/target/surefire/surefirebooter-20260122213908802_3.jar"/>
     <property name="polyglot.engine.WarnInterpreterOnly" value="false"/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="java.runtime.version" value="21.0.9+10-Debian-1deb13u1"/>
@@ -49,7 +49,7 @@
     <property name="user.dir" value="/home/ynz/Documents/organizador-producao"/>
     <property name="os.arch" value="amd64"/>
     <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
-    <property name="PID" value="34923"/>
+    <property name="PID" value="180211"/>
     <property name="CONSOLE_LOG_CHARSET" value="UTF-8"/>
     <property name="native.encoding" value="UTF-8"/>
     <property name="java.library.path" value="/usr/java/packages/lib:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib"/>
@@ -61,10 +61,10 @@
     <property name="java.class.version" value="65.0"/>
     <property name="LOGGED_APPLICATION_NAME" value="[organizador-producao] "/>
   </properties>
-  <testcase name="importar_op_pdf_cria_cliente_e_endereco" classname="git.yannynz.organizadorproducao.service.OpImportServiceIntegrationTest" time="0.1">
-    <system-out><![CDATA[2026-01-14T21:40:11.466-03:00  INFO 34923 --- [organizador-producao] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [git.yannynz.organizadorproducao.service.OpImportServiceIntegrationTest]: OpImportServiceIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-2026-01-14T21:40:11.489-03:00  INFO 34923 --- [organizador-producao] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration git.yannynz.organizadorproducao.OrganizadorProducao for test class git.yannynz.organizadorproducao.service.OpImportServiceIntegrationTest
-2026-01-14T21:40:11.500-03:00  INFO 34923 --- [organizador-producao] [           main] o.s.b.d.r.RestartApplicationListener     : Restart disabled due to context in which it is running
+  <testcase name="importar_op_pdf_cria_cliente_e_endereco" classname="git.yannynz.organizadorproducao.service.OpImportServiceIntegrationTest" time="0.229">
+    <system-out><![CDATA[2026-01-22T21:39:22.726-03:00  INFO 180211 --- [organizador-producao] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [git.yannynz.organizadorproducao.service.OpImportServiceIntegrationTest]: OpImportServiceIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-01-22T21:39:22.760-03:00  INFO 180211 --- [organizador-producao] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration git.yannynz.organizadorproducao.OrganizadorProducao for test class git.yannynz.organizadorproducao.service.OpImportServiceIntegrationTest
+2026-01-22T21:39:22.779-03:00  INFO 180211 --- [organizador-producao] [           main] o.s.b.d.r.RestartApplicationListener     : Restart disabled due to context in which it is running
   .   ____          _            __ _ _
  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
 ( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
@@ -74,216 +74,38 @@
 
  :: Spring Boot ::                (v3.3.0)
 
-2026-01-14T21:40:11.529-03:00  INFO 34923 --- [organizador-producao] [           main] g.y.o.s.OpImportServiceIntegrationTest   : Starting OpImportServiceIntegrationTest using Java 21.0.9 with PID 34923 (started by ynz in /home/ynz/Documents/organizador-producao)
-2026-01-14T21:40:11.530-03:00  INFO 34923 --- [organizador-producao] [           main] g.y.o.s.OpImportServiceIntegrationTest   : No active profile set, falling back to 1 default profile: "default"
-2026-01-14T21:40:12.372-03:00  INFO 34923 --- [organizador-producao] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2026-01-14T21:40:12.436-03:00  INFO 34923 --- [organizador-producao] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 48 ms. Found 9 JPA repository interfaces.
-2026-01-14T21:40:13.387-03:00  INFO 34923 --- [organizador-producao] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2026-01-14T21:40:13.577-03:00  INFO 34923 --- [organizador-producao] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@592efd6
-2026-01-14T21:40:13.579-03:00  INFO 34923 --- [organizador-producao] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2026-01-14T21:40:13.613-03:00  INFO 34923 --- [organizador-producao] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:5433/teste01 (PostgreSQL 17.6)
-2026-01-14T21:40:13.692-03:00  INFO 34923 --- [organizador-producao] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 30 migrations (execution time 00:00.047s)
-2026-01-14T21:40:13.714-03:00  INFO 34923 --- [organizador-producao] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 20260110
-2026-01-14T21:40:13.714-03:00  WARN 34923 --- [organizador-producao] [           main] o.f.core.internal.command.DbMigrate      : outOfOrder mode is active. Migration of schema "public" may not be reproducible.
-2026-01-14T21:40:13.715-03:00  WARN 34923 --- [organizador-producao] [           main] o.f.core.internal.command.DbMigrate      : Schema "public" has a version (20260110) that is newer than the latest available migration (20251222) !
-2026-01-14T21:40:13.718-03:00  INFO 34923 --- [organizador-producao] [           main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
-2026-01-14T21:40:13.847-03:00  INFO 34923 --- [organizador-producao] [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
-2026-01-14T21:40:13.906-03:00  INFO 34923 --- [organizador-producao] [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.2.Final
-2026-01-14T21:40:13.941-03:00  INFO 34923 --- [organizador-producao] [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
-2026-01-14T21:40:14.056-03:00  WARN 34923 --- [organizador-producao] [           main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
-2026-01-14T21:40:14.142-03:00  INFO 34923 --- [organizador-producao] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2026-01-14T21:40:14.987-03:00  INFO 34923 --- [organizador-producao] [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2026-01-14T21:40:14.989-03:00  INFO 34923 --- [organizador-producao] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2026-01-14T21:40:15.597-03:00  INFO 34923 --- [organizador-producao] [           main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
-2026-01-14T21:40:15.856-03:00  INFO 34923 --- [organizador-producao] [           main] eAuthenticationProviderManagerConfigurer : Global AuthenticationManager configured with AuthenticationProvider bean with name authenticationProvider
-2026-01-14T21:40:15.857-03:00  WARN 34923 --- [organizador-producao] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with an AuthenticationProvider bean. UserDetailsService beans will not be used for username/password login. Consider removing the AuthenticationProvider bean. Alternatively, consider using the UserDetailsService in a manually instantiated DaoAuthenticationProvider.
-2026-01-14T21:40:16.654-03:00  WARN 34923 --- [organizador-producao] [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2026-01-14T21:40:17.005-03:00  INFO 34923 --- [organizador-producao] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 4 endpoints beneath base path '/actuator'
-2026-01-14T21:40:17.088-03:00  INFO 34923 --- [organizador-producao] [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@2ac8f084, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@66538929, org.springframework.security.web.context.SecurityContextHolderFilter@17143892, org.springframework.security.web.header.HeaderWriterFilter@1d7c2e47, org.springframework.web.filter.CorsFilter@16fa5e34, org.springframework.security.web.authentication.logout.LogoutFilter@6980d3b3, git.yannynz.organizadorproducao.infra.security.JwtAuthenticationFilter@6c430548, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@4d2d95e6, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@5a050bf9, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@42b59da6, org.springframework.security.web.session.SessionManagementFilter@30fe1b54, org.springframework.security.web.access.ExceptionTranslationFilter@87420c0, org.springframework.security.web.access.intercept.AuthorizationFilter@2c9d3df]
-2026-01-14T21:40:17.513-03:00  INFO 34923 --- [organizador-producao] [           main] o.s.m.s.b.SimpleBrokerMessageHandler     : Starting...
-2026-01-14T21:40:17.514-03:00  INFO 34923 --- [organizador-producao] [           main] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@21b46d34]]
-2026-01-14T21:40:17.515-03:00  INFO 34923 --- [organizador-producao] [           main] o.s.m.s.b.SimpleBrokerMessageHandler     : Started.
-2026-01-14T21:40:17.518-03:00  INFO 34923 --- [organizador-producao] [           main] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [localhost:5672]
-2026-01-14T21:40:17.522-03:00  INFO 34923 --- [organizador-producao] [           main] o.s.a.r.l.SimpleMessageListenerContainer : Broker not available; cannot force queue declarations during start: java.net.ConnectException: Connection refused
-2026-01-14T21:40:17.531-03:00  INFO 34923 --- [organizador-producao] [ntContainer#0-1] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [localhost:5672]
-2026-01-14T21:40:17.532-03:00 ERROR 34923 --- [organizador-producao] [ntContainer#0-1] o.s.a.r.l.SimpleMessageListenerContainer : Failed to check/redeclare auto-delete queue(s).
-
-org.springframework.amqp.AmqpConnectException: java.net.ConnectException: Connection refused
-	at org.springframework.amqp.rabbit.support.RabbitExceptionTranslator.convertRabbitAccessException(RabbitExceptionTranslator.java:61) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.connection.AbstractConnectionFactory.createBareConnection(AbstractConnectionFactory.java:622) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.connection.CachingConnectionFactory.createConnection(CachingConnectionFactory.java:726) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.connection.ConnectionFactoryUtils.createConnection(ConnectionFactoryUtils.java:257) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.core.RabbitTemplate.doExecute(RabbitTemplate.java:2249) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.core.RabbitTemplate.execute(RabbitTemplate.java:2222) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.core.RabbitTemplate.execute(RabbitTemplate.java:2202) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.core.RabbitAdmin.getQueueInfo(RabbitAdmin.java:467) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.core.RabbitAdmin.getQueueProperties(RabbitAdmin.java:451) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer.attemptDeclarations(AbstractMessageListenerContainer.java:1960) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer.redeclareElementsIfNecessary(AbstractMessageListenerContainer.java:1924) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer$AsyncMessageProcessingConsumer.initialize(SimpleMessageListenerContainer.java:1478) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer$AsyncMessageProcessingConsumer.run(SimpleMessageListenerContainer.java:1320) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
-Caused by: java.net.ConnectException: Connection refused
-	at java.base/sun.nio.ch.Net.pollConnect(Native Method) ~[na:na]
-	at java.base/sun.nio.ch.Net.pollConnectNow(Net.java:682) ~[na:na]
-	at java.base/sun.nio.ch.NioSocketImpl.timedFinishConnect(NioSocketImpl.java:542) ~[na:na]
-	at java.base/sun.nio.ch.NioSocketImpl.connect(NioSocketImpl.java:592) ~[na:na]
-	at java.base/java.net.SocksSocketImpl.connect(SocksSocketImpl.java:327) ~[na:na]
-	at java.base/java.net.Socket.connect(Socket.java:751) ~[na:na]
-	at com.rabbitmq.client.impl.SocketFrameHandlerFactory.create(SocketFrameHandlerFactory.java:61) ~[amqp-client-5.21.0.jar:5.21.0]
-	at com.rabbitmq.client.ConnectionFactory.newConnection(ConnectionFactory.java:1249) ~[amqp-client-5.21.0.jar:5.21.0]
-	at com.rabbitmq.client.ConnectionFactory.newConnection(ConnectionFactory.java:1198) ~[amqp-client-5.21.0.jar:5.21.0]
-	at org.springframework.amqp.rabbit.connection.AbstractConnectionFactory.connectAddresses(AbstractConnectionFactory.java:668) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.connection.AbstractConnectionFactory.connect(AbstractConnectionFactory.java:637) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.connection.AbstractConnectionFactory.createBareConnection(AbstractConnectionFactory.java:584) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	... 12 common frames omitted
-
-2026-01-14T21:40:17.535-03:00  INFO 34923 --- [organizador-producao] [ntContainer#0-1] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [localhost:5672]
-2026-01-14T21:40:17.537-03:00  INFO 34923 --- [organizador-producao] [           main] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [localhost:5672]
-2026-01-14T21:40:17.538-03:00  INFO 34923 --- [organizador-producao] [           main] o.s.a.r.l.SimpleMessageListenerContainer : Broker not available; cannot force queue declarations during start: java.net.ConnectException: Connection refused
-2026-01-14T21:40:17.540-03:00  INFO 34923 --- [organizador-producao] [ntContainer#1-1] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [localhost:5672]
-2026-01-14T21:40:17.540-03:00 ERROR 34923 --- [organizador-producao] [ntContainer#1-1] o.s.a.r.l.SimpleMessageListenerContainer : Failed to check/redeclare auto-delete queue(s).
-
-org.springframework.amqp.AmqpConnectException: java.net.ConnectException: Connection refused
-	at org.springframework.amqp.rabbit.support.RabbitExceptionTranslator.convertRabbitAccessException(RabbitExceptionTranslator.java:61) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.connection.AbstractConnectionFactory.createBareConnection(AbstractConnectionFactory.java:622) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.connection.CachingConnectionFactory.createConnection(CachingConnectionFactory.java:726) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.connection.ConnectionFactoryUtils.createConnection(ConnectionFactoryUtils.java:257) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.core.RabbitTemplate.doExecute(RabbitTemplate.java:2249) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.core.RabbitTemplate.execute(RabbitTemplate.java:2222) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.core.RabbitTemplate.execute(RabbitTemplate.java:2202) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.core.RabbitAdmin.getQueueInfo(RabbitAdmin.java:467) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.core.RabbitAdmin.getQueueProperties(RabbitAdmin.java:451) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer.attemptDeclarations(AbstractMessageListenerContainer.java:1960) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer.redeclareElementsIfNecessary(AbstractMessageListenerContainer.java:1924) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer$AsyncMessageProcessingConsumer.initialize(SimpleMessageListenerContainer.java:1478) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer$AsyncMessageProcessingConsumer.run(SimpleMessageListenerContainer.java:1320) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
-Caused by: java.net.ConnectException: Connection refused
-	at java.base/sun.nio.ch.Net.pollConnect(Native Method) ~[na:na]
-	at java.base/sun.nio.ch.Net.pollConnectNow(Net.java:682) ~[na:na]
-	at java.base/sun.nio.ch.NioSocketImpl.timedFinishConnect(NioSocketImpl.java:542) ~[na:na]
-	at java.base/sun.nio.ch.NioSocketImpl.connect(NioSocketImpl.java:592) ~[na:na]
-	at java.base/java.net.SocksSocketImpl.connect(SocksSocketImpl.java:327) ~[na:na]
-	at java.base/java.net.Socket.connect(Socket.java:751) ~[na:na]
-	at com.rabbitmq.client.impl.SocketFrameHandlerFactory.create(SocketFrameHandlerFactory.java:61) ~[amqp-client-5.21.0.jar:5.21.0]
-	at com.rabbitmq.client.ConnectionFactory.newConnection(ConnectionFactory.java:1249) ~[amqp-client-5.21.0.jar:5.21.0]
-	at com.rabbitmq.client.ConnectionFactory.newConnection(ConnectionFactory.java:1198) ~[amqp-client-5.21.0.jar:5.21.0]
-	at org.springframework.amqp.rabbit.connection.AbstractConnectionFactory.connectAddresses(AbstractConnectionFactory.java:668) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.connection.AbstractConnectionFactory.connect(AbstractConnectionFactory.java:637) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.connection.AbstractConnectionFactory.createBareConnection(AbstractConnectionFactory.java:584) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	... 12 common frames omitted
-
-2026-01-14T21:40:17.541-03:00  INFO 34923 --- [organizador-producao] [ntContainer#1-1] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [localhost:5672]
-2026-01-14T21:40:17.542-03:00  INFO 34923 --- [organizador-producao] [           main] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [localhost:5672]
-2026-01-14T21:40:17.542-03:00  INFO 34923 --- [organizador-producao] [           main] o.s.a.r.l.SimpleMessageListenerContainer : Broker not available; cannot force queue declarations during start: java.net.ConnectException: Connection refused
-2026-01-14T21:40:17.546-03:00  INFO 34923 --- [organizador-producao] [ntContainer#2-1] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [localhost:5672]
-2026-01-14T21:40:17.546-03:00 ERROR 34923 --- [organizador-producao] [ntContainer#2-1] o.s.a.r.l.SimpleMessageListenerContainer : Failed to check/redeclare auto-delete queue(s).
-
-org.springframework.amqp.AmqpConnectException: java.net.ConnectException: Connection refused
-	at org.springframework.amqp.rabbit.support.RabbitExceptionTranslator.convertRabbitAccessException(RabbitExceptionTranslator.java:61) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.connection.AbstractConnectionFactory.createBareConnection(AbstractConnectionFactory.java:622) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.connection.CachingConnectionFactory.createConnection(CachingConnectionFactory.java:726) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.connection.ConnectionFactoryUtils.createConnection(ConnectionFactoryUtils.java:257) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.core.RabbitTemplate.doExecute(RabbitTemplate.java:2249) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.core.RabbitTemplate.execute(RabbitTemplate.java:2222) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.core.RabbitTemplate.execute(RabbitTemplate.java:2202) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.core.RabbitAdmin.getQueueInfo(RabbitAdmin.java:467) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.core.RabbitAdmin.getQueueProperties(RabbitAdmin.java:451) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer.attemptDeclarations(AbstractMessageListenerContainer.java:1960) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer.redeclareElementsIfNecessary(AbstractMessageListenerContainer.java:1924) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer$AsyncMessageProcessingConsumer.initialize(SimpleMessageListenerContainer.java:1478) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer$AsyncMessageProcessingConsumer.run(SimpleMessageListenerContainer.java:1320) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
-Caused by: java.net.ConnectException: Connection refused
-	at java.base/sun.nio.ch.Net.pollConnect(Native Method) ~[na:na]
-	at java.base/sun.nio.ch.Net.pollConnectNow(Net.java:682) ~[na:na]
-	at java.base/sun.nio.ch.NioSocketImpl.timedFinishConnect(NioSocketImpl.java:542) ~[na:na]
-	at java.base/sun.nio.ch.NioSocketImpl.connect(NioSocketImpl.java:592) ~[na:na]
-	at java.base/java.net.SocksSocketImpl.connect(SocksSocketImpl.java:327) ~[na:na]
-	at java.base/java.net.Socket.connect(Socket.java:751) ~[na:na]
-	at com.rabbitmq.client.impl.SocketFrameHandlerFactory.create(SocketFrameHandlerFactory.java:61) ~[amqp-client-5.21.0.jar:5.21.0]
-	at com.rabbitmq.client.ConnectionFactory.newConnection(ConnectionFactory.java:1249) ~[amqp-client-5.21.0.jar:5.21.0]
-	at com.rabbitmq.client.ConnectionFactory.newConnection(ConnectionFactory.java:1198) ~[amqp-client-5.21.0.jar:5.21.0]
-	at org.springframework.amqp.rabbit.connection.AbstractConnectionFactory.connectAddresses(AbstractConnectionFactory.java:668) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.connection.AbstractConnectionFactory.connect(AbstractConnectionFactory.java:637) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.connection.AbstractConnectionFactory.createBareConnection(AbstractConnectionFactory.java:584) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	... 12 common frames omitted
-
-2026-01-14T21:40:17.547-03:00  INFO 34923 --- [organizador-producao] [ntContainer#2-1] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [localhost:5672]
-2026-01-14T21:40:17.548-03:00  INFO 34923 --- [organizador-producao] [           main] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [localhost:5672]
-2026-01-14T21:40:17.548-03:00  INFO 34923 --- [organizador-producao] [           main] o.s.a.r.l.SimpleMessageListenerContainer : Broker not available; cannot force queue declarations during start: java.net.ConnectException: Connection refused
-2026-01-14T21:40:17.550-03:00  INFO 34923 --- [organizador-producao] [ntContainer#3-1] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [localhost:5672]
-2026-01-14T21:40:17.550-03:00 ERROR 34923 --- [organizador-producao] [ntContainer#3-1] o.s.a.r.l.SimpleMessageListenerContainer : Failed to check/redeclare auto-delete queue(s).
-
-org.springframework.amqp.AmqpConnectException: java.net.ConnectException: Connection refused
-	at org.springframework.amqp.rabbit.support.RabbitExceptionTranslator.convertRabbitAccessException(RabbitExceptionTranslator.java:61) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.connection.AbstractConnectionFactory.createBareConnection(AbstractConnectionFactory.java:622) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.connection.CachingConnectionFactory.createConnection(CachingConnectionFactory.java:726) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.connection.ConnectionFactoryUtils.createConnection(ConnectionFactoryUtils.java:257) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.core.RabbitTemplate.doExecute(RabbitTemplate.java:2249) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.core.RabbitTemplate.execute(RabbitTemplate.java:2222) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.core.RabbitTemplate.execute(RabbitTemplate.java:2202) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.core.RabbitAdmin.getQueueInfo(RabbitAdmin.java:467) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.core.RabbitAdmin.getQueueProperties(RabbitAdmin.java:451) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer.attemptDeclarations(AbstractMessageListenerContainer.java:1960) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer.redeclareElementsIfNecessary(AbstractMessageListenerContainer.java:1924) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer$AsyncMessageProcessingConsumer.initialize(SimpleMessageListenerContainer.java:1478) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer$AsyncMessageProcessingConsumer.run(SimpleMessageListenerContainer.java:1320) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
-Caused by: java.net.ConnectException: Connection refused
-	at java.base/sun.nio.ch.Net.pollConnect(Native Method) ~[na:na]
-	at java.base/sun.nio.ch.Net.pollConnectNow(Net.java:682) ~[na:na]
-	at java.base/sun.nio.ch.NioSocketImpl.timedFinishConnect(NioSocketImpl.java:542) ~[na:na]
-	at java.base/sun.nio.ch.NioSocketImpl.connect(NioSocketImpl.java:592) ~[na:na]
-	at java.base/java.net.SocksSocketImpl.connect(SocksSocketImpl.java:327) ~[na:na]
-	at java.base/java.net.Socket.connect(Socket.java:751) ~[na:na]
-	at com.rabbitmq.client.impl.SocketFrameHandlerFactory.create(SocketFrameHandlerFactory.java:61) ~[amqp-client-5.21.0.jar:5.21.0]
-	at com.rabbitmq.client.ConnectionFactory.newConnection(ConnectionFactory.java:1249) ~[amqp-client-5.21.0.jar:5.21.0]
-	at com.rabbitmq.client.ConnectionFactory.newConnection(ConnectionFactory.java:1198) ~[amqp-client-5.21.0.jar:5.21.0]
-	at org.springframework.amqp.rabbit.connection.AbstractConnectionFactory.connectAddresses(AbstractConnectionFactory.java:668) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.connection.AbstractConnectionFactory.connect(AbstractConnectionFactory.java:637) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.connection.AbstractConnectionFactory.createBareConnection(AbstractConnectionFactory.java:584) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	... 12 common frames omitted
-
-2026-01-14T21:40:17.551-03:00  INFO 34923 --- [organizador-producao] [ntContainer#3-1] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [localhost:5672]
-2026-01-14T21:40:17.552-03:00  INFO 34923 --- [organizador-producao] [           main] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [localhost:5672]
-2026-01-14T21:40:17.552-03:00  INFO 34923 --- [organizador-producao] [           main] o.s.a.r.l.SimpleMessageListenerContainer : Broker not available; cannot force queue declarations during start: java.net.ConnectException: Connection refused
-2026-01-14T21:40:17.554-03:00  INFO 34923 --- [organizador-producao] [ntContainer#4-1] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [localhost:5672]
-2026-01-14T21:40:17.554-03:00 ERROR 34923 --- [organizador-producao] [ntContainer#4-1] o.s.a.r.l.SimpleMessageListenerContainer : Failed to check/redeclare auto-delete queue(s).
-
-org.springframework.amqp.AmqpConnectException: java.net.ConnectException: Connection refused
-	at org.springframework.amqp.rabbit.support.RabbitExceptionTranslator.convertRabbitAccessException(RabbitExceptionTranslator.java:61) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.connection.AbstractConnectionFactory.createBareConnection(AbstractConnectionFactory.java:622) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.connection.CachingConnectionFactory.createConnection(CachingConnectionFactory.java:726) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.connection.ConnectionFactoryUtils.createConnection(ConnectionFactoryUtils.java:257) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.core.RabbitTemplate.doExecute(RabbitTemplate.java:2249) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.core.RabbitTemplate.execute(RabbitTemplate.java:2222) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.core.RabbitTemplate.execute(RabbitTemplate.java:2202) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.core.RabbitAdmin.getQueueInfo(RabbitAdmin.java:467) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.core.RabbitAdmin.getQueueProperties(RabbitAdmin.java:451) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer.attemptDeclarations(AbstractMessageListenerContainer.java:1960) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer.redeclareElementsIfNecessary(AbstractMessageListenerContainer.java:1924) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer$AsyncMessageProcessingConsumer.initialize(SimpleMessageListenerContainer.java:1478) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer$AsyncMessageProcessingConsumer.run(SimpleMessageListenerContainer.java:1320) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
-Caused by: java.net.ConnectException: Connection refused
-	at java.base/sun.nio.ch.Net.pollConnect(Native Method) ~[na:na]
-	at java.base/sun.nio.ch.Net.pollConnectNow(Net.java:682) ~[na:na]
-	at java.base/sun.nio.ch.NioSocketImpl.timedFinishConnect(NioSocketImpl.java:542) ~[na:na]
-	at java.base/sun.nio.ch.NioSocketImpl.connect(NioSocketImpl.java:592) ~[na:na]
-	at java.base/java.net.SocksSocketImpl.connect(SocksSocketImpl.java:327) ~[na:na]
-	at java.base/java.net.Socket.connect(Socket.java:751) ~[na:na]
-	at com.rabbitmq.client.impl.SocketFrameHandlerFactory.create(SocketFrameHandlerFactory.java:61) ~[amqp-client-5.21.0.jar:5.21.0]
-	at com.rabbitmq.client.ConnectionFactory.newConnection(ConnectionFactory.java:1249) ~[amqp-client-5.21.0.jar:5.21.0]
-	at com.rabbitmq.client.ConnectionFactory.newConnection(ConnectionFactory.java:1198) ~[amqp-client-5.21.0.jar:5.21.0]
-	at org.springframework.amqp.rabbit.connection.AbstractConnectionFactory.connectAddresses(AbstractConnectionFactory.java:668) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.connection.AbstractConnectionFactory.connect(AbstractConnectionFactory.java:637) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	at org.springframework.amqp.rabbit.connection.AbstractConnectionFactory.createBareConnection(AbstractConnectionFactory.java:584) ~[spring-rabbit-3.1.5.jar:3.1.5]
-	... 12 common frames omitted
-
-2026-01-14T21:40:17.554-03:00  INFO 34923 --- [organizador-producao] [ntContainer#4-1] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [localhost:5672]
-2026-01-14T21:40:17.574-03:00  INFO 34923 --- [organizador-producao] [           main] g.y.o.s.OpImportServiceIntegrationTest   : Started OpImportServiceIntegrationTest in 6.075 seconds (process running for 11.199)
+2026-01-22T21:39:22.820-03:00  INFO 180211 --- [organizador-producao] [           main] g.y.o.s.OpImportServiceIntegrationTest   : Starting OpImportServiceIntegrationTest using Java 21.0.9 with PID 180211 (started by ynz in /home/ynz/Documents/organizador-producao)
+2026-01-22T21:39:22.820-03:00  INFO 180211 --- [organizador-producao] [           main] g.y.o.s.OpImportServiceIntegrationTest   : No active profile set, falling back to 1 default profile: "default"
+2026-01-22T21:39:24.549-03:00  INFO 180211 --- [organizador-producao] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-01-22T21:39:24.645-03:00  INFO 180211 --- [organizador-producao] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 85 ms. Found 9 JPA repository interfaces.
+2026-01-22T21:39:25.948-03:00  INFO 180211 --- [organizador-producao] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-01-22T21:39:26.260-03:00  INFO 180211 --- [organizador-producao] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@654ab198
+2026-01-22T21:39:26.264-03:00  INFO 180211 --- [organizador-producao] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-01-22T21:39:26.344-03:00  INFO 180211 --- [organizador-producao] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:5433/teste01 (PostgreSQL 17.6)
+2026-01-22T21:39:26.476-03:00  INFO 180211 --- [organizador-producao] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 30 migrations (execution time 00:00.085s)
+2026-01-22T21:39:26.502-03:00  INFO 180211 --- [organizador-producao] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 20260110
+2026-01-22T21:39:26.502-03:00  WARN 180211 --- [organizador-producao] [           main] o.f.core.internal.command.DbMigrate      : outOfOrder mode is active. Migration of schema "public" may not be reproducible.
+2026-01-22T21:39:26.505-03:00  WARN 180211 --- [organizador-producao] [           main] o.f.core.internal.command.DbMigrate      : Schema "public" has a version (20260110) that is newer than the latest available migration (20251222) !
+2026-01-22T21:39:26.516-03:00  INFO 180211 --- [organizador-producao] [           main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2026-01-22T21:39:26.736-03:00  INFO 180211 --- [organizador-producao] [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-01-22T21:39:26.898-03:00  INFO 180211 --- [organizador-producao] [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.2.Final
+2026-01-22T21:39:26.953-03:00  INFO 180211 --- [organizador-producao] [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-01-22T21:39:27.209-03:00  WARN 180211 --- [organizador-producao] [           main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-01-22T21:39:27.375-03:00  INFO 180211 --- [organizador-producao] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-01-22T21:39:28.945-03:00  INFO 180211 --- [organizador-producao] [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-01-22T21:39:28.948-03:00  INFO 180211 --- [organizador-producao] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-01-22T21:39:29.952-03:00  INFO 180211 --- [organizador-producao] [           main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-01-22T21:39:30.317-03:00  INFO 180211 --- [organizador-producao] [           main] eAuthenticationProviderManagerConfigurer : Global AuthenticationManager configured with AuthenticationProvider bean with name authenticationProvider
+2026-01-22T21:39:30.318-03:00  WARN 180211 --- [organizador-producao] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with an AuthenticationProvider bean. UserDetailsService beans will not be used for username/password login. Consider removing the AuthenticationProvider bean. Alternatively, consider using the UserDetailsService in a manually instantiated DaoAuthenticationProvider.
+2026-01-22T21:39:31.652-03:00  WARN 180211 --- [organizador-producao] [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-01-22T21:39:32.356-03:00  INFO 180211 --- [organizador-producao] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 4 endpoints beneath base path '/actuator'
+2026-01-22T21:39:32.468-03:00  INFO 180211 --- [organizador-producao] [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@6799243b, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@4aa4a3e5, org.springframework.security.web.context.SecurityContextHolderFilter@7764db24, org.springframework.security.web.header.HeaderWriterFilter@113b38ca, org.springframework.web.filter.CorsFilter@2203fa4c, org.springframework.security.web.authentication.logout.LogoutFilter@ed24b1d, git.yannynz.organizadorproducao.infra.security.JwtAuthenticationFilter@49e3bd37, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@5ab0b773, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@78097df5, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@a674645, org.springframework.security.web.session.SessionManagementFilter@77c5f519, org.springframework.security.web.access.ExceptionTranslationFilter@2ac8f084, org.springframework.security.web.access.intercept.AuthorizationFilter@444d2bb6]
+2026-01-22T21:39:33.396-03:00  INFO 180211 --- [organizador-producao] [           main] o.s.m.s.b.SimpleBrokerMessageHandler     : Starting...
+2026-01-22T21:39:33.397-03:00  INFO 180211 --- [organizador-producao] [           main] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@78ea668]]
+2026-01-22T21:39:33.398-03:00  INFO 180211 --- [organizador-producao] [           main] o.s.m.s.b.SimpleBrokerMessageHandler     : Started.
+2026-01-22T21:39:33.403-03:00  INFO 180211 --- [organizador-producao] [           main] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [localhost:5672]
+2026-01-22T21:39:33.480-03:00  INFO 180211 --- [organizador-producao] [           main] o.s.a.r.c.CachingConnectionFactory       : Created new connection: rabbitConnectionFactory#7722c8e6:0/SimpleConnection@1ccacb0c [delegate=amqp://guest@127.0.0.1:5672/, localPort=51414]
+2026-01-22T21:39:33.681-03:00  INFO 180211 --- [organizador-producao] [           main] g.y.o.s.OpImportServiceIntegrationTest   : Started OpImportServiceIntegrationTest in 10.903 seconds (process running for 24.536)
 Iniciando serviço de monitoramento de pastas...
 Atualizando prioridades dos pedidos...
 Data de criação não encontrada para o pedido: 2
@@ -297,10 +119,10 @@ Data de criação não encontrada para o pedido: 9
 Data de criação não encontrada para o pedido: 10
 Data de criação não encontrada para o pedido: 11
 Data de criação não encontrada para o pedido: 12
-2026-01-14T21:40:17.719-03:00  INFO 34923 --- [organizador-producao] [           main] g.y.o.service.OpImportService            : [IMPORT] recebida mensagem: numeroOp=120432-TST, dataOp=2025-11-12
+2026-01-22T21:39:33.965-03:00  INFO 180211 --- [organizador-producao] [           main] g.y.o.service.OpImportService            : [IMPORT] recebida mensagem: numeroOp=120432-TST, dataOp=2025-11-12
+2026-01-22T21:39:33.981-03:00  INFO 180211 --- [organizador-producao] [           main] g.y.o.service.OpImportService            : [IMPORT] flags calculadas OP 120432-TST -> emborrachada=false, pertinax=null, poliester=null, papelCalibrado=null, vaiVinco=true, locks(e=false,pt=false,po=false,pc=false,vinco=false)
 [ReconcileOps] Reconciliação periódica de OPs a faca concluída.
-2026-01-14T21:40:17.727-03:00  INFO 34923 --- [organizador-producao] [           main] g.y.o.service.OpImportService            : [IMPORT] flags calculadas OP 120432-TST -> emborrachada=false, pertinax=null, poliester=null, papelCalibrado=null, vaiVinco=true, locks(e=false,pt=false,po=false,pc=false,vinco=false)
-2026-01-14T21:40:17.775-03:00  INFO 34923 --- [organizador-producao] [           main] g.y.o.service.OpImportService            : [IMPORT] OP salva: id=4, nr=120432-TST, emborrachada=false, dataOp=2025-11-12T00:00-03:00[America/Sao_Paulo]
+2026-01-22T21:39:34.081-03:00  INFO 180211 --- [organizador-producao] [           main] g.y.o.service.OpImportService            : [IMPORT] OP salva: id=6, nr=120432-TST, emborrachada=false, dataOp=2025-11-12T00:00-03:00[America/Sao_Paulo]
 ]]></system-out>
   </testcase>
 </testsuite>

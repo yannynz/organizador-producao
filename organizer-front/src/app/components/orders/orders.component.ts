@@ -334,7 +334,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
 
   private resolvePublicImageUrl(analysis: DxfAnalysis): string | null {
     // 1. Tenta usar URLs diretas (imageUri ou imageUrl)
-    const candidates = [analysis.imageUri, analysis.imageUrl];
+    const candidates = [analysis.imageUrl, analysis.imageUri];
     for (const c of candidates) {
       if (c && c.trim()) {
         const trimmed = c.trim();
