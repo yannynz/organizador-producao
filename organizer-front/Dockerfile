@@ -1,4 +1,4 @@
-FROM public.ecr.aws/docker/library/node:18-slim AS build
+FROM public.ecr.aws/docker/library/node:20-slim AS build
 
 # Configurar o fuso horário para São Paulo
 ENV TZ=America/Sao_Paulo
