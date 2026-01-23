@@ -1,4 +1,6 @@
 package git.yannynz.organizadorproducao.model;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import jakarta.persistence.*;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -88,7 +90,9 @@ public class Cliente {
   public void setNomeNormalizado(String nomeNormalizado) { this.nomeNormalizado = nomeNormalizado; }
 
   public List<String> getApelidos() { return apelidos; }
+  @JsonIgnore
   public void setApelidos(List<String> apelidos) { this.apelidos = apelidos != null ? apelidos : new ArrayList<>(); }
+  @JsonIgnore
   /** Accepts comma-separated strings when coming from legacy payloads. */
   public void setApelidos(String apelidosCsv) {
       if (apelidosCsv == null) {
@@ -105,6 +109,28 @@ public class Cliente {
       for (String p : parts) {
           if (!p.isBlank()) this.apelidos.add(p.trim());
       }
+  }
+  @JsonSetter("apelidos")
+  public void setApelidosJson(Object value) {
+      if (value == null) {
+          this.apelidos = new ArrayList<>();
+          return;
+      }
+      if (value instanceof java.util.List<?> list) {
+          ArrayList<String> parsed = new ArrayList<>();
+          for (Object item : list) {
+              if (item == null) continue;
+              String s = item.toString().trim();
+              if (!s.isEmpty()) parsed.add(s);
+          }
+          this.apelidos = parsed;
+          return;
+      }
+      if (value instanceof String s) {
+          setApelidos(s);
+          return;
+      }
+      this.apelidos = new ArrayList<>();
   }
 
   public String getPadraoEntrega() { return padraoEntrega; }
