@@ -1,9 +1,13 @@
 package git.yannynz.organizadorproducao.controller;
 
 import git.yannynz.organizadorproducao.model.Cliente;
+import git.yannynz.organizadorproducao.model.ClienteEndereco;
 import git.yannynz.organizadorproducao.service.ClienteService;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -24,6 +28,17 @@ public class ClienteController {
     @GetMapping("/{id}")
     public Cliente getById(@PathVariable Long id) {
         return service.findById(id).orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
+    }
+
+    @GetMapping("/{id}/enderecos")
+    public List<ClienteEndereco> listEnderecos(@PathVariable Long id) {
+        return service.listEnderecos(id);
+    }
+
+    @GetMapping("/{id}/endereco-default")
+    public ClienteEndereco getEnderecoDefault(@PathVariable Long id) {
+        return service.findEnderecoDefault(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Endereço padrão não encontrado"));
     }
 
     @PostMapping

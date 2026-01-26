@@ -59,6 +59,13 @@ Foram criadas três novas tabelas principais e alteradas as existentes (`orders`
     *   Responsável por receber o DTO da OP, buscar o cliente pelo `nome_normalizado` (ou criar se não existir).
     *   Atualiza dados cadastrais (CNPJ, IE, Telefone, Email) se vierem no payload.
     *   Gerencia a lista de endereços, tentando fazer *match* com endereços existentes ou criando novos se necessário.
+    *   Matching por CEP + logradouro (e UF quando disponível), tolerando variações de bairro/cidade.
+    *   Atualização incremental de campos sugeridos quando o endereço não está com `manual_lock`.
+    *   Promoção automática do endereço default com base em score de completude.
+
+*   **`ClienteController` (Endpoints adicionais):**
+    *   `GET /api/clientes/{id}/enderecos` - lista endereços do cliente.
+    *   `GET /api/clientes/{id}/endereco-default` - retorna o endereço padrão (404 se ausente).
 
 *   **`OpImportedListener` (Resiliência):**
     *   O DTO `OpImportRequestDTO` foi blindado com `@JsonIgnoreProperties(ignoreUnknown = true)`. Isso impede que o RabbitMQ trave ou rejeite mensagens se o sistema externo enviar campos novos (como `vendedor`, `obs_producao`) que ainda não foram mapeados.
@@ -78,6 +85,7 @@ Foram criadas três novas tabelas principais e alteradas as existentes (`orders`
 *   **Visualização Limpa:**
     *   Endereço principal separado de dados de contato.
     *   Colunas específicas para Logística e Documentos.
+    *   Endereço principal passou a ser carregado sob demanda no formulário (não mais listado na tabela).
 
 ### 4.2. Formulário de Edição (`app-cliente-form`)
 
@@ -85,6 +93,7 @@ Foram criadas três novas tabelas principais e alteradas as existentes (`orders`
 *   **Gestão de Endereços:**
     *   CRUD completo de endereços dentro do modal do cliente (Adicionar, Remover, Editar).
     *   Definição visual do endereço "Principal".
+    *   Carregamento sob demanda dos endereços ao editar clientes existentes.
 *   **Campos Completos:** Edição de todos os novos campos (CEP, Email, Horários, etc).
 
 ### 4.3. Admin de Transportadoras (`app-transportadoras-admin`)

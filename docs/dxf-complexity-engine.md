@@ -154,6 +154,11 @@ Métricas expostas pelo backend após o processamento:
 
 **Observação:** resultados anteriores (antes de habilitar o MinIO) continuam com `imagePath` apontando para `C:\FacasDXF\Renders\...`. O backend ignora esses caminhos Windows ao gerar `imageUrl`, e o frontend apresenta o caminho legado apenas como fallback textual.
 
+### Imagem (fallback/backfill)
+
+- Quando uma analise chega sem dados de imagem, o backend tenta reaproveitar a imagem mais recente por `fileHash` ou por `orderNr` (inclui variacoes NR/CL) e copia os metadados para o novo registro.
+- `imageUploadStatus=skipped` e a presenca de `imageKey` passam a ser tratados como imagem valida no backend.
+
 ### Observabilidade
 
 O dashboard `organizador-backend` ganhou a linha **DXF Analysis** destacando:

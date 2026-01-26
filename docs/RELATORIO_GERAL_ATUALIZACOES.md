@@ -4,6 +4,19 @@ Este documento consolida o histórico de implementações, atualizações e melh
 
 ---
 
+## 📅 26/01/2026 - Enriquecimento de Clientes e Resiliencia de Imagens DXF
+**Status:** Implementado localmente
+
+Atualizacoes locais focadas em enriquecimento de enderecos, carregamento sob demanda no frontend e maior resiliencia na exibicao de imagens DXF.
+
+### Destaques
+- **Clientes - Enderecos sob demanda:** o formulario de cliente passa a carregar os enderecos via `/api/clientes/{id}/enderecos` quando um registro existente eh editado, reduzindo o peso da listagem de clientes.
+- **Enriquecimento inteligente de enderecos:** matching por CEP + logradouro (com UF quando disponivel), preenchimento de campos faltantes e promocao automatica do endereco default com base em score, respeitando `manual_lock`.
+- **DXF - Imagem resiliente:** analises sem imagem agora recebem backfill de metadados a partir da analise mais recente por `fileHash` ou `orderNr` (inclui NR/CL). `imageUploadStatus=skipped` passa a contar como imagem valida.
+- **DXF - Atributos tecnicos:** novas colunas em `dxf_analysis` para aco/vinco/serrilha/pertinax/destacador e flags de material (`papel_calibrado`, `poliester`) via migracoes `V20260107__add_dxf_attributes.sql` e `V20260110__add_dxf_material_flags.sql`.
+
+---
+
 ## 📅 30/11/2025 - Gestão de Clientes e Transportadoras (v0.7.0)
 **Status:** Completo
 

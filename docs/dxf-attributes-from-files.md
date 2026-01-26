@@ -16,14 +16,16 @@ Visão Geral do Fluxo
 3) Frontend:
    - Renderiza imagem e exibe atributos técnicos nas telas de borracha/detalhes.
 
-Modelo de Dados (proposto)
---------------------------
-Novos campos em `dxf_analysis` (e `DXFAnalysisView`/API):
+Modelo de Dados (colunas no banco)
+----------------------------------
+Novos campos em `dxf_analysis` (colunas ja adicionadas via migracoes):
 - `steel_type` (varchar): AÇO CS, AÇO BÖHLER, AÇO BX, AÇO RIP etc.
 - `vinco_type` (varchar): ex. VINCO BÖHLER, VINCO PADRÃO.
 - `vinco_height_mm` (double): ex. 23.6.
 - `serrilha_codes` (jsonb): lista de códigos detectados, ex. `[{"code":"5x5","prefix":"X"},{"code":"3x1","prefix":"Y"}]`.
 - `pertinax` (boolean).
+- `papel_calibrado` (boolean).
+- `poliester` (boolean).
 - `destacador` (varchar, ex. M/F/MF).
 - `raw_attrs` (jsonb): opcional para armazenar strings cruas encontradas.
 
@@ -63,16 +65,11 @@ Compatibilidade/Cache:
 
 Persistência no Backend
 -----------------------
-1) Migration Flyway: adicionar colunas em `dxf_analysis`:
-   - `steel_type` varchar(64)
-   - `vinco_type` varchar(64)
-   - `vinco_height_mm` numeric
-   - `serrilha_codes` jsonb
-   - `pertinax` boolean
-   - `destacador` varchar(8)
-   - `raw_attrs` jsonb (opcional)
-2) Mapear no entity `DXFAnalysis` e no DTO `DXFAnalysisView`.
-3) API já expõe `/api/dxf-analysis/order/{nr}`; apenas incluir novos campos no payload.
+1) Migracoes Flyway criadas:
+   - `V20260107__add_dxf_attributes.sql`: `steel_type`, `vinco_type`, `vinco_height_mm`, `serrilha_codes`, `pertinax`, `destacador`, `raw_attrs`.
+   - `V20260110__add_dxf_material_flags.sql`: `papel_calibrado`, `poliester`.
+2) Mapear no entity `DXFAnalysis` e no DTO `DXFAnalysisView` (pendente).
+3) API ja expoe `/api/dxf-analysis/order/{nr}`; incluir os novos campos no payload quando o mapeamento estiver pronto.
 
 Frontend
 --------

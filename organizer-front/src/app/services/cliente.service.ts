@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../enviroment';
-import { Cliente } from '../models/cliente.model';
+import { Cliente, ClienteEndereco } from '../models/cliente.model';
 import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
@@ -21,6 +21,10 @@ export class ClienteService {
 
   getById(id: number): Observable<Cliente> {
     return this.http.get<Cliente>(`${this.apiUrl}/${id}`);
+  }
+
+  listEnderecos(id: number): Observable<ClienteEndereco[]> {
+    return this.http.get<ClienteEndereco[]>(`${this.apiUrl}/${id}/enderecos`);
   }
 
   create(cliente: Cliente): Observable<Cliente> {

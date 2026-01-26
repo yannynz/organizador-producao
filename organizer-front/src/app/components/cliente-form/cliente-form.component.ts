@@ -52,6 +52,12 @@ export class ClienteFormComponent implements OnInit {
     if (this.cliente.defaultDestacador == null) {
       this.cliente.defaultDestacador = '';
     }
+
+    if (this.cliente.id) {
+      this.service.listEnderecos(this.cliente.id).subscribe(list => {
+        this.cliente.enderecos = list || [];
+      });
+    }
   }
 
   addEndereco() {

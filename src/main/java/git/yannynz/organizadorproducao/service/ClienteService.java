@@ -1,11 +1,14 @@
 package git.yannynz.organizadorproducao.service;
 
 import git.yannynz.organizadorproducao.model.Cliente;
+import git.yannynz.organizadorproducao.model.ClienteEndereco;
+import git.yannynz.organizadorproducao.repository.ClienteEnderecoRepository;
 import git.yannynz.organizadorproducao.repository.ClienteRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
 import java.util.Optional;
 
 import git.yannynz.organizadorproducao.repository.TransportadoraRepository;
@@ -14,10 +17,14 @@ import git.yannynz.organizadorproducao.repository.TransportadoraRepository;
 public class ClienteService {
 
     private final ClienteRepository repo;
+    private final ClienteEnderecoRepository enderecoRepo;
     private final TransportadoraRepository transportadoraRepo;
 
-    public ClienteService(ClienteRepository repo, TransportadoraRepository transportadoraRepo) {
+    public ClienteService(ClienteRepository repo,
+                          ClienteEnderecoRepository enderecoRepo,
+                          TransportadoraRepository transportadoraRepo) {
         this.repo = repo;
+        this.enderecoRepo = enderecoRepo;
         this.transportadoraRepo = transportadoraRepo;
     }
 
@@ -27,6 +34,14 @@ public class ClienteService {
 
     public Optional<Cliente> findById(Long id) {
         return repo.findById(id);
+    }
+
+    public List<ClienteEndereco> listEnderecos(Long clienteId) {
+        return enderecoRepo.findByClienteId(clienteId);
+    }
+
+    public Optional<ClienteEndereco> findEnderecoDefault(Long clienteId) {
+        return enderecoRepo.findByClienteIdAndIsDefaultTrue(clienteId);
     }
 
     @Transactional

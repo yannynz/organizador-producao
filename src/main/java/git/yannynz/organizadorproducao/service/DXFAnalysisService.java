@@ -181,6 +181,8 @@ public class DXFAnalysisService {
                         entity.getImageUploadMessage());
             }
 
+            backfillImageIfMissing(entity);
+
             entity.setCacheHit(payload.path("cacheHit").asBoolean(false));
 
             OffsetDateTime analyzedAt = resolveAnalysisTimestamp(payload);
@@ -231,15 +233,13 @@ public class DXFAnalysisService {
 
         DXFAnalysis latestWithImage = null;
         for (String candidate : candidates) {
-            List<DXFAnalysis> history = analysisRepository.findByOrderNrOrderByAnalyzedAtDesc(candidate, PageRequest.of(0, 10));
-            for (DXFAnalysis item : history) {
-                if (!hasImage(item)) {
-                    continue;
-                }
-                if (latestWithImage == null || isAfter(item.getAnalyzedAt(), latestWithImage.getAnalyzedAt())) {
-                    latestWithImage = item;
-                }
-                break;
+            List<DXFAnalysis> withImage = analysisRepository.findLatestWithImageByOrderNr(candidate, PageRequest.of(0, 1));
+            if (withImage.isEmpty()) {
+                continue;
+            }
+            DXFAnalysis item = withImage.get(0);
+            if (latestWithImage == null || isAfter(item.getAnalyzedAt(), latestWithImage.getAnalyzedAt())) {
+                latestWithImage = item;
             }
         }
 
@@ -757,7 +757,12 @@ public class DXFAnalysisService {
         String status = analysis.getImageUploadStatus();
         if (hasText(status)) {
             String normalized = status.trim().toLowerCase(Locale.ROOT);
-            return normalized.equals("uploaded") || normalized.equals("exists");
+            if (normalized.equals("uploaded") || normalized.equals("exists") || normalized.equals("skipped")) {
+                return true;
+            }
+            if (normalized.equals("failed") || normalized.equals("error")) {
+                return false;
+            }
         }
 
         Long sizeBytes = analysis.getImageSizeBytes();
@@ -765,7 +770,73 @@ public class DXFAnalysisService {
             return true;
         }
 
-        return hasText(analysis.getImageUri()) || hasText(analysis.getImagePath());
+        return hasText(analysis.getImageKey()) || hasText(analysis.getImageUri()) || hasText(analysis.getImagePath());
+    }
+
+    private void backfillImageIfMissing(DXFAnalysis entity) {
+        if (entity == null) {
+            return;
+        }
+        if (hasImage(entity)) {
+            return;
+        }
+
+        DXFAnalysis fallback = findFallbackImage(entity);
+        if (fallback == null) {
+            return;
+        }
+
+        copyImageInfo(fallback, entity);
+        log.info("DXF image backfilled analysisId={} order={} hash={}",
+                entity.getAnalysisId(),
+                entity.getOrderNr(),
+                entity.getFileHash());
+    }
+
+    private DXFAnalysis findFallbackImage(DXFAnalysis entity) {
+        String fileHash = entity.getFileHash();
+        if (hasText(fileHash)) {
+            List<DXFAnalysis> byHash = analysisRepository.findLatestWithImageByFileHash(fileHash, PageRequest.of(0, 1));
+            if (!byHash.isEmpty()) {
+                return byHash.get(0);
+            }
+        }
+
+        String orderNr = entity.getOrderNr();
+        if (!hasText(orderNr)) {
+            return null;
+        }
+
+        List<String> candidates = buildOrderCandidates(orderNr);
+        DXFAnalysis latest = null;
+        for (String candidate : candidates) {
+            List<DXFAnalysis> byOrder = analysisRepository.findLatestWithImageByOrderNr(candidate, PageRequest.of(0, 1));
+            if (byOrder.isEmpty()) {
+                continue;
+            }
+            DXFAnalysis item = byOrder.get(0);
+            if (latest == null || isAfter(item.getAnalyzedAt(), latest.getAnalyzedAt())) {
+                latest = item;
+            }
+        }
+
+        return latest;
+    }
+
+    private void copyImageInfo(DXFAnalysis source, DXFAnalysis target) {
+        target.setImagePath(source.getImagePath());
+        target.setImageWidth(source.getImageWidth());
+        target.setImageHeight(source.getImageHeight());
+        target.setImageBucket(source.getImageBucket());
+        target.setImageKey(source.getImageKey());
+        target.setImageUri(source.getImageUri());
+        target.setImageChecksum(source.getImageChecksum());
+        target.setImageSizeBytes(source.getImageSizeBytes());
+        target.setImageContentType(source.getImageContentType());
+        target.setImageUploadStatus(source.getImageUploadStatus());
+        target.setImageUploadMessage(source.getImageUploadMessage());
+        target.setImageUploadedAt(source.getImageUploadedAt());
+        target.setImageEtag(source.getImageEtag());
     }
 
     private boolean isAfter(OffsetDateTime candidate, OffsetDateTime reference) {

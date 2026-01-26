@@ -74,7 +74,7 @@ Entidades e relacionamentos:
 - `ClienteEndereco` (cliente_enderecos)
   - Enderecos por cliente e flags (default, manual_lock).
 - `DXFAnalysis` (dxf_analysis)
-  - Resultado de analise e metadados de imagem.
+  - Resultado de analise, metadados de imagem e atributos tecnicos (steel_type, vinco_type, vinco_height_mm, serrilha_codes, pertinax, destacador, papel_calibrado, poliester, raw_attrs).
 - `User` (users) e `PasswordResetToken` (password_reset_tokens)
   - Base de autenticacao.
 - `OrderHistory` (order_history)
@@ -110,6 +110,8 @@ Entidades e relacionamentos:
 
 - `GET /api/clientes` - busca paginada.
 - `GET /api/clientes/{id}` - cliente por id.
+- `GET /api/clientes/{id}/enderecos` - lista enderecos do cliente.
+- `GET /api/clientes/{id}/endereco-default` - endereco padrao do cliente.
 - `POST /api/clientes` - cria cliente.
 - `PATCH /api/clientes/{id}` - atualiza cliente.
 

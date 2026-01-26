@@ -15,7 +15,6 @@
         <thead>
           <tr>
             <th style="min-width: 200px;">Cliente</th>
-            <th style="min-width: 250px;">Endereço Principal</th>
             <th style="min-width: 180px;">Contatos</th>
             <th style="min-width: 150px;">Docs / Info</th>
             <th style="min-width: 180px;">Logística</th>
@@ -33,21 +32,6 @@
               </div>
             </td>
             
-            <!-- Endereço: Limpo, apenas o default -->
-            <td>
-              <ng-container *ngIf="c.enderecos && c.enderecos.length > 0; else noAddr">
-                <!-- Apenas o primeiro endereço (assumindo que o backend ordena ou traz o default primeiro, ou filtramos visualmente o default) -->
-                <div *ngFor="let e of c.enderecos">
-                  <div *ngIf="e.isDefault">
-                    <div class="text-truncate" style="max-width: 250px;" title="{{e.logradouro}}">{{e.logradouro}}</div>
-                    <small class="text-muted d-block">{{e.bairro}} - {{e.cidade}}/{{e.uf}}</small>
-                    <small class="text-muted" *ngIf="e.cep">CEP: {{e.cep}}</small>
-                  </div>
-                </div>
-              </ng-container>
-              <ng-template #noAddr><span class="text-muted text-small">-</span></ng-template>
-            </td>
-
             <!-- Contatos: Email e Telefone -->
             <td>
               <div *ngIf="c.emailContato" class="text-truncate" style="max-width: 180px;">

@@ -195,7 +195,7 @@ Observacao:
 ### 8.6 ClienteService
 
 - Base: `${apiBaseUrl}/clientes`.
-- `search`, `getById`, `create`, `update`.
+- `search`, `getById`, `listEnderecos`, `create`, `update`.
 
 ### 8.7 TransportadoraService
 

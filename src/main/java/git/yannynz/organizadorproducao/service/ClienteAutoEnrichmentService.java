@@ -15,8 +15,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.time.ZoneId;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 @Service
 public class ClienteAutoEnrichmentService {
@@ -102,16 +106,20 @@ public class ClienteAutoEnrichmentService {
 
             Optional<ClienteEndereco> match = existentes.stream()
                     .filter(e -> isAddressMatch(e, sug))
+                    .sorted(Comparator.comparing(e -> !Boolean.TRUE.equals(e.getIsDefault())))
                     .findFirst();
 
             if (match.isPresent()) {
                 endereco = match.get();
-                if (endereco.getHorarioFuncionamento() == null && sug.getHorarioFuncionamento() != null) {
-                     endereco.setHorarioFuncionamento(sug.getHorarioFuncionamento());
-                     enderecoRepo.save(endereco);
+                if (applySuggestedAddress(endereco, sug)) {
+                    enderecoRepo.save(endereco);
                 }
             } else {
                 endereco = createEndereco(cliente, sug, existentes.isEmpty());
+            }
+
+            if (endereco != null) {
+                maybePromoteDefault(existentes, endereco);
             }
         } else {
             endereco = enderecoRepo.findByClienteIdAndIsDefaultTrue(cliente.getId()).orElse(null);
@@ -161,12 +169,27 @@ public class ClienteAutoEnrichmentService {
     }
 
     private boolean isAddressMatch(ClienteEndereco db, EnderecoSugeridoDTO sug) {
-        if (sug.getCidade() != null && db.getCidade() != null && !sug.getCidade().equalsIgnoreCase(db.getCidade())) return false;
-        if (sug.getUf() != null && db.getUf() != null && !sug.getUf().equalsIgnoreCase(db.getUf())) return false;
-        
+        if (db == null || sug == null) return false;
+
+        String dbCep = normalizeCep(db.getCep());
+        String sugCep = normalizeCep(sug.getCep());
         String dbLog = normalizar(db.getLogradouro());
         String sugLog = normalizar(sug.getLogradouro());
-        
+
+        // If CEP + logradouro (and UF when present) match, treat as same address even if bairro/cidade differ.
+        if (!dbCep.isEmpty() && !sugCep.isEmpty() && dbCep.equals(sugCep) && !dbLog.isEmpty() && !sugLog.isEmpty()) {
+            if (dbLog.contains(sugLog) || sugLog.contains(dbLog)) {
+                String dbUf = safeUpper(db.getUf());
+                String sugUf = safeUpper(sug.getUf());
+                if (dbUf.isEmpty() || sugUf.isEmpty() || dbUf.equals(sugUf)) {
+                    return true;
+                }
+            }
+        }
+
+        if (sug.getCidade() != null && db.getCidade() != null && !sug.getCidade().equalsIgnoreCase(db.getCidade())) return false;
+        if (sug.getUf() != null && db.getUf() != null && !sug.getUf().equalsIgnoreCase(db.getUf())) return false;
+
         if (dbLog.isEmpty() && sugLog.isEmpty()) return true;
         
         return dbLog.contains(sugLog) || sugLog.contains(dbLog);
@@ -367,5 +390,197 @@ public class ClienteAutoEnrichmentService {
                 .replaceAll("\\bSUPERQUADRA SUL\\.?\\b", "SUPERQUADRA SUL")
                 .replaceAll("\\bVIADUTO\\.?\\b", "VIADUTO")
                 .replaceAll("\\bVILA\\.?\\b", "VILA");
+    }
+
+    private boolean applySuggestedAddress(ClienteEndereco endereco, EnderecoSugeridoDTO sug) {
+        if (endereco == null || sug == null) return false;
+        if (Boolean.TRUE.equals(endereco.getManualLock())) return false;
+
+        boolean dirty = false;
+
+        dirty |= applyFieldIfUseful(endereco::getCep, endereco::setCep, sug.getCep());
+        dirty |= applyFieldIfUseful(endereco::getLogradouro, endereco::setLogradouro, sug.getLogradouro());
+        dirty |= applyFieldIfUseful(endereco::getUf, endereco::setUf, sug.getUf());
+        dirty |= applyFieldIfUseful(endereco::getPadraoEntrega, endereco::setPadraoEntrega, sug.getPadraoEntrega());
+        dirty |= applyFieldIfUseful(endereco::getHorarioFuncionamento, endereco::setHorarioFuncionamento, sug.getHorarioFuncionamento());
+
+        dirty |= applyCidadeBairro(endereco, sug);
+
+        return dirty;
+    }
+
+    private boolean applyCidadeBairro(ClienteEndereco endereco, EnderecoSugeridoDTO sug) {
+        String cidade = safeTrim(endereco.getCidade());
+        String bairro = safeTrim(endereco.getBairro());
+        String sugCidade = safeTrim(sug.getCidade());
+        String sugBairro = safeTrim(sug.getBairro());
+
+        boolean dirty = false;
+
+        if (!sugCidade.isEmpty() && shouldReplaceCidade(cidade, sugCidade, sugBairro)) {
+            endereco.setCidade(sugCidade);
+            dirty = true;
+        } else if (cidade.isEmpty() && !sugCidade.isEmpty()) {
+            endereco.setCidade(sugCidade);
+            dirty = true;
+        }
+
+        if (!sugBairro.isEmpty() && shouldReplaceBairro(bairro, sugBairro, sugCidade)) {
+            endereco.setBairro(sugBairro);
+            dirty = true;
+        } else if (bairro.isEmpty() && !sugBairro.isEmpty()) {
+            endereco.setBairro(sugBairro);
+            dirty = true;
+        }
+
+        return dirty;
+    }
+
+    private boolean shouldReplaceCidade(String existing, String suggested, String suggestedBairro) {
+        if (suggested.isEmpty()) return false;
+        if (existing.isEmpty()) return true;
+        if (equalsIgnoreCase(existing, suggested)) return false;
+
+        var exTokens = tokens(existing);
+        var sugTokens = tokens(suggested);
+
+        if (exTokens.size() == 1 && sugTokens.size() > 1 && endsWithIgnoreCase(suggested, existing)) {
+            return true;
+        }
+
+        if (!suggestedBairro.isEmpty() && tokenOverlap(tokens(suggestedBairro), exTokens)) {
+            return true;
+        }
+
+        if (sugTokens.size() > exTokens.size() && containsIgnoreCase(suggested, existing)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean shouldReplaceBairro(String existing, String suggested, String suggestedCidade) {
+        if (suggested.isEmpty()) return false;
+        if (existing.isEmpty()) return true;
+        if (equalsIgnoreCase(existing, suggested)) return false;
+
+        var exTokens = tokens(existing);
+        var sugTokens = tokens(suggested);
+
+        if (!suggestedCidade.isEmpty() && tokenOverlap(tokens(suggestedCidade), exTokens)) {
+            return true;
+        }
+
+        if (sugTokens.size() > exTokens.size() && containsIgnoreCase(suggested, existing)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private void maybePromoteDefault(List<ClienteEndereco> existentes, ClienteEndereco candidato) {
+        if (candidato == null || existentes == null) return;
+
+        ClienteEndereco currentDefault = existentes.stream()
+                .filter(e -> Boolean.TRUE.equals(e.getIsDefault()))
+                .findFirst()
+                .orElse(null);
+
+        if (currentDefault == null) {
+            setDefault(existentes, candidato);
+            return;
+        }
+
+        if (currentDefault.getId() != null && currentDefault.getId().equals(candidato.getId())) {
+            return;
+        }
+
+        if (Boolean.TRUE.equals(currentDefault.getManualLock())) {
+            return;
+        }
+
+        if (scoreEndereco(candidato) > scoreEndereco(currentDefault)) {
+            setDefault(existentes, candidato);
+        }
+    }
+
+    private void setDefault(List<ClienteEndereco> existentes, ClienteEndereco novoDefault) {
+        for (ClienteEndereco e : existentes) {
+            boolean shouldBeDefault = e.getId() != null && e.getId().equals(novoDefault.getId());
+            if (!Boolean.valueOf(shouldBeDefault).equals(e.getIsDefault())) {
+                e.setIsDefault(shouldBeDefault);
+                enderecoRepo.save(e);
+            }
+        }
+    }
+
+    private int scoreEndereco(ClienteEndereco e) {
+        int score = 0;
+        if (e == null) return score;
+        if (!safeTrim(e.getCep()).isEmpty()) score += 3;
+        if (!safeTrim(e.getLogradouro()).isEmpty()) score += 3;
+        if (!safeTrim(e.getCidade()).isEmpty()) score += 2;
+        if (!safeTrim(e.getBairro()).isEmpty()) score += 2;
+        if (!safeTrim(e.getUf()).isEmpty()) score += 1;
+        if (!safeTrim(e.getPadraoEntrega()).isEmpty()) score += 1;
+        if (!safeTrim(e.getHorarioFuncionamento()).isEmpty()) score += 1;
+        if ("HIGH".equalsIgnoreCase(safeTrim(e.getConfidence()))) score += 1;
+        return score;
+    }
+
+    private boolean applyFieldIfUseful(Supplier<String> getter, Consumer<String> setter, String suggested) {
+        String current = safeTrim(getter.get());
+        String sug = safeTrim(suggested);
+        if (sug.isEmpty()) return false;
+        if (current.isEmpty()) {
+            setter.accept(sug);
+            return true;
+        }
+        if (!equalsIgnoreCase(current, sug) && containsIgnoreCase(sug, current)) {
+            setter.accept(sug);
+            return true;
+        }
+        return false;
+    }
+
+    private String normalizeCep(String cep) {
+        if (cep == null) return "";
+        return cep.replaceAll("\\D", "");
+    }
+
+    private String safeTrim(String s) {
+        return s == null ? "" : s.trim();
+    }
+
+    private String safeUpper(String s) {
+        return s == null ? "" : s.trim().toUpperCase();
+    }
+
+    private boolean equalsIgnoreCase(String a, String b) {
+        return safeTrim(a).equalsIgnoreCase(safeTrim(b));
+    }
+
+    private boolean containsIgnoreCase(String haystack, String needle) {
+        return safeTrim(haystack).toUpperCase().contains(safeTrim(needle).toUpperCase());
+    }
+
+    private boolean endsWithIgnoreCase(String haystack, String needle) {
+        return safeTrim(haystack).toUpperCase().endsWith(safeTrim(needle).toUpperCase());
+    }
+
+    private List<String> tokens(String value) {
+        if (value == null) return List.of();
+        return Arrays.stream(value.trim().split("\\s+"))
+                .filter(t -> !t.isBlank())
+                .map(String::toUpperCase)
+                .toList();
+    }
+
+    private boolean tokenOverlap(List<String> a, List<String> b) {
+        if (a.isEmpty() || b.isEmpty()) return false;
+        for (String token : a) {
+            if (b.contains(token)) return true;
+        }
+        return false;
     }
 }
