@@ -284,4 +284,3 @@ Backend -> expoe imageBaseUrl -> Frontend
   - Orquestra build do frontend + compose up.
 - `scripts/dxf-replay.sh`
   - Simula eventos de DXF via filesystem.
-
