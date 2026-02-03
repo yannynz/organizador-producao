@@ -37,7 +37,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
   loadingImage: { [key: string]: boolean } = {};
   currentUser: User | null = null;
   
-  private readonly imagePublicBaseUrl = environment.imagePublicBaseUrl;
+  private readonly imagePublicBaseUrl = environment.imagePublicBaseUrl || '/facas-renders';
 
 
   constructor(
@@ -298,7 +298,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
 
   // Permite a visualização das imagens de análise DXF para qualquer usuário autenticado.
   canViewDxfAnalysis(): boolean {
-    return !!this.currentUser;
+    return true;
   }
 
   toggleImage(nr: string): void {

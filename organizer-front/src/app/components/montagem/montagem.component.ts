@@ -13,6 +13,7 @@ import { UserService } from '../../services/user.service';
 import { AssignableUser, User } from '../../models/user.model';
 import { UserSelectorComponent } from '../shared/user-selector/user-selector.component';
 import { OpService } from '../../services/op.service';
+import { environment } from '../../enviroment';
 
 type AcaoMontagem = 'montar' | 'vincar' | 'montarVincar';
 type ComplexidadeEstado = 'loading' | 'ready' | 'empty';
@@ -50,6 +51,7 @@ export class MontagemComponent implements OnInit {
   expandedNr: string | null = null;
   imageUrls: { [key: string]: string } = {};
   loadingImage: { [key: string]: boolean } = {};
+  private readonly imagePublicBaseUrl = environment.imagePublicBaseUrl || '/facas-renders';
 
   // Materiais Modal
   showMateriaisModal = false;
@@ -114,11 +116,8 @@ export class MontagemComponent implements OnInit {
     this.loadingImage[nr] = true;
     this.dxfAnalysisService.getLatestByOrder(nr).subscribe({
       next: (analysis) => {
-        if (analysis && analysis.imageUrl) {
-          this.imageUrls[nr] = analysis.imageUrl;
-        } else {
-          this.imageUrls[nr] = ''; // Marca como sem imagem
-        }
+        const resolved = analysis ? this.resolvePublicImageUrl(analysis) : null;
+        this.imageUrls[nr] = resolved || '';
         this.loadingImage[nr] = false;
       },
       error: () => {
@@ -691,7 +690,36 @@ export class MontagemComponent implements OnInit {
 
   canViewDxfAnalysis(): boolean {
     // Qualquer usuário autenticado pode visualizar a análise DXF.
-    return !!this.currentUser;
+    return true;
+  }
+
+  private resolvePublicImageUrl(analysis: DxfAnalysis): string | null {
+    const candidates = [analysis.imageUrl, analysis.imageUri];
+    for (const c of candidates) {
+      if (c && c.trim()) {
+        const trimmed = c.trim();
+        if (trimmed.startsWith('data:') || trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+          return trimmed;
+        }
+        if (trimmed.startsWith('//')) {
+          return `https:${trimmed}`;
+        }
+        return trimmed;
+      }
+    }
+
+    if (this.imagePublicBaseUrl && analysis.imageKey) {
+      const base = this.normalizeBaseUrl(this.imagePublicBaseUrl);
+      const key = analysis.imageKey.startsWith('/') ? analysis.imageKey.substring(1) : analysis.imageKey;
+      return `${base}/${key}`;
+    }
+
+    return null;
+  }
+
+  private normalizeBaseUrl(value: string): string {
+    const trimmed = value.trim();
+    return trimmed.endsWith('/') ? trimmed.slice(0, -1) : trimmed;
   }
 
 }

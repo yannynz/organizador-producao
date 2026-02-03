@@ -94,7 +94,7 @@ export class OrderDetailsModalComponent implements OnInit, OnChanges, OnDestroy 
     @Inject(PLATFORM_ID) platformId: object
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
-    this.imagePublicBaseUrl = this.normalizeBaseUrl(environment.imagePublicBaseUrl);
+    this.imagePublicBaseUrl = this.normalizeBaseUrl(environment.imagePublicBaseUrl || '/facas-renders');
     this.apiBaseUrl = this.normalizeBaseUrl(environment.apiBaseUrl);
     this.defaultProtocol =
       this.isBrowser && typeof window !== 'undefined' && window.location?.protocol

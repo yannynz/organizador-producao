@@ -34,6 +34,7 @@ public class SecurityConfiguration {
             .authorizeHttpRequests(req -> req
                 .requestMatchers("/api/auth/**", "/actuator/**", "/error").permitAll()
                 .requestMatchers("/api/orders/**").permitAll()
+                .requestMatchers("/api/dxf-analysis/**").permitAll()
                 .requestMatchers("/ws/orders/**").permitAll()
                 .requestMatchers("/api/users/assignable").authenticated()
                 .requestMatchers("/api/users/me").authenticated() // Allow any authenticated user to get their own profile

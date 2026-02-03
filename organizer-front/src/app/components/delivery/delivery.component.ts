@@ -14,6 +14,8 @@ import { UserService } from '../../services/user.service';
 import { User, UserRole } from '../../models/user.model';
 import { UserSelectorComponent } from '../shared/user-selector/user-selector.component';
 import { DxfAnalysisService } from '../../services/dxf-analysis.service';
+import { DxfAnalysis } from '../../models/dxf-analysis';
+import { environment } from '../../enviroment';
 
 @Component({
   selector: 'app-delivery',
@@ -36,6 +38,7 @@ export class DeliveryComponent implements OnInit {
   expandedNr: string | null = null;
   imageUrls: { [key: string]: string } = {};
   loadingImage: { [key: string]: boolean } = {};
+  private readonly imagePublicBaseUrl = environment.imagePublicBaseUrl || '/facas-renders';
 
   private readonly statusElegiveis = new Set<number>([
     OrderStatus.Cortada,
@@ -94,7 +97,7 @@ export class DeliveryComponent implements OnInit {
 
   // Qualquer usuário autenticado pode visualizar a análise DXF.
   canViewDxfAnalysis(): boolean {
-    return !!this.currentUser;
+    return true;
   }
 
   toggleImage(nr: string): void {
@@ -113,11 +116,8 @@ export class DeliveryComponent implements OnInit {
     this.loadingImage[nr] = true;
     this.dxfAnalysisService.getLatestByOrder(nr).subscribe({
       next: (analysis) => {
-        if (analysis && analysis.imageUrl) {
-          this.imageUrls[nr] = analysis.imageUrl;
-        } else {
-          this.imageUrls[nr] = '';
-        }
+        const resolved = analysis ? this.resolvePublicImageUrl(analysis) : null;
+        this.imageUrls[nr] = resolved || '';
         this.loadingImage[nr] = false;
       },
       error: () => {
@@ -125,6 +125,35 @@ export class DeliveryComponent implements OnInit {
         this.loadingImage[nr] = false;
       }
     });
+  }
+
+  private resolvePublicImageUrl(analysis: DxfAnalysis): string | null {
+    const candidates = [analysis.imageUrl, analysis.imageUri];
+    for (const c of candidates) {
+      if (c && c.trim()) {
+        const trimmed = c.trim();
+        if (trimmed.startsWith('data:') || trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+          return trimmed;
+        }
+        if (trimmed.startsWith('//')) {
+          return `https:${trimmed}`;
+        }
+        return trimmed;
+      }
+    }
+
+    if (this.imagePublicBaseUrl && analysis.imageKey) {
+      const base = this.normalizeBaseUrl(this.imagePublicBaseUrl);
+      const key = analysis.imageKey.startsWith('/') ? analysis.imageKey.substring(1) : analysis.imageKey;
+      return `${base}/${key}`;
+    }
+
+    return null;
+  }
+
+  private normalizeBaseUrl(value: string): string {
+    const trimmed = value.trim();
+    return trimmed.endsWith('/') ? trimmed.slice(0, -1) : trimmed;
   }
 
   private loadUsersForRole(user: User | null) {
