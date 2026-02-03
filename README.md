@@ -20,6 +20,81 @@ Tecnologias
 - Servidor HTTP: Nginx (serve o frontend produzido)
 - Monitoramento: Prometheus + Grafana
 
+Instalacao operacional (Ubuntu Server / maquina fisica)
+-------------------------------------------------------
+Use este fluxo quando for subir o ambiente em uma maquina nova e deixar operacao pronta (app + backup + restart automaticos).
+
+1. Prepare a maquina (Ubuntu Server):
+   - usuario operador com `sudo`;
+   - diretorio home do usuario (`/home/<usuario>`) disponivel;
+   - Docker Engine + compose plugin instalados (se ainda nao tiver):
+   ```bash
+   sudo apt-get update
+   sudo apt-get install -y ca-certificates curl gnupg
+   sudo install -m 0755 -d /etc/apt/keyrings
+   curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
+     | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+   sudo chmod a+r /etc/apt/keyrings/docker.gpg
+   echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" \
+     | sudo tee /etc/apt/sources.list.d/docker.list >/dev/null
+   sudo apt-get update
+   sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+   ```
+2. Clone o repositorio no home do usuario:
+   ```bash
+   cd ~
+   git clone https://github.com/yannynz/organizador-producao.git
+   cd organizador-producao
+   ```
+3. Execute o instalador:
+   ```bash
+   sudo ./installer/install-organizer.sh --user "$USER"
+   ```
+4. Durante o fluxo, confirme:
+   - IP da maquina (o script detecta e sugere automaticamente);
+   - periodicidade do backup automatico;
+   - periodicidade do restart automatico da aplicacao.
+5. Ao final, o instalador cria/atualiza:
+   - estrutura padrao:
+     - `~/organizador-producao`
+     - `~/backup_database`
+   - arquivo central: `/etc/organizer/organizer.env`
+   - comandos globais:
+     - `update-organizer` (manual)
+     - `organizer-backup` (manual e usado pelo timer)
+     - `organizer-restore` (manual)
+     - `organizer-installer` (reconfiguracao)
+   - servicos/timers systemd:
+     - `organizer-stack.service`
+     - `organizer-backup.timer`
+     - `organizer-restart.timer`
+6. Estrutura final esperada no home do usuario:
+   - `/home/<usuario>/organizador-producao`
+   - `/home/<usuario>/backup_database`
+7. Se for troca de maquina fisica, restaure o backup completo manualmente:
+   ```bash
+   organizer-restore --choose
+   ```
+
+Comandos operacionais apos instalacao:
+
+```bash
+systemctl status organizer-stack.service
+systemctl status organizer-backup.timer
+systemctl status organizer-restart.timer
+```
+
+Reconfigurar agendas sem reinstalar tudo:
+
+```bash
+sudo organizer-installer --reconfigure-schedules --user "$USER"
+```
+
+Observacoes:
+- O instalador detecta hostname/IP automaticamente, e permite escolher o IP durante o fluxo.
+- `update-organizer` e `organizer-restore` permanecem ferramentas manuais (sem agendamento automatico).
+- Se o instalador adicionar o usuario ao grupo `docker`, faca logout/login antes de rodar comandos Docker sem `sudo`.
+
 Como rodar o projeto
 --------------------
 1. Clone o repositório:

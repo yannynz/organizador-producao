@@ -1,9 +1,26 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
+# Load installer-managed environment when available.
+ORGANIZER_ENV_FILE="${ORGANIZER_ENV_FILE:-/etc/organizer/organizer.env}"
+if [[ -r "$ORGANIZER_ENV_FILE" ]]; then
+  # shellcheck disable=SC1090
+  source "$ORGANIZER_ENV_FILE"
+fi
+
 # ===== Config =====
-# Caminho do repositório (ajuste se necessário)
-REPO_DIR="${REPO_DIR:-$HOME/organizador-producao}"
+# Caminho do repositório (ajuste se necessário).
+if [[ -z "${REPO_DIR:-}" ]]; then
+  if [[ -n "${ORGANIZER_DIR:-}" ]]; then
+    REPO_DIR="$ORGANIZER_DIR"
+  elif [[ -d "$HOME/organizador-producao" ]]; then
+    REPO_DIR="$HOME/organizador-producao"
+  elif [[ -d "$HOME/Documents/organizador-producao" ]]; then
+    REPO_DIR="$HOME/Documents/organizador-producao"
+  else
+    REPO_DIR="$HOME/organizador-producao"
+  fi
+fi
 FRONT_DIR="organizer-front"
 COMPOSE_FILE="docker-compose.yml"
 

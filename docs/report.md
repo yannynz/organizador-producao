@@ -166,3 +166,35 @@ Por favor, tente logar novamente com as credenciais de um operador que estava co
    - executar `docker compose build --no-parallel backend-container frontend-container`;
    - subir stack com `docker compose up -d` após o build.
 4. Resultado esperado: reduzir/mitigar `Segmentation fault (core dumped)` intermitente no build do front durante `docker compose`.
+
+---
+
+## 2026-02-03 - PRD/SDS do instalador operacional + guia de instalacao
+
+1. Reescrevi `docs/PRD-SDS-instalador-operacional.md` para refletir explicitamente os requisitos do pedido:
+   - estrutura operacional com destino final no HOME do usuario (`/home/<usuario>/backup_database`),
+   - deteccao automatica de hostname/IP com opcao de escolha,
+   - instalacao de `update-organizer`, backup e restore,
+   - automacao apenas de backup/restart (update/restore manuais),
+   - criterios de aceite de migracao de maquina fisica sem edicao manual de scripts para backup padrao.
+2. Atualizei `README.md` com secao operacional para Ubuntu Server cobrindo:
+   - preparo da maquina (incluindo instalacao do Docker/Compose plugin),
+   - execucao do instalador,
+   - estrutura final esperada no HOME do usuario,
+   - restore manual pos-migracao (`organizer-restore --choose`),
+   - comandos de status e reconfiguracao de agendas.
+3. Ajustei permissao executavel (`chmod 755`) e validei sintaxe shell (`bash -n`) para scripts operacionais relacionados.
+
+## 2026-02-03 - Correcao de destino de instalacao (HOME em vez de Documents)
+
+1. Ajustei os defaults operacionais para instalar em `/home/<usuario>`:
+   - repositorio em `~/organizador-producao`;
+   - backups em `~/backup_database`.
+2. Atualizei os scripts para refletir esse padrao:
+   - `installer/install-organizer.sh` (base dir default no HOME);
+   - `scripts/ops/backup_postgres.sh` e `scripts/ops/restore_backup.sh` (fallback para HOME);
+   - `update-organizer` (prioriza `~/organizador-producao` e mantém fallback legado em `~/Documents/organizador-producao`).
+3. Atualizei documentação para o novo destino final:
+   - `docs/PRD-SDS-instalador-operacional.md`;
+   - `README.md` (seção de instalação operacional);
+   - `scripts/ops/README.md` (comandos manuais com `~/backup_database`).
