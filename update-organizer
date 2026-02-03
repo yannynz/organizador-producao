@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+# ===== Config =====
+# Caminho do repositório (ajuste se necessário)
+REPO_DIR="${REPO_DIR:-$HOME/organizador-producao}"
+FRONT_DIR="organizer-front"
+COMPOSE_FILE="docker-compose.yml"
+
+log() { printf "[%(%F %T)T] %s\n" -1 "$*"; }
+
+# ===== Pré-checagens =====
+command -v git >/dev/null || { echo "git não encontrado"; exit 1; }
+command -v docker >/dev/null || { echo "docker não encontrado"; exit 1; }
+
+if docker compose version >/dev/null 2>&1; then
+  COMPOSE="docker compose"
+elif command -v docker-compose >/dev/null 2>&1; then
+  COMPOSE="docker-compose"
+else
+  echo "docker compose/docker-compose não encontrado"; exit 1
+fi
+
+# ===== Execução =====
+log "Indo para o repositório: $REPO_DIR"
+cd "$REPO_DIR"
+
+log "Atualizando referências remotas (git fetch --all --prune)"
+git fetch --all --prune
+
+if [[ -n "$(git status --porcelain)" ]]; then
+  log "Mudanças locais detectadas — executando git stash"
+  git stash push -u -m "auto-stash $(date '+%F %T')" || true
+else
+  log "Sem mudanças locais para stash"
+fi
+
+log "Aplicando atualizações (git pull --rebase)"
+git pull --rebase
+
+log "Build do front Angular (produção)"
+cd "$FRONT_DIR"
+# Usa o ng local quando existir; senão, usa npx
+export NODE_OPTIONS="${NODE_OPTIONS:---max-old-space-size=4096}"
+  npm ci --legacy-peer-deps
+    npx ng build -c production
+
+cd "$REPO_DIR"
+
+log "Subindo containers com build (em segundo plano)"
+$COMPOSE -f "$COMPOSE_FILE" up --build -d
+
+log "Concluído com sucesso ✅"
