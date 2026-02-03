@@ -153,3 +153,16 @@ Por favor, tente logar novamente com as credenciais de um operador que estava co
 1. Adicionei o teste de integração `src/test/java/git/yannynz/organizadorproducao/service/OpImportServiceIntegrationTest.java` usando Postgres local (jdbc:postgresql://localhost:5433/teste01) e RabbitMQ local para validar o fluxo de importação de OP.
 2. O teste cria uma OP sintética `120432-TST`, invoca `OpImportService.importar` com cliente/endereço sugeridos e confirma `OpImport` persistido com `cliente_ref` e `endereco` associados; os `apelidos` permanecem um array JSONB (não nulo).
 3. Execução: `mvn test -Dtest=OpImportServiceIntegrationTest` (passou). Propriedades de teste desativam `ddl-auto` para evitar DDL automático no JSONB e apontam Rabbit para localhost.
+
+---
+
+## 2026-02-03 - Mitigação de falha intermitente do build frontend (esbuild)
+
+1. Atualizei `organizer-front/Dockerfile` para buildar o Angular sem SSR/prerender no pipeline Docker:  
+   `npm run build -- --configuration=production --ssr=false --prerender=false`.
+2. Removi o override fixo de `esbuild` em `organizer-front/package.json` para reduzir risco de incompatibilidade com a cadeia padrão do Angular.
+3. Atualizei o script `update-organizer` para:
+   - build local do front também sem SSR/prerender;
+   - executar `docker compose build --no-parallel backend-container frontend-container`;
+   - subir stack com `docker compose up -d` após o build.
+4. Resultado esperado: reduzir/mitigar `Segmentation fault (core dumped)` intermitente no build do front durante `docker compose`.

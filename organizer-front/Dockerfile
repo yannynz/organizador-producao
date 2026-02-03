@@ -18,8 +18,9 @@ RUN npm cache clean --force && npm install --legacy-peer-deps
 # Copiar o restante do código
 COPY . .
 
-# Build da aplicação
-RUN npm run build --configuration=production
+# Build da aplicação (sem SSR/prerender no pipeline Docker para evitar falhas
+# intermitentes do esbuild durante renderização server-side)
+RUN npm run build -- --configuration=production --ssr=false --prerender=false
 
 # Etapa final: Servir com nginx
 FROM public.ecr.aws/docker/library/nginx:alpine
