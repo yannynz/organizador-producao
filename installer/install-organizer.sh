@@ -18,6 +18,10 @@ log() {
   printf '[%(%F %T)T] %s\n' -1 "$*"
 }
 
+prompt_msg() {
+  printf '%s\n' "$*" >&2
+}
+
 need() {
   command -v "$1" >/dev/null 2>&1 || fail "comando '$1' nao encontrado."
 }
@@ -104,16 +108,16 @@ POSTGRES_USER="${POSTGRES_USER:-postgres}"
 POSTGRES_DB="${POSTGRES_DB:-teste01}"
 POSTGRES_PASSWORD="${POSTGRES_PASSWORD:-1234}"
 
-MAX_BACKUPS="${MAX_BACKUPS:-7}"
-REMOTE_BACKUP_ENABLED="${REMOTE_BACKUP_ENABLED:-false}"
-REMOTE_HOST="${REMOTE_HOST:-}"
-REMOTE_USER="${REMOTE_USER:-}"
-REMOTE_DIR="${REMOTE_DIR:-}"
+MAX_BACKUPS="${MAX_BACKUPS:-2}"
+REMOTE_BACKUP_ENABLED="${REMOTE_BACKUP_ENABLED:-true}"
+REMOTE_HOST="${REMOTE_HOST:-192.168.10.31}"
+REMOTE_USER="${REMOTE_USER:-monitor}"
+REMOTE_DIR="${REMOTE_DIR:-/home/${REMOTE_USER}/backup_database/${HOSTNAME_VALUE}}"
 SSH_KEY="${SSH_KEY:-}"
 
 STARTUP_ENABLED="${STARTUP_ENABLED:-true}"
 BACKUP_TIMER_SPEC="${BACKUP_TIMER_SPEC:-calendar|*-*-* 02:00:00}"
-RESTART_TIMER_SPEC="${RESTART_TIMER_SPEC:-calendar|Sun *-*-* 04:00:00}"
+RESTART_TIMER_SPEC="${RESTART_TIMER_SPEC:-disabled}"
 
 if [[ -r "$ENV_FILE" ]]; then
   # shellcheck disable=SC1090
@@ -176,7 +180,47 @@ prompt_yes_no() {
       echo "false"
       return
     fi
-    echo "Resposta invalida. Use y/n."
+    prompt_msg "Resposta invalida. Use y/n."
+  done
+}
+
+prompt_text() {
+  local question="$1"
+  local default_value="$2"
+
+  if [[ "$NON_INTERACTIVE" == true ]]; then
+    echo "$default_value"
+    return
+  fi
+
+  while true; do
+    read -rp "$question [ENTER para '${default_value}']: " answer
+    answer="${answer:-$default_value}"
+    if [[ -n "$answer" ]]; then
+      echo "$answer"
+      return
+    fi
+    prompt_msg "Valor invalido."
+  done
+}
+
+prompt_positive_integer() {
+  local question="$1"
+  local default_value="$2"
+
+  if [[ "$NON_INTERACTIVE" == true ]]; then
+    echo "$default_value"
+    return
+  fi
+
+  while true; do
+    read -rp "$question [ENTER para '${default_value}']: " answer
+    answer="${answer:-$default_value}"
+    if [[ "$answer" =~ ^[1-9][0-9]*$ ]]; then
+      echo "$answer"
+      return
+    fi
+    prompt_msg "Valor invalido. Use inteiro positivo (>= 1)."
   done
 }
 
@@ -189,21 +233,21 @@ prompt_ip_selection() {
     return
   fi
 
-  echo
-  echo "Hostname detectado: $HOSTNAME_VALUE"
-  echo "IP sugerido: $chosen_default"
-  echo "IPs disponiveis:"
+  prompt_msg ""
+  prompt_msg "Hostname detectado: $HOSTNAME_VALUE"
+  prompt_msg "IP sugerido: $chosen_default"
+  prompt_msg "IPs disponiveis:"
   local idx=1
   for ip_addr in "${DETECTED_IPS[@]}"; do
     if [[ "$ip_addr" == "$chosen_default" ]]; then
-      printf "  %d) %s (sugerido)\n" "$idx" "$ip_addr"
+      printf "  %d) %s (sugerido)\n" "$idx" "$ip_addr" >&2
     else
-      printf "  %d) %s\n" "$idx" "$ip_addr"
+      printf "  %d) %s\n" "$idx" "$ip_addr" >&2
     fi
     ((idx++))
   done
-  echo "  m) informar IP manualmente"
-  echo
+  prompt_msg "  m) informar IP manualmente"
+  prompt_msg ""
 
   while true; do
     read -rp "Escolha o IP [ENTER para sugerido]: " opt
@@ -218,15 +262,27 @@ prompt_ip_selection() {
         echo "$manual_ip"
         return
       fi
-      echo "IP invalido."
+      prompt_msg "IP invalido."
       continue
     fi
     if [[ "$opt" =~ ^[0-9]+$ && "$opt" -ge 1 && "$opt" -le "${#DETECTED_IPS[@]}" ]]; then
       echo "${DETECTED_IPS[$((opt-1))]}"
       return
     fi
-    echo "Opcao invalida."
+    prompt_msg "Opcao invalida."
   done
+}
+
+is_valid_timer_spec() {
+  local spec="$1"
+  local spec_type spec_value
+
+  [[ -n "$spec" && "$spec" != *$'\n'* ]] || return 1
+  [[ "$spec" == "disabled" ]] && return 0
+
+  IFS='|' read -r spec_type spec_value <<< "$spec"
+  [[ -n "${spec_type:-}" && -n "${spec_value:-}" ]] || return 1
+  [[ "$spec_type" == "calendar" || "$spec_type" == "interval" ]]
 }
 
 prompt_schedule() {
@@ -235,21 +291,26 @@ prompt_schedule() {
   local fallback_spec="$3"
   local spec="${current_spec:-$fallback_spec}"
 
+  if ! is_valid_timer_spec "$spec"; then
+    prompt_msg "Spec atual invalido para '$label'; usando padrao: $fallback_spec"
+    spec="$fallback_spec"
+  fi
+
   if [[ "$NON_INTERACTIVE" == true ]]; then
     echo "$spec"
     return
   fi
 
-  echo
-  echo "Configuracao de periodicidade para: $label"
-  echo "Atual: $spec"
-  echo "  1) Desabilitado"
-  echo "  2) Diario 02:00"
-  echo "  3) Semanal (domingo 04:00)"
-  echo "  4) A cada 6 horas"
-  echo "  5) A cada 12 horas"
-  echo "  6) OnCalendar customizado"
-  echo "  7) Intervalo customizado (OnUnitActiveSec)"
+  prompt_msg ""
+  prompt_msg "Configuracao de periodicidade para: $label"
+  prompt_msg "Atual: $spec"
+  prompt_msg "  1) Desabilitado"
+  prompt_msg "  2) Diario 02:00"
+  prompt_msg "  3) Semanal (domingo 04:00)"
+  prompt_msg "  4) A cada 6 horas"
+  prompt_msg "  5) A cada 12 horas"
+  prompt_msg "  6) OnCalendar customizado"
+  prompt_msg "  7) Intervalo customizado (OnUnitActiveSec)"
 
   while true; do
     read -rp "Opcao [ENTER para manter atual]: " option
@@ -266,17 +327,17 @@ prompt_schedule() {
       5) echo "interval|12h"; return ;;
       6)
         read -rp "OnCalendar (ex.: Mon..Fri *-*-* 03:30:00): " calendar_expr
-        [[ -n "$calendar_expr" ]] || { echo "Valor vazio."; continue; }
+        [[ -n "$calendar_expr" ]] || { prompt_msg "Valor vazio."; continue; }
         echo "calendar|$calendar_expr"
         return
         ;;
       7)
         read -rp "OnUnitActiveSec (ex.: 30min, 2h, 1d): " interval_expr
-        [[ -n "$interval_expr" ]] || { echo "Valor vazio."; continue; }
+        [[ -n "$interval_expr" ]] || { prompt_msg "Valor vazio."; continue; }
         echo "interval|$interval_expr"
         return
         ;;
-      *) echo "Opcao invalida." ;;
+      *) prompt_msg "Opcao invalida." ;;
     esac
   done
 }
@@ -501,18 +562,41 @@ show_summary() {
   echo "Arquivo de ambiente:       $ENV_FILE"
   echo "Startup habilitado:        $STARTUP_ENABLED"
   echo "Backup schedule:           $BACKUP_TIMER_SPEC"
+  echo "Retencao backups:          $MAX_BACKUPS"
+  echo "Backup remoto habilitado:  $REMOTE_BACKUP_ENABLED"
+  if is_true "$REMOTE_BACKUP_ENABLED"; then
+    echo "Destino backup remoto:     ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_DIR}"
+  fi
   echo "Restart schedule:          $RESTART_TIMER_SPEC"
   echo
-  echo "Comandos uteis (manuais):"
-  echo "  update-organizer"
-  echo "  organizer-backup"
-  echo "  organizer-restore --choose"
+  echo "Comandos uteis:"
+  echo "  organizer-backup                    # manual (tambem roda via timer)"
+  echo "  update-organizer                    # manual"
+  echo "  organizer-restore --choose          # manual"
   echo "  sudo organizer-installer --reconfigure-schedules --user $TARGET_USER"
   echo
   echo "Status rapido:"
   systemctl --no-pager --full status organizer-stack.service 2>/dev/null | sed -n '1,4p' || true
   systemctl --no-pager --full status organizer-backup.timer 2>/dev/null | sed -n '1,4p' || true
   systemctl --no-pager --full status organizer-restart.timer 2>/dev/null | sed -n '1,4p' || true
+  echo
+  echo "Ferramentas manuais (status/local/uso):"
+  if [[ -x /usr/local/bin/update-organizer ]]; then
+    echo "  update-organizer: OK"
+    echo "    atalho: /usr/local/bin/update-organizer"
+    echo "    destino: $(readlink -f /usr/local/bin/update-organizer)"
+    echo "    uso: update-organizer"
+  else
+    echo "  update-organizer: AUSENTE (/usr/local/bin/update-organizer)"
+  fi
+  if [[ -x /usr/local/bin/organizer-restore ]]; then
+    echo "  organizer-restore: OK"
+    echo "    atalho: /usr/local/bin/organizer-restore"
+    echo "    destino: $(readlink -f /usr/local/bin/organizer-restore)"
+    echo "    uso: organizer-restore --choose"
+  else
+    echo "  organizer-restore: AUSENTE (/usr/local/bin/organizer-restore)"
+  fi
 
   if [[ "${DOCKER_GROUP_ADDED:-false}" == "true" ]]; then
     echo
@@ -524,6 +608,19 @@ show_summary() {
 configure_runtime_values() {
   detect_ips
 
+  local default_max_backups="$MAX_BACKUPS"
+  local default_remote_enabled="$REMOTE_BACKUP_ENABLED"
+  local default_remote_host="$REMOTE_HOST"
+  local default_remote_user="$REMOTE_USER"
+  local default_remote_dir="$REMOTE_DIR"
+  if [[ "$MODE" == "install" ]]; then
+    default_max_backups="2"
+    default_remote_enabled="true"
+    default_remote_host="192.168.10.31"
+    default_remote_user="monitor"
+    default_remote_dir="/home/${default_remote_user}/backup_database/${HOSTNAME_VALUE}"
+  fi
+
   local base_ip="${SERVER_HOST:-$DEFAULT_IP}"
   local chosen_ip
   chosen_ip="$(prompt_ip_selection "$base_ip")"
@@ -534,7 +631,14 @@ configure_runtime_values() {
 
   STARTUP_ENABLED="$(prompt_yes_no "Habilitar startup automatico no boot?" "${STARTUP_ENABLED:-true}")"
   BACKUP_TIMER_SPEC="$(prompt_schedule "backup automatico" "$BACKUP_TIMER_SPEC" "calendar|*-*-* 02:00:00")"
-  RESTART_TIMER_SPEC="$(prompt_schedule "restart automatico da aplicacao" "$RESTART_TIMER_SPEC" "calendar|Sun *-*-* 04:00:00")"
+  RESTART_TIMER_SPEC="$(prompt_schedule "restart automatico da aplicacao" "$RESTART_TIMER_SPEC" "disabled")"
+  MAX_BACKUPS="$(prompt_positive_integer "Quantidade maxima de backups local/remoto" "$default_max_backups")"
+  REMOTE_BACKUP_ENABLED="$(prompt_yes_no "Habilitar backup remoto?" "$default_remote_enabled")"
+  if is_true "$REMOTE_BACKUP_ENABLED"; then
+    REMOTE_HOST="$(prompt_text "Host remoto" "$default_remote_host")"
+    REMOTE_USER="$(prompt_text "Usuario remoto" "$default_remote_user")"
+    REMOTE_DIR="$(prompt_text "Diretorio remoto para backups" "$default_remote_dir")"
+  fi
 }
 
 if [[ "$MODE" == "install" ]]; then
