@@ -112,7 +112,7 @@ MAX_BACKUPS="${MAX_BACKUPS:-2}"
 REMOTE_BACKUP_ENABLED="${REMOTE_BACKUP_ENABLED:-true}"
 REMOTE_HOST="${REMOTE_HOST:-192.168.10.31}"
 REMOTE_USER="${REMOTE_USER:-monitor}"
-REMOTE_DIR="${REMOTE_DIR:-/home/${REMOTE_USER}/backup_database/${HOSTNAME_VALUE}}"
+REMOTE_DIR="${REMOTE_DIR:-/home/${REMOTE_USER}/backups_postgres}"
 SSH_KEY="${SSH_KEY:-}"
 
 STARTUP_ENABLED="${STARTUP_ENABLED:-true}"
@@ -618,7 +618,7 @@ configure_runtime_values() {
     default_remote_enabled="true"
     default_remote_host="192.168.10.31"
     default_remote_user="monitor"
-    default_remote_dir="/home/${default_remote_user}/backup_database/${HOSTNAME_VALUE}"
+    default_remote_dir="/home/${default_remote_user}/backups_postgres"
   fi
 
   local base_ip="${SERVER_HOST:-$DEFAULT_IP}"
