@@ -430,6 +430,34 @@ ensure_user_in_docker_group() {
   fi
 }
 
+validate_remote_backup_access() {
+  if ! is_true "$REMOTE_BACKUP_ENABLED"; then
+    log "Validacao de backup remoto: desabilitado."
+    return
+  fi
+
+  need ssh
+  [[ -n "$REMOTE_HOST" && -n "$REMOTE_USER" && -n "$REMOTE_DIR" ]] || \
+    fail "backup remoto habilitado, mas REMOTE_HOST/REMOTE_USER/REMOTE_DIR estao incompletos."
+
+  local remote_target="${REMOTE_USER}@${REMOTE_HOST}"
+  local -a ssh_cmd=(ssh -o BatchMode=yes -o ConnectTimeout=8 -o StrictHostKeyChecking=accept-new)
+  local remote_cmd
+  remote_cmd="mkdir -p \"$REMOTE_DIR\" && test -w \"$REMOTE_DIR\""
+
+  if [[ -n "$SSH_KEY" ]]; then
+    sudo -u "$TARGET_USER" test -r "$SSH_KEY" || \
+      fail "SSH_KEY '$SSH_KEY' nao pode ser lida por '$TARGET_USER'."
+    ssh_cmd+=(-i "$SSH_KEY")
+  fi
+
+  log "Validando backup remoto em ${remote_target}:${REMOTE_DIR}..."
+  if ! sudo -u "$TARGET_USER" "${ssh_cmd[@]}" "$remote_target" "$remote_cmd" >/dev/null 2>&1; then
+    fail "falha na validacao do backup remoto. Configure chave SSH sem senha para '$TARGET_USER' e teste: ssh ${remote_target}"
+  fi
+  log "Validacao de backup remoto: OK."
+}
+
 write_stack_service() {
   cat > "$SYSTEMD_DIR/organizer-stack.service" <<EOF
 [Unit]
@@ -566,6 +594,11 @@ show_summary() {
   echo "Backup remoto habilitado:  $REMOTE_BACKUP_ENABLED"
   if is_true "$REMOTE_BACKUP_ENABLED"; then
     echo "Destino backup remoto:     ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_DIR}"
+    if [[ -n "$SSH_KEY" ]]; then
+      echo "Chave SSH remota:          $SSH_KEY"
+    else
+      echo "Chave SSH remota:          padrao do usuario ($TARGET_USER)"
+    fi
   fi
   echo "Restart schedule:          $RESTART_TIMER_SPEC"
   echo
@@ -647,6 +680,7 @@ if [[ "$MODE" == "install" ]]; then
   ensure_user_in_docker_group
   install_tools
   configure_runtime_values
+  validate_remote_backup_access
   write_env_file
   apply_systemd
   show_summary
@@ -657,6 +691,7 @@ if [[ "$MODE" == "reconfigure" ]]; then
   log "Modo: reconfiguracao de startup/timers"
   [[ -r "$ENV_FILE" ]] || fail "arquivo '$ENV_FILE' nao encontrado. Rode a instalacao completa primeiro."
   configure_runtime_values
+  validate_remote_backup_access
   write_env_file
   apply_systemd
   show_summary
