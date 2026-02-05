@@ -80,8 +80,14 @@ else
   log "npm nao encontrado no host; build do front sera feito no Docker (docker compose build)."
 fi
 
-log "Buildando imagens Docker sem paralelismo (mitiga falha intermitente do esbuild)"
-$COMPOSE -f "$COMPOSE_FILE" build --no-parallel backend-container frontend-container
+if $COMPOSE -f "$COMPOSE_FILE" build --help 2>/dev/null | grep -q -- "--no-parallel"; then
+  log "Buildando imagens Docker com --no-parallel (mitiga falha intermitente do esbuild)"
+  $COMPOSE -f "$COMPOSE_FILE" build --no-parallel backend-container frontend-container
+else
+  log "Buildando imagens Docker em modo sequencial (compatibilidade com Compose sem --no-parallel)"
+  $COMPOSE -f "$COMPOSE_FILE" build backend-container
+  $COMPOSE -f "$COMPOSE_FILE" build frontend-container
+fi
 
 log "Subindo containers (em segundo plano)"
 $COMPOSE -f "$COMPOSE_FILE" up -d
