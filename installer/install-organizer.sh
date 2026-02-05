@@ -5,6 +5,7 @@ MODE="install"
 NON_INTERACTIVE=false
 TARGET_USER="${TARGET_USER:-}"
 SOURCE_REPO_DIR=""
+SSH_KEY_OVERRIDE="${SSH_KEY:-}"
 
 ENV_FILE="/etc/organizer/organizer.env"
 SYSTEMD_DIR="/etc/systemd/system"
@@ -28,6 +29,10 @@ need() {
 
 is_true() {
   [[ "${1,,}" =~ ^(1|true|yes|y|on)$ ]]
+}
+
+is_valid_ipv4() {
+  [[ "$1" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]
 }
 
 usage() {
@@ -122,6 +127,11 @@ RESTART_TIMER_SPEC="${RESTART_TIMER_SPEC:-disabled}"
 if [[ -r "$ENV_FILE" ]]; then
   # shellcheck disable=SC1090
   source "$ENV_FILE"
+fi
+
+# Keep explicit runtime override when provided (ex.: sudo SSH_KEY=/path ...).
+if [[ -n "$SSH_KEY_OVERRIDE" ]]; then
+  SSH_KEY="$SSH_KEY_OVERRIDE"
 fi
 
 # Preserve existing paths on reconfiguration; full install keeps defaults above.
@@ -452,8 +462,9 @@ validate_remote_backup_access() {
   fi
 
   log "Validando backup remoto em ${remote_target}:${REMOTE_DIR}..."
-  if ! sudo -u "$TARGET_USER" "${ssh_cmd[@]}" "$remote_target" "$remote_cmd" >/dev/null 2>&1; then
-    fail "falha na validacao do backup remoto. Configure chave SSH sem senha para '$TARGET_USER' e teste: ssh ${remote_target}"
+  local ssh_error
+  if ! ssh_error="$(sudo -u "$TARGET_USER" "${ssh_cmd[@]}" "$remote_target" "$remote_cmd" 2>&1 >/dev/null)"; then
+    fail "falha na validacao do backup remoto. Configure chave SSH sem senha para '$TARGET_USER' e teste: ssh ${remote_target}. Detalhe: ${ssh_error:-sem detalhes}"
   fi
   log "Validacao de backup remoto: OK."
 }
@@ -655,6 +666,9 @@ configure_runtime_values() {
   fi
 
   local base_ip="${SERVER_HOST:-$DEFAULT_IP}"
+  if ! is_valid_ipv4 "$base_ip"; then
+    base_ip="$DEFAULT_IP"
+  fi
   local chosen_ip
   chosen_ip="$(prompt_ip_selection "$base_ip")"
   SERVER_HOST="$chosen_ip"
