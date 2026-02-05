@@ -60,9 +60,6 @@ services:
       context: ./organizer-front  # Diretório onde está o código do seu front-end Angular
       dockerfile: Dockerfile
     container_name: frontend-container
-    volumes:
-      - ./organizer-front/dist:/usr/share/nginx/html  # Diretório do build do Angular
-      - /etc/localtime:/etc/localtime:ro  # Montando o arquivo localtime
     depends_on:
       - backend-container
     networks:
@@ -79,7 +76,6 @@ services:
       SERVER_HOST: ${SERVER_HOST:-192.168.10.13}
     command: /bin/sh -c "envsubst '\$SERVER_HOST' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && exec nginx -g 'daemon off;'"
     volumes:
-      - ./organizer-front/dist/organizer-front/browser:/usr/share/nginx/html:ro  # Mapeando o diretório correto de build para o Nginx
       - ./nginx/organizador.conf:/etc/nginx/nginx.conf.template:ro  # Montando como template
       - /etc/localtime:/etc/localtime:ro  # Montando o arquivo localtime
     networks:
