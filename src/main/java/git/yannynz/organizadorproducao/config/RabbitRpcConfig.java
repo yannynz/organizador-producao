@@ -19,6 +19,9 @@ public class RabbitRpcConfig {
     @Value("${app.rpc.filewatcher.timeout-ms:2000}")
     private long replyTimeoutMs;
 
+    @Value("${app.rpc.filewatcher.direct-reply-to:true}")
+    private boolean directReplyTo;
+
     @Bean
     public Queue fileWatcherRpcQueue() {
         return new Queue(rpcQueueName, true);
@@ -40,9 +43,15 @@ public class RabbitRpcConfig {
                                          Jackson2JsonMessageConverter converter) {
         RabbitTemplate template = new RabbitTemplate(connectionFactory);
         template.setMessageConverter(converter);
-        // Use temporary reply queues to avoid noisy DirectReplyTo container
-        // logs when the responder is offline or slow.
-        template.setUseTemporaryReplyQueues(true);
+        if (directReplyTo) {
+            // Interoperates better with non-Spring RPC responders (FileWatcherApp .NET).
+            template.setUseDirectReplyToContainer(true);
+            template.setUseTemporaryReplyQueues(false);
+        } else {
+            // Optional fallback for environments where direct-reply-to is undesirable.
+            template.setUseDirectReplyToContainer(false);
+            template.setUseTemporaryReplyQueues(true);
+        }
         template.setReplyTimeout(replyTimeoutMs);
         return template;
     }

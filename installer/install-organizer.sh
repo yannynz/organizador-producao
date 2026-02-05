@@ -390,6 +390,7 @@ write_env_file() {
     write_env_var RESTART_TIMER_SPEC "$RESTART_TIMER_SPEC"
   } > "$ENV_FILE"
   chmod 640 "$ENV_FILE"
+  chown root:"$TARGET_USER" "$ENV_FILE"
 }
 
 sync_repository() {

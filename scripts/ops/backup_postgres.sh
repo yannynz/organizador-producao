@@ -23,9 +23,10 @@ POSTGRES_DB="${POSTGRES_DB:-teste01}"
 
 MINIO_HOST="${MINIO_HOST:-127.0.0.1}"
 MINIO_ENDPOINT="${MINIO_ENDPOINT:-http://${MINIO_HOST}:9000}"
+MINIO_SERVICE_ENDPOINT="${MINIO_SERVICE_ENDPOINT:-http://minio:9000}"
 MINIO_BUCKET="${MINIO_BUCKET:-facas-renders}"
 MINIO_DOCKER_NETWORK="${MINIO_DOCKER_NETWORK:-organizador-producao_organizador-producao-mynetwork}"
-MINIO_MC_IMAGE="${MINIO_MC_IMAGE:-minio/mc:RELEASE.2024-10-29T15-34-59Z}"
+MINIO_MC_IMAGE="${MINIO_MC_IMAGE:-quay.io/minio/mc:RELEASE.2024-10-29T15-34-59Z-cpuv1}"
 MINIO_ACCESS_KEY="${MINIO_ACCESS_KEY:-minio}"
 MINIO_SECRET_KEY="${MINIO_SECRET_KEY:-minio123}"
 
@@ -69,24 +70,27 @@ docker exec "$POSTGRES_CONTAINER_NAME" \
 echo "[$(timestamp)] Dump salvo em: $DB_BACKUP_FILE"
 
 echo "[$(timestamp)] Espelhando bucket MinIO: $MINIO_BUCKET"
-MC_CMD="set -euo pipefail
-export MC_CONFIG_DIR=/tmp/mc-config
-mkdir -p \$MC_CONFIG_DIR
-mc alias set localminio '${MINIO_ENDPOINT}' '${MINIO_ACCESS_KEY}' '${MINIO_SECRET_KEY}' >/dev/null
-mc mirror --overwrite --remove localminio/${MINIO_BUCKET} /mirror/${MINIO_BUCKET}"
-
 run_mc() {
+  local endpoint="$MINIO_ENDPOINT"
   local -a network_args=()
   if [[ -n "$MINIO_DOCKER_NETWORK" ]]; then
     network_args+=(--network "$MINIO_DOCKER_NETWORK")
+    if [[ "$endpoint" == "http://127.0.0.1:9000" || "$endpoint" == "http://localhost:9000" ]]; then
+      endpoint="$MINIO_SERVICE_ENDPOINT"
+    fi
   fi
+  local mc_cmd="set -euo pipefail
+export MC_CONFIG_DIR=/tmp/mc-config
+mkdir -p \$MC_CONFIG_DIR
+mc alias set localminio '${endpoint}' '${MINIO_ACCESS_KEY}' '${MINIO_SECRET_KEY}' >/dev/null
+mc mirror --overwrite --remove localminio/${MINIO_BUCKET} /mirror/${MINIO_BUCKET}"
   docker run --rm \
     "${network_args[@]}" \
     -v "$MINIO_MIRROR_DIR:/mirror" \
     --user "$(id -u):$(id -g)" \
     --entrypoint /bin/sh \
     "$MINIO_MC_IMAGE" \
-    -c "$MC_CMD"
+    -c "$mc_cmd"
 }
 
 if ! run_mc; then

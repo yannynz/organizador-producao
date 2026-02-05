@@ -23,6 +23,9 @@ if [[ -z "${REPO_DIR:-}" ]]; then
 fi
 FRONT_DIR="organizer-front"
 COMPOSE_FILE="docker-compose.yml"
+USER_HOME="${USER_HOME:-$HOME}"
+BASE_DIR="${BASE_DIR:-${DOCUMENTS_DIR:-$USER_HOME}}"
+BACKUP_DIR="${BACKUP_DIR:-$BASE_DIR/backup_database}"
 
 log() { printf "[%(%F %T)T] %s\n" -1 "$*"; }
 
@@ -55,14 +58,27 @@ fi
 log "Aplicando atualizações (git pull --rebase)"
 git pull --rebase
 
-log "Build do front Angular (produção)"
-cd "$FRONT_DIR"
-# Usa o ng local quando existir; senão, usa npx
-export NODE_OPTIONS="${NODE_OPTIONS:---max-old-space-size=4096}"
-npm ci --legacy-peer-deps
-npx ng build --configuration=production --ssr=false --prerender=false
+log "Atualizando scripts operacionais em '$BACKUP_DIR'"
+mkdir -p "$BACKUP_DIR"
+cp "$REPO_DIR/scripts/ops/backup_postgres.sh" "$BACKUP_DIR/backup_postgres.sh"
+cp "$REPO_DIR/scripts/ops/restore_backup.sh" "$BACKUP_DIR/restore_backup.sh"
+chmod 750 "$BACKUP_DIR/backup_postgres.sh" "$BACKUP_DIR/restore_backup.sh"
+if [[ -f "$REPO_DIR/scripts/ops/README.md" ]]; then
+  cp "$REPO_DIR/scripts/ops/README.md" "$BACKUP_DIR/BACKUP_GUIDE.md"
+  chmod 640 "$BACKUP_DIR/BACKUP_GUIDE.md"
+fi
 
-cd "$REPO_DIR"
+if command -v npm >/dev/null 2>&1; then
+  log "Build do front Angular (produção) no host"
+  cd "$FRONT_DIR"
+  # Usa o ng local quando existir; senão, usa npx
+  export NODE_OPTIONS="${NODE_OPTIONS:---max-old-space-size=4096}"
+  npm ci --legacy-peer-deps
+  npx ng build --configuration=production --ssr=false --prerender=false
+  cd "$REPO_DIR"
+else
+  log "npm nao encontrado no host; build do front sera feito no Docker (docker compose build)."
+fi
 
 log "Buildando imagens Docker sem paralelismo (mitiga falha intermitente do esbuild)"
 $COMPOSE -f "$COMPOSE_FILE" build --no-parallel backend-container frontend-container

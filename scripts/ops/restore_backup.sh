@@ -24,11 +24,12 @@ POSTGRES_PASSWORD="${POSTGRES_PASSWORD:-1234}"
 
 MINIO_HOST="${MINIO_HOST:-127.0.0.1}"
 MINIO_ENDPOINT="${MINIO_ENDPOINT:-http://${MINIO_HOST}:9000}"
+MINIO_SERVICE_ENDPOINT="${MINIO_SERVICE_ENDPOINT:-http://minio:9000}"
 MINIO_BUCKET="${MINIO_BUCKET:-facas-renders}"
 MINIO_ACCESS_KEY="${MINIO_ACCESS_KEY:-minio}"
 MINIO_SECRET_KEY="${MINIO_SECRET_KEY:-minio123}"
 MINIO_DOCKER_NETWORK="${MINIO_DOCKER_NETWORK:-organizador-producao_organizador-producao-mynetwork}"
-MINIO_MC_IMAGE="${MINIO_MC_IMAGE:-minio/mc:RELEASE.2024-10-29T15-34-59Z}"
+MINIO_MC_IMAGE="${MINIO_MC_IMAGE:-quay.io/minio/mc:RELEASE.2024-10-29T15-34-59Z-cpuv1}"
 MINIO_RESTORE_DIR="${MINIO_RESTORE_DIR:-$BACKUP_DIR/minio_restore}"
 
 POSTGRES_FILE=""
@@ -70,7 +71,6 @@ fi
 
 need docker
 need tar
-need ls
 
 if [[ ! -d "$ORGANIZER_DIR" || ! -f "$COMPOSE_FILE" ]]; then
   echo "Projeto Organizer nao encontrado em '$ORGANIZER_DIR'." >&2
@@ -86,6 +86,7 @@ select_backup_file() {
   local glob="$2"
   local provided="$3"
   local -a files=()
+  local backup_dir backup_pattern
 
   if [[ -n "$provided" ]]; then
     if [[ ! -f "$provided" ]]; then
@@ -96,26 +97,36 @@ select_backup_file() {
     return
   fi
 
-  mapfile -t files < <(ls -1t $glob 2>/dev/null || true)
+  backup_dir="$(dirname "$glob")"
+  backup_pattern="$(basename "$glob")"
+  mapfile -t files < <(
+    find "$backup_dir" -maxdepth 1 -type f -name "$backup_pattern" -printf '%T@ %p\n' \
+      | sort -nr \
+      | awk '{$1=""; sub(/^ /, ""); print}'
+  )
   if [[ ${#files[@]} -eq 0 ]]; then
     echo "Nenhum arquivo encontrado para '$label' ($glob)." >&2
     exit 1
   fi
 
   if [[ "$CHOOSE" == true ]]; then
-    echo "Selecione $label:"
+    echo "Selecione $label:" >&2
     local idx=1
     for f in "${files[@]}"; do
-      printf "  [%d] %s\n" "$idx" "$f"
+      printf "  [%d] %s\n" "$idx" "$f" >&2
       ((idx++))
     done
     while true; do
-      read -rp "Numero: " choice
+      printf "Numero: " >&2
+      if ! IFS= read -r choice < /dev/tty; then
+        echo "Entrada encerrada." >&2
+        exit 1
+      fi
       if [[ "$choice" =~ ^[0-9]+$ && "$choice" -ge 1 && "$choice" -le "${#files[@]}" ]]; then
         echo "${files[choice-1]}"
         return
       fi
-      echo "Opcao invalida."
+      echo "Opcao invalida." >&2
     done
   fi
 
@@ -150,23 +161,26 @@ if [[ "$RESTORE_MINIO" == true ]]; then
   mkdir -p "$MINIO_RESTORE_DIR"
   tar -xzf "$MINIO_FILE" -C "$MINIO_RESTORE_DIR"
 
-  MC_RESTORE_CMD="set -euo pipefail
-export MC_CONFIG_DIR=/tmp/mc-config
-mkdir -p \$MC_CONFIG_DIR
-mc alias set localminio '${MINIO_ENDPOINT}' '${MINIO_ACCESS_KEY}' '${MINIO_SECRET_KEY}' >/dev/null
-mc mirror --overwrite --remove /restore/${MINIO_BUCKET} localminio/${MINIO_BUCKET}"
-
   run_mc_restore() {
+    local endpoint="$MINIO_ENDPOINT"
     local -a network_args=()
     if [[ -n "$MINIO_DOCKER_NETWORK" ]]; then
       network_args+=(--network "$MINIO_DOCKER_NETWORK")
+      if [[ "$endpoint" == "http://127.0.0.1:9000" || "$endpoint" == "http://localhost:9000" ]]; then
+        endpoint="$MINIO_SERVICE_ENDPOINT"
+      fi
     fi
+    local mc_restore_cmd="set -euo pipefail
+export MC_CONFIG_DIR=/tmp/mc-config
+mkdir -p \$MC_CONFIG_DIR
+mc alias set localminio '${endpoint}' '${MINIO_ACCESS_KEY}' '${MINIO_SECRET_KEY}' >/dev/null
+mc mirror --overwrite --remove /restore/${MINIO_BUCKET} localminio/${MINIO_BUCKET}"
     docker run --rm \
       "${network_args[@]}" \
       -v "$MINIO_RESTORE_DIR:/restore" \
       --entrypoint /bin/sh \
       "$MINIO_MC_IMAGE" \
-      -c "$MC_RESTORE_CMD"
+      -c "$mc_restore_cmd"
   }
 
   if ! run_mc_restore; then
