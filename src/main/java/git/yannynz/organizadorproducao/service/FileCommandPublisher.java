@@ -22,12 +22,7 @@ public class FileCommandPublisher {
     }
 
     public void sendCommand(FileCommandDTO command) {
-        try {
-            String json = objectMapper.writeValueAsString(command);
-            log.info("Sending file command to RabbitMQ queue 'file_commands': {}", json);
-            rabbitTemplate.convertAndSend("file_commands", json);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("Error serializing FileCommandDTO", e);
-        }
+        log.info("Sending file command to RabbitMQ queue 'file_commands': {}", command);
+        rabbitTemplate.convertAndSend("file_commands", command);
     }
 }

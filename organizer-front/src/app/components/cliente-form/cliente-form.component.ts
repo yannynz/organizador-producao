@@ -24,6 +24,11 @@ export class ClienteFormComponent implements OnInit {
   @Output() cancel = new EventEmitter<void>();
 
   transportadoras: Transportadora[] = [];
+  aliasSearchQuery = '';
+  aliasResults: Cliente[] = [];
+  aliasLoading = false;
+  aliasMessage = '';
+  aliasError = '';
 
   constructor(
     private service: ClienteService,
@@ -84,5 +89,96 @@ export class ClienteFormComponent implements OnInit {
     } else {
       this.service.create(this.cliente).subscribe(c => this.save.emit(c));
     }
+  }
+
+  searchAlias() {
+    this.aliasMessage = '';
+    this.aliasError = '';
+    const query = (this.aliasSearchQuery || '').trim();
+    if (!query) {
+      this.aliasResults = [];
+      return;
+    }
+    this.aliasLoading = true;
+    this.service.search(query, 0, 10).subscribe({
+      next: res => {
+        const content = (res && res.content) ? res.content as Cliente[] : [];
+        this.aliasResults = content.filter(c => c.id !== this.cliente.id);
+        this.aliasLoading = false;
+      },
+      error: () => {
+        this.aliasLoading = false;
+        this.aliasError = 'Falha ao buscar clientes.';
+      }
+    });
+  }
+
+  linkAlias(target: Cliente) {
+    this.aliasMessage = '';
+    this.aliasError = '';
+    if (!this.cliente.id || this.cliente.id === 0) {
+      this.aliasError = 'Salve o cliente antes de vincular apelidos.';
+      return;
+    }
+    if (!target || !target.id) {
+      this.aliasError = 'Cliente inválido para vincular.';
+      return;
+    }
+    if (target.id === this.cliente.id) {
+      this.aliasError = 'Não é possível vincular o cliente a ele mesmo.';
+      return;
+    }
+    this.aliasLoading = true;
+    this.service.linkAlias(this.cliente.id, target.id).subscribe({
+      next: () => {
+        this.aliasLoading = false;
+        this.mergeAlias(target.nomeOficial);
+        this.aliasMessage = `Vínculo criado: ${this.cliente.nomeOficial} <-> ${target.nomeOficial}`;
+      },
+      error: (err) => {
+        this.aliasLoading = false;
+        this.aliasError = err?.error?.message || 'Falha ao vincular apelido.';
+      }
+    });
+  }
+
+  private mergeAlias(alias: string) {
+    if (!alias) {
+      return;
+    }
+    const list = this.parseApelidos(this.cliente.apelidos);
+    const normalized = this.normalizeAlias(alias);
+    const exists = list.some(a => this.normalizeAlias(a) === normalized);
+    if (!exists) {
+      list.push(alias.trim());
+      this.setApelidos(list);
+    }
+  }
+
+  private parseApelidos(value: string | string[] | undefined): string[] {
+    if (!value) {
+      return [];
+    }
+    if (Array.isArray(value)) {
+      return value
+        .map(v => (v || '').toString().trim())
+        .filter(v => !!v);
+    }
+    return value
+      .split(',')
+      .map(v => v.trim())
+      .filter(v => !!v);
+  }
+
+  private setApelidos(list: string[]) {
+    this.cliente.apelidos = list.join(', ');
+  }
+
+  private normalizeAlias(value: string): string {
+    return value
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toUpperCase()
+      .trim();
   }
 }

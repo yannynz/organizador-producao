@@ -89,6 +89,7 @@ public class Cliente {
   public String getNomeNormalizado() { return nomeNormalizado; }
   public void setNomeNormalizado(String nomeNormalizado) { this.nomeNormalizado = nomeNormalizado; }
 
+  @com.fasterxml.jackson.annotation.JsonProperty("apelidos")
   public List<String> getApelidos() { return apelidos; }
   @JsonIgnore
   public void setApelidos(List<String> apelidos) { this.apelidos = apelidos != null ? apelidos : new ArrayList<>(); }

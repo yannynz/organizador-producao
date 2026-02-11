@@ -1,20 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: git.yannynz.organizadorproducao.service.ClienteAutoEnrichmentServiceTest
 -------------------------------------------------------------------------------
-Tests run: 3, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 0.134 s <<< FAILURE! -- in git.yannynz.organizadorproducao.service.ClienteAutoEnrichmentServiceTest
-git.yannynz.organizadorproducao.service.ClienteAutoEnrichmentServiceTest.upsertFromOp_ShouldMatchExistingAddress -- Time elapsed: 0.117 s <<< FAILURE!
-org.mockito.exceptions.verification.NeverWantedButInvoked: 
-
-enderecoRepo.save(
-    <any git.yannynz.organizadorproducao.model.ClienteEndereco>
-);
-Never wanted here:
--> at git.yannynz.organizadorproducao.service.ClienteAutoEnrichmentServiceTest.upsertFromOp_ShouldMatchExistingAddress(ClienteAutoEnrichmentServiceTest.java:131)
-But invoked here:
--> at git.yannynz.organizadorproducao.service.ClienteAutoEnrichmentService.setDefault(ClienteAutoEnrichmentService.java:512) with arguments: [git.yannynz.organizadorproducao.model.ClienteEndereco@18bf1bad]
-
-	at git.yannynz.organizadorproducao.service.ClienteAutoEnrichmentServiceTest.upsertFromOp_ShouldMatchExistingAddress(ClienteAutoEnrichmentServiceTest.java:131)
-	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
-	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
-	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
-
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.164 s -- in git.yannynz.organizadorproducao.service.ClienteAutoEnrichmentServiceTest

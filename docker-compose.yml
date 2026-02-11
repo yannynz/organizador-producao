@@ -34,7 +34,7 @@ services:
       SPRING_RABBITMQ_PORT: "5672"
       SPRING_RABBITMQ_USERNAME: guest
       SPRING_RABBITMQ_PASSWORD: guest
-      APP_CORS_ALLOWED_ORIGINS: ${APP_CORS_ALLOWED_ORIGINS:-http://localhost:4200,http://localhost,http://nginx-container,http://nginx-container:80,http://frontend-container}
+      APP_CORS_ALLOWED_ORIGINS: ${APP_CORS_ALLOWED_ORIGINS:-http://192.168.10.13,http://192.168.10.13:80,http://localhost:4200,http://localhost,http://nginx-container,http://nginx-container:80,http://frontend-container}
       # Dev: use host acessível externamente para servir as imagens via MinIO.
       APP_DXF_ANALYSIS_IMAGE_BASE_URL: ${APP_DXF_ANALYSIS_IMAGE_BASE_URL:-http://${SERVER_HOST:-192.168.10.13}/facas-renders}
       APP_FRONTEND_URL: http://${SERVER_HOST:-192.168.10.13}

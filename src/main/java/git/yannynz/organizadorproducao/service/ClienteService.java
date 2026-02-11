@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
+import java.util.ArrayList;
 
 import git.yannynz.organizadorproducao.repository.TransportadoraRepository;
 
@@ -134,9 +135,58 @@ public class ClienteService {
         }).orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
     }
 
+    @Transactional
+    public Cliente linkAliases(Long clienteId, Long aliasClienteId) {
+        if (clienteId == null || aliasClienteId == null) {
+            throw new IllegalArgumentException("Cliente e apelido são obrigatórios");
+        }
+        if (clienteId.equals(aliasClienteId)) {
+            throw new IllegalArgumentException("Cliente e apelido não podem ser o mesmo");
+        }
+        Cliente cliente = repo.findById(clienteId)
+                .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
+        Cliente alias = repo.findById(aliasClienteId)
+                .orElseThrow(() -> new RuntimeException("Cliente apelido não encontrado"));
+
+        boolean changed = false;
+        changed |= addAlias(cliente, alias.getNomeOficial());
+        changed |= addAlias(alias, cliente.getNomeOficial());
+
+        if (changed) {
+            repo.save(cliente);
+            repo.save(alias);
+        }
+        return cliente;
+    }
+
     private String normalize(String s) {
         if (s == null) return "";
         return java.text.Normalizer.normalize(s, java.text.Normalizer.Form.NFD)
                 .replaceAll("\\p{M}", "").toUpperCase().trim();
+    }
+
+    private boolean addAlias(Cliente cliente, String alias) {
+        if (cliente == null || alias == null || alias.isBlank()) {
+            return false;
+        }
+        String normalizedAlias = normalize(alias);
+        String normalizedName = normalize(cliente.getNomeOficial());
+        if (!normalizedAlias.isBlank() && normalizedAlias.equals(normalizedName)) {
+            return false;
+        }
+        List<String> apelidos = cliente.getApelidos();
+        if (apelidos == null) {
+            apelidos = new ArrayList<>();
+        }
+        boolean exists = apelidos.stream()
+                .filter(a -> a != null && !a.isBlank())
+                .map(this::normalize)
+                .anyMatch(n -> n.equals(normalizedAlias));
+        if (!exists) {
+            apelidos.add(alias.trim());
+            cliente.setApelidos(apelidos);
+            return true;
+        }
+        return false;
     }
 }

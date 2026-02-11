@@ -34,4 +34,8 @@ export class ClienteService {
   update(id: number, cliente: Cliente): Observable<Cliente> {
     return this.http.patch<Cliente>(`${this.apiUrl}/${id}`, cliente);
   }
+
+  linkAlias(id: number, aliasId: number): Observable<Cliente> {
+    return this.http.post<Cliente>(`${this.apiUrl}/${id}/alias/${aliasId}`, {});
+  }
 }

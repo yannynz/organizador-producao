@@ -68,7 +68,7 @@ public class ClienteDefaultsService {
         if (!hasText(normalized)) {
             return Optional.empty();
         }
-        return clienteRepository.findByNomeNormalizado(normalized);
+        return clienteRepository.findByNomeNormalizadoOrApelido(normalized);
     }
 
     private String normalize(String value) {

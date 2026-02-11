@@ -79,8 +79,8 @@ public class DXFAnalysisRequestPublisher {
         }
 
         try {
-            String json = objectMapper.writeValueAsString(payload);
-            rabbitTemplate.convertAndSend("", properties.getRequestQueue(), json);
+            // Envia o mapa diretamente para o Jackson2JsonMessageConverter
+            rabbitTemplate.convertAndSend("", properties.getRequestQueue(), payload);
             log.info("DXF analysis request {} enviado para {}", analysisId, properties.getRequestQueue());
             return analysisId;
         } catch (Exception e) {

@@ -18,7 +18,7 @@ export interface Cliente {
   id: number;
   nomeOficial: string;
   nomeNormalizado?: string;
-  apelidos?: string;
+  apelidos?: string | string[];
   padraoEntrega?: string;
   horarioFuncionamento?: string;
   cnpjCpf?: string;

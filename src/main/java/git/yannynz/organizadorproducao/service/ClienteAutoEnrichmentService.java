@@ -44,7 +44,7 @@ public class ClienteAutoEnrichmentService {
 
         String nomeNormalizado = normalizar(dto.getClienteNomeOficial());
 
-        Cliente cliente = clienteRepo.findByNomeNormalizado(nomeNormalizado)
+        Cliente cliente = clienteRepo.findByNomeNormalizadoOrApelido(nomeNormalizado)
                 .orElseGet(() -> createCliente(dto, nomeNormalizado));
 
         boolean dirty = false;

@@ -50,4 +50,13 @@ public class ClienteController {
     public Cliente update(@PathVariable Long id, @RequestBody Cliente cliente) {
         return service.update(id, cliente);
     }
+
+    @PostMapping("/{id}/alias/{aliasId}")
+    public Cliente linkAlias(@PathVariable Long id, @PathVariable Long aliasId) {
+        try {
+            return service.linkAliases(id, aliasId);
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        }
+    }
 }

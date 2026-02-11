@@ -21,6 +21,28 @@
               <label class="form-label">Apelidos (Busca)</label>
               <input type="text" class="form-control form-control-sm" [(ngModel)]="cliente.apelidos" placeholder="Ex: Filial X">
             </div>
+            
+            <div class="mb-3" *ngIf="cliente.id">
+              <label class="form-label">Vincular outro cliente como apelido (bidirecional)</label>
+              <div class="input-group input-group-sm mb-2">
+                <input type="text" class="form-control" [(ngModel)]="aliasSearchQuery" placeholder="Buscar por nome..." (keyup.enter)="searchAlias()">
+                <button class="btn btn-outline-secondary" type="button" (click)="searchAlias()">Buscar</button>
+              </div>
+              <div class="list-group small" *ngIf="aliasResults.length > 0">
+                <button type="button"
+                        class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                        *ngFor="let c of aliasResults"
+                        (click)="linkAlias(c)">
+                  <span>{{c.nomeOficial}}</span>
+                  <span class="badge text-bg-light">#{{c.id}}</span>
+                </button>
+              </div>
+              <div class="small text-muted" *ngIf="aliasSearchQuery && !aliasLoading && aliasResults.length === 0">
+                Nenhum cliente encontrado.
+              </div>
+              <div class="small text-success mt-1" *ngIf="aliasMessage">{{aliasMessage}}</div>
+              <div class="small text-danger mt-1" *ngIf="aliasError">{{aliasError}}</div>
+            </div>
 
             <div class="row g-2 mb-3">
               <div class="col-6">
