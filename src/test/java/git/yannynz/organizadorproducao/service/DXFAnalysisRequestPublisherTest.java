@@ -47,16 +47,14 @@ class DXFAnalysisRequestPublisherTest {
                 null
         );
 
-        ArgumentCaptor<String> payloadCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<Map> payloadCaptor = ArgumentCaptor.forClass(Map.class);
 
         String analysisId = publisher.publish(dto);
 
         assertThat(analysisId).isNotBlank();
 
         verify(rabbitTemplate).convertAndSend(eq(""), eq(properties.getRequestQueue()), payloadCaptor.capture());
-        String payloadJson = payloadCaptor.getValue();
-
-        Map<?, ?> payload = objectMapper.readValue(payloadJson, Map.class);
+        Map<?, ?> payload = payloadCaptor.getValue();
         assertThat(payload.get("analysisId")).isEqualTo(analysisId);
         assertThat(payload.get("fileName")).isEqualTo("NR777777_CLIENTE.DXF");
         assertThat(payload.get("opId")).isEqualTo("777777");

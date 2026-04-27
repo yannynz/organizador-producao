@@ -4,6 +4,7 @@
 /home/ynz/Documents/organizador-producao/src/test/java/git/yannynz/organizadorproducao/controller/OrderControllerHistoryTest.java
 /home/ynz/Documents/organizador-producao/src/test/java/git/yannynz/organizadorproducao/controller/OrderControllerPriorityTest.java
 /home/ynz/Documents/organizador-producao/src/test/java/git/yannynz/organizadorproducao/controller/UserControllerMeTest.java
+/home/ynz/Documents/organizador-producao/src/test/java/git/yannynz/organizadorproducao/infra/security/WebSocketSecurityTest.java
 /home/ynz/Documents/organizador-producao/src/test/java/git/yannynz/organizadorproducao/service/AuthenticationServiceTest.java
 /home/ynz/Documents/organizador-producao/src/test/java/git/yannynz/organizadorproducao/service/ClienteAutoEnrichmentServiceTest.java
 /home/ynz/Documents/organizador-producao/src/test/java/git/yannynz/organizadorproducao/service/ClienteDefaultsServiceTest.java

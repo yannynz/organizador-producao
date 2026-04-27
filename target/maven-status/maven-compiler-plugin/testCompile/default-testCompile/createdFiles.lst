@@ -2,6 +2,7 @@ git/yannynz/organizadorproducao/controller/OrderControllerPriorityTest.class
 git/yannynz/organizadorproducao/controller/OpImportControllerTest$TestConfig.class
 git/yannynz/organizadorproducao/service/OpImportServiceVincoTest.class
 git/yannynz/organizadorproducao/service/AuthenticationServiceTest.class
+git/yannynz/organizadorproducao/infra/security/WebSocketSecurityTest$TestConfig.class
 git/yannynz/organizadorproducao/controller/OrderControllerDeliveryLockTest.class
 git/yannynz/organizadorproducao/service/FileWatcherServicePriorityTest.class
 git/yannynz/organizadorproducao/OrganizadorProducaoApplicationTests.class
@@ -9,10 +10,12 @@ git/yannynz/organizadorproducao/service/ClienteAutoEnrichmentServiceTest.class
 git/yannynz/organizadorproducao/service/OpImportServiceTransportadoraTest.class
 git/yannynz/organizadorproducao/controller/OpImportControllerTest.class
 git/yannynz/organizadorproducao/service/OpImportServiceIntegrationTest.class
+git/yannynz/organizadorproducao/infra/security/WebSocketSecurityTest$ProbeController.class
 git/yannynz/organizadorproducao/service/OrderStatusRulesTest.class
 git/yannynz/organizadorproducao/service/DXFAnalysisServiceTest.class
 git/yannynz/organizadorproducao/controller/UserControllerMeTest.class
 git/yannynz/organizadorproducao/service/OpImportServiceMaterialsTest.class
+git/yannynz/organizadorproducao/infra/security/WebSocketSecurityTest.class
 git/yannynz/organizadorproducao/service/DXFAnalysisRequestPublisherTest.class
 git/yannynz/organizadorproducao/controller/OrderControllerHistoryTest.class
 git/yannynz/organizadorproducao/service/ClienteDefaultsServiceTest.class

@@ -1,6 +1,6 @@
 package git.yannynz.organizadorproducao.infra.security;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -16,15 +16,25 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Configuration
 @EnableWebSecurity
-@RequiredArgsConstructor
 public class SecurityConfiguration {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
+    private final String[] allowedOrigins;
+
+    public SecurityConfiguration(
+            JwtAuthenticationFilter jwtAuthFilter,
+            AuthenticationProvider authenticationProvider,
+            @Value("${app.cors.allowed-origins:http://localhost:4200,http://localhost,http://nginx-container,http://nginx-container:80,http://frontend-container}") String[] allowedOrigins) {
+        this.jwtAuthFilter = jwtAuthFilter;
+        this.authenticationProvider = authenticationProvider;
+        this.allowedOrigins = allowedOrigins;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -35,6 +45,7 @@ public class SecurityConfiguration {
                 .requestMatchers("/api/auth/**", "/actuator/**", "/error").permitAll()
                 .requestMatchers("/api/orders/**").permitAll()
                 .requestMatchers("/api/dxf-analysis/**").permitAll()
+                .requestMatchers("/ws/orders").permitAll()
                 .requestMatchers("/ws/orders/**").permitAll()
                 .requestMatchers("/api/users/assignable").authenticated()
                 .requestMatchers("/api/users/me").authenticated() // Allow any authenticated user to get their own profile
@@ -53,7 +64,10 @@ public class SecurityConfiguration {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:4200", "https://app.ycar.com.br", "http://localhost:80", "http://nginx-container", "http://nginx-container:80", "http://frontend-container"));
+        configuration.setAllowedOrigins(Arrays.stream(allowedOrigins)
+                .map(String::trim)
+                .filter(origin -> !origin.isBlank())
+                .toList());
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);

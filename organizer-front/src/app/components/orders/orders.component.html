@@ -88,7 +88,7 @@
                   <span class="visually-hidden">Carregando...</span>
                 </div>
               </div>
-              <img *ngIf="imageUrls[order.nr]" [src]="imageUrls[order.nr]" class="img-fluid border rounded shadow-sm" style="max-height: 500px; object-fit: contain;" alt="Renderização da Faca">
+              <img *ngIf="imageUrls[order.nr]" [src]="imageUrls[order.nr]" (error)="handleImageError(order.nr)" class="img-fluid border rounded shadow-sm" style="max-height: 500px; object-fit: contain;" alt="Renderização da Faca">
               <div *ngIf="!loadingImage[order.nr] && !imageUrls[order.nr]" class="text-muted py-5">
                 <i class="bi bi-image-alt fs-1 d-block text-center"></i>
                 <span>Imagem não disponível</span>

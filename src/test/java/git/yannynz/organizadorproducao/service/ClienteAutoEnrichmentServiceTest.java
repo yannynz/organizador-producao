@@ -45,7 +45,7 @@ class ClienteAutoEnrichmentServiceTest {
         OpImportRequestDTO dto = new OpImportRequestDTO();
         dto.setClienteNomeOficial("Novo Cliente Ltda");
         
-        when(clienteRepo.findByNomeNormalizado(anyString())).thenReturn(Optional.empty());
+        when(clienteRepo.findByNomeNormalizadoOrApelido(anyString())).thenReturn(Optional.empty());
         when(clienteRepo.save(any(Cliente.class))).thenAnswer(inv -> {
             Cliente c = inv.getArgument(0);
             c.setId(1L);
@@ -81,7 +81,7 @@ class ClienteAutoEnrichmentServiceTest {
         existingClient.setId(10L);
         existingClient.setNomeOficial("Cliente Existente");
 
-        when(clienteRepo.findByNomeNormalizado(anyString())).thenReturn(Optional.of(existingClient));
+        when(clienteRepo.findByNomeNormalizadoOrApelido(anyString())).thenReturn(Optional.of(existingClient));
         when(enderecoRepo.findByClienteId(10L)).thenReturn(Collections.emptyList());
         when(enderecoRepo.save(any(ClienteEndereco.class))).thenAnswer(inv -> inv.getArgument(0));
 
@@ -119,7 +119,7 @@ class ClienteAutoEnrichmentServiceTest {
         existingAddr.setLogradouro("Avenida Paulista, 1000"); // Slightly different but matching normalization
         existingAddr.setCliente(existingClient);
 
-        when(clienteRepo.findByNomeNormalizado(anyString())).thenReturn(Optional.of(existingClient));
+        when(clienteRepo.findByNomeNormalizadoOrApelido(anyString())).thenReturn(Optional.of(existingClient));
         when(enderecoRepo.findByClienteId(10L)).thenReturn(List.of(existingAddr));
 
         // Act

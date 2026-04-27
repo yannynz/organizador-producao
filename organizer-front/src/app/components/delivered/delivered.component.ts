@@ -51,6 +51,7 @@ export class DeliveredComponent implements OnInit {
 
   expandedNr: string | null = null;
   imageUrls: { [key: string]: string } = {};
+  imageUrlFallbacks: { [key: string]: string[] } = {};
   loadingImage: { [key: string]: boolean } = {};
   currentUser: User | null = null; // Add currentUser property
   private readonly imagePublicBaseUrl = environment.imagePublicBaseUrl || '/facas-renders';
@@ -435,39 +436,54 @@ export class DeliveredComponent implements OnInit {
     this.loadingImage[nr] = true;
     this.dxfAnalysisService.getLatestByOrder(nr).subscribe({
       next: (analysis) => {
-        const resolved = analysis ? this.resolvePublicImageUrl(analysis) : null;
-        this.imageUrls[nr] = resolved || '';
+        const urls = analysis ? this.resolvePublicImageUrls(analysis) : [];
+        this.imageUrls[nr] = urls[0] || '';
+        this.imageUrlFallbacks[nr] = urls.slice(1);
         this.loadingImage[nr] = false;
       },
       error: () => {
         this.imageUrls[nr] = '';
+        this.imageUrlFallbacks[nr] = [];
         this.loadingImage[nr] = false;
       }
     });
   }
 
-  private resolvePublicImageUrl(analysis: DxfAnalysis): string | null {
+  handleImageError(nr: string): void {
+    const next = this.imageUrlFallbacks[nr]?.shift();
+    this.imageUrls[nr] = next || '';
+  }
+
+  private resolvePublicImageUrls(analysis: DxfAnalysis): string[] {
+    const urls: string[] = [];
+
+    if (this.imagePublicBaseUrl && analysis.imageKey) {
+      const base = this.normalizeBaseUrl(this.imagePublicBaseUrl);
+      const key = analysis.imageKey.startsWith('/') ? analysis.imageKey.substring(1) : analysis.imageKey;
+      this.pushUniqueUrl(urls, `${base}/${key}`);
+    }
+
     const candidates = [analysis.imageUrl, analysis.imageUri];
     for (const c of candidates) {
       if (c && c.trim()) {
         const trimmed = c.trim();
         if (trimmed.startsWith('data:') || trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
-          return trimmed;
+          this.pushUniqueUrl(urls, trimmed);
+        } else if (trimmed.startsWith('//')) {
+          this.pushUniqueUrl(urls, `https:${trimmed}`);
+        } else {
+          this.pushUniqueUrl(urls, trimmed);
         }
-        if (trimmed.startsWith('//')) {
-          return `https:${trimmed}`;
-        }
-        return trimmed;
       }
     }
 
-    if (this.imagePublicBaseUrl && analysis.imageKey) {
-      const base = this.normalizeBaseUrl(this.imagePublicBaseUrl);
-      const key = analysis.imageKey.startsWith('/') ? analysis.imageKey.substring(1) : analysis.imageKey;
-      return `${base}/${key}`;
-    }
+    return urls;
+  }
 
-    return null;
+  private pushUniqueUrl(urls: string[], url: string): void {
+    if (url && !urls.includes(url)) {
+      urls.push(url);
+    }
   }
 
   private normalizeBaseUrl(value: string): string {

@@ -83,7 +83,7 @@ class ClienteDefaultsServiceTest {
         Order order = new Order();
         order.setCliente("Cliente Ótimo");
 
-        when(clienteRepository.findByNomeNormalizado("CLIENTE OTIMO"))
+        when(clienteRepository.findByNomeNormalizadoOrApelido("CLIENTE OTIMO"))
                 .thenReturn(Optional.of(cliente));
 
         boolean changed = service.applyDefaults(order);
@@ -91,6 +91,6 @@ class ClienteDefaultsServiceTest {
         assertTrue(changed);
         assertEquals(cliente, order.getClienteRef());
         assertTrue(order.isEmborrachada());
-        verify(clienteRepository).findByNomeNormalizado("CLIENTE OTIMO");
+        verify(clienteRepository).findByNomeNormalizadoOrApelido("CLIENTE OTIMO");
     }
 }

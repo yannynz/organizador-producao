@@ -153,6 +153,24 @@ describe('OrderDetailsModalComponent', () => {
     expect(wrapper.querySelector('.dxf-analysis-card')).not.toBeNull();
     expect(wrapper.textContent).toContain('Imagem da faca');
     const img: HTMLImageElement | null = wrapper.querySelector('.dxf-last-session img');
+    expect(img?.src).toContain('/facas-renders/renders/path.png');
+  });
+
+  it('falls back to direct image URL when relative bucket URL fails', () => {
+    const analysis = makeAnalysis();
+    mockService.latest$ = of(analysis);
+    mockService.history$ = of([analysis]);
+
+    initComponent();
+    openWithOrder('123');
+
+    let img: HTMLImageElement | null = fixture.nativeElement.querySelector('.dxf-last-session img');
+    expect(img?.src).toContain('/facas-renders/renders/path.png');
+
+    img?.dispatchEvent(new Event('error'));
+    fixture.detectChanges();
+
+    img = fixture.nativeElement.querySelector('.dxf-last-session img');
     expect(img?.src).toContain('http://cdn/path.png');
   });
 

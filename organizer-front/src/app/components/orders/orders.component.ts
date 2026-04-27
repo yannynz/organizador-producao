@@ -34,6 +34,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
   filteredPriority: string | null = null;
   expandedNr: string | null = null;
   imageUrls: { [key: string]: string } = {};
+  imageUrlFallbacks: { [key: string]: string[] } = {};
   loadingImage: { [key: string]: boolean } = {};
   currentUser: User | null = null;
   
@@ -318,47 +319,58 @@ export class OrdersComponent implements OnInit, OnDestroy {
     this.dxfAnalysisService.getLatestByOrder(nr).subscribe({
       next: (analysis) => {
         if (analysis) {
-          const resolved = this.resolvePublicImageUrl(analysis);
-          this.imageUrls[nr] = resolved || '';
+          const urls = this.resolvePublicImageUrls(analysis);
+          this.imageUrls[nr] = urls[0] || '';
+          this.imageUrlFallbacks[nr] = urls.slice(1);
         } else {
           this.imageUrls[nr] = ''; // Marca como sem imagem
+          this.imageUrlFallbacks[nr] = [];
         }
         this.loadingImage[nr] = false;
       },
       error: () => {
         this.imageUrls[nr] = '';
+        this.imageUrlFallbacks[nr] = [];
         this.loadingImage[nr] = false;
       }
     });
   }
 
-  private resolvePublicImageUrl(analysis: DxfAnalysis): string | null {
-    // 1. Tenta usar URLs diretas (imageUri ou imageUrl)
+  handleImageError(nr: string): void {
+    const next = this.imageUrlFallbacks[nr]?.shift();
+    this.imageUrls[nr] = next || '';
+  }
+
+  private resolvePublicImageUrls(analysis: DxfAnalysis): string[] {
+    const urls: string[] = [];
+
+    if (this.imagePublicBaseUrl && analysis.imageKey) {
+      const base = this.normalizeBaseUrl(this.imagePublicBaseUrl);
+      const key = analysis.imageKey.startsWith('/') ? analysis.imageKey.substring(1) : analysis.imageKey;
+      this.pushUniqueUrl(urls, `${base}/${key}`);
+    }
+
     const candidates = [analysis.imageUrl, analysis.imageUri];
     for (const c of candidates) {
       if (c && c.trim()) {
         const trimmed = c.trim();
-        // Se for data URI ou http/https, usa direto
         if (trimmed.startsWith('data:') || trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
-          return trimmed;
+          this.pushUniqueUrl(urls, trimmed);
+        } else if (trimmed.startsWith('//')) {
+          this.pushUniqueUrl(urls, `https:${trimmed}`);
+        } else {
+          this.pushUniqueUrl(urls, trimmed);
         }
-        // Se começar com //, adiciona protocolo (assume https se não detectar window)
-        if (trimmed.startsWith('//')) {
-           return `https:${trimmed}`;
-        }
-        // Se for relativo/outro, retorna (pode ser relativo à raiz)
-        return trimmed;
       }
     }
 
-    // 2. Tenta construir a partir do bucket/key
-    if (this.imagePublicBaseUrl && analysis.imageKey) {
-      const base = this.normalizeBaseUrl(this.imagePublicBaseUrl);
-      const key = analysis.imageKey.startsWith('/') ? analysis.imageKey.substring(1) : analysis.imageKey;
-      return `${base}/${key}`;
-    }
+    return urls;
+  }
 
-    return null;
+  private pushUniqueUrl(urls: string[], url: string): void {
+    if (url && !urls.includes(url)) {
+      urls.push(url);
+    }
   }
 
   private normalizeBaseUrl(value: string): string {

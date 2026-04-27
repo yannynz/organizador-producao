@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { EMPTY, Observable } from 'rxjs';
 import { RxStompService } from '@stomp/ng2-stompjs';
 import { RxStompConfig } from '@stomp/rx-stomp';
 import { environment } from '../enviroment';
@@ -20,53 +20,64 @@ export interface StatusEvent {
   providedIn: 'root'
 })
 export class WebsocketService {
-  private rxStompService: RxStompService;
+  private rxStompService?: RxStompService;
 
   constructor() {
-    this.rxStompService = new RxStompService();
-    this.rxStompService.configure(this.myRxStompConfig());
-    this.rxStompService.activate();
+    if (typeof window !== 'undefined' && environment.wsUrl) {
+      this.rxStompService = new RxStompService();
+      this.rxStompService.configure(this.myRxStompConfig());
+      this.rxStompService.activate();
+    }
   }
 
   private myRxStompConfig(): RxStompConfig {
-    return {
+    const config: RxStompConfig = {
       brokerURL: environment.wsUrl,
       heartbeatIncoming: 0,
       heartbeatOutgoing: 20000,
       reconnectDelay: 200,
-      debug: (msg: string): void => {
-        console.log(new Date(), msg);
-      },
     };
+    if (!environment.production) {
+      config.debug = (msg: string): void => {
+        console.log(new Date(), msg);
+      };
+    }
+    return config;
   }
 
   public watchOrders(): Observable<any> {
-    return this.rxStompService.watch('/topic/orders');
+    return this.rxStompService?.watch('/topic/orders') ?? EMPTY;
   }
 
   public watchPriorities(): Observable<any> {
-    return this.rxStompService.watch('/topic/prioridades');
+    return this.rxStompService?.watch('/topic/prioridades') ?? EMPTY;
  }
 
   public watchDxfAnalysis(): Observable<any> {
+    if (!this.rxStompService) {
+      return EMPTY;
+    }
     return this.rxStompService
       .watch('/topic/dxf-analysis')
       .pipe(map((msg) => JSON.parse(msg.body)));
   }
 
   public sendCreateOrder(order: any): void {
-    this.rxStompService.publish({ destination: '/app/orders/create', body: JSON.stringify(order) });
+    this.rxStompService?.publish({ destination: '/app/orders/create', body: JSON.stringify(order) });
   }
 
   public sendUpdateOrder(order: any): void {
-    this.rxStompService.publish({ destination: '/app/orders/update', body: JSON.stringify(order) });
+    this.rxStompService?.publish({ destination: '/app/orders/update', body: JSON.stringify(order) });
   }
 
   public sendDeleteOrder(orderId: number): void {
-    this.rxStompService.publish({ destination: `/orders/delete/${orderId}` });
+    this.rxStompService?.publish({ destination: `/orders/delete/${orderId}` });
   }
 
   public watchStatus(): Observable<StatusEvent> {
+    if (!this.rxStompService) {
+      return EMPTY;
+    }
     return this.rxStompService
       .watch('/topic/status')               // broker /topic conforme Spring
       .pipe(map(msg => JSON.parse(msg.body) as StatusEvent));
@@ -74,6 +85,6 @@ export class WebsocketService {
 
   public sendPingNow(): void {
     // dispara o ping on-demand; o backend publicará o resultado em /topic/status
-    this.rxStompService.publish({ destination: '/app/status/ping-now', body: '{}' });
+    this.rxStompService?.publish({ destination: '/app/status/ping-now', body: '{}' });
   }
 }

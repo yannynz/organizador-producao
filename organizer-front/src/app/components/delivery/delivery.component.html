@@ -82,7 +82,7 @@
                <div *ngIf="loadingImage[order.nr]" class="position-absolute top-50 start-50 translate-middle">
                   <div class="spinner-border text-primary" role="status"></div>
                </div>
-               <img *ngIf="imageUrls[order.nr]" [src]="imageUrls[order.nr]" class="img-fluid border rounded shadow-sm" style="max-height: 500px; object-fit: contain;" alt="Render">
+               <img *ngIf="imageUrls[order.nr]" [src]="imageUrls[order.nr]" (error)="handleImageError(order.nr)" class="img-fluid border rounded shadow-sm" style="max-height: 500px; object-fit: contain;" alt="Render">
                <div *ngIf="!loadingImage[order.nr] && !imageUrls[order.nr]" class="text-muted py-5">
                   <i class="bi bi-image-alt fs-1 d-block text-center"></i>
                   <span>Imagem não disponível</span>

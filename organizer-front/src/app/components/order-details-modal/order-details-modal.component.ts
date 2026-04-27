@@ -77,6 +77,7 @@ export class OrderDetailsModalComponent implements OnInit, OnChanges, OnDestroy 
   private dxfHistorySub?: Subscription;
   private dxfWebsocketSub?: Subscription;
   private orderHistorySub?: Subscription;
+  private failedDxfImageUrls = new Set<string>();
 
   dxfAnalysis: DxfAnalysis | null = null;
   dxfHistory: DxfAnalysis[] = [];
@@ -272,6 +273,7 @@ export class OrderDetailsModalComponent implements OnInit, OnChanges, OnDestroy 
     this.dxfLatestSub?.unsubscribe();
     this.dxfLatestSub = this.dxfAnalysisService.getLatestByOrder(nr).subscribe({
       next: (analysis) => {
+        this.failedDxfImageUrls.clear();
         this.dxfAnalysis = analysis;
         this.dxfLoading = false;
         if (analysis) {
@@ -318,11 +320,18 @@ export class OrderDetailsModalComponent implements OnInit, OnChanges, OnDestroy 
     if (!analysis) {
       return null;
     }
-    return this.resolvePublicImageUrl(analysis);
+    return this.resolvePublicImageUrls(analysis).find((url) => !this.failedDxfImageUrls.has(url)) ?? null;
   }
 
   dxfImageLink(analysis: DxfAnalysis | null = this.dxfAnalysis): string | null {
     return this.dxfImageSource(analysis);
+  }
+
+  handleDxfImageError(analysis: DxfAnalysis): void {
+    const currentUrl = this.dxfImageSource(analysis);
+    if (currentUrl) {
+      this.failedDxfImageUrls.add(currentUrl);
+    }
   }
 
   formatAnalyzedAt(analysis: DxfAnalysis | null = this.dxfAnalysis): string | null {
@@ -424,6 +433,7 @@ export class OrderDetailsModalComponent implements OnInit, OnChanges, OnDestroy 
 
     const currentNr = this.selectedOrder?.nr;
     if (currentNr && payload.orderNr === currentNr) {
+      this.failedDxfImageUrls.clear();
       this.dxfAnalysis = payload;
       this.dxfLoading = false;
       this.dxfError = null;
@@ -431,19 +441,20 @@ export class OrderDetailsModalComponent implements OnInit, OnChanges, OnDestroy 
     }
   }
 
-  private resolvePublicImageUrl(analysis: DxfAnalysis): string | null {
+  private resolvePublicImageUrls(analysis: DxfAnalysis): string[] {
+    const urls: string[] = [];
+    const baseBuilt = this.buildFromBase(analysis.imageKey);
+    if (baseBuilt) {
+      this.pushUniqueUrl(urls, baseBuilt);
+    }
+
     const directCandidates = [analysis.imageUrl, analysis.imageUri].map((value) => this.pickHttpUrl(value));
     for (const candidate of directCandidates) {
       if (candidate) {
-        return candidate;
+        this.pushUniqueUrl(urls, candidate);
       }
     }
-
-    const baseBuilt = this.buildFromBase(analysis.imageKey);
-    if (baseBuilt) {
-      return baseBuilt;
-    }
-    return null;
+    return urls;
   }
 
   private pickHttpUrl(value: string | null | undefined): string | null {
@@ -478,6 +489,12 @@ export class OrderDetailsModalComponent implements OnInit, OnChanges, OnDestroy 
     return `${this.imagePublicBaseUrl}/${normalizedKey}`;
   }
 
+  private pushUniqueUrl(urls: string[], url: string): void {
+    if (url && !urls.includes(url)) {
+      urls.push(url);
+    }
+  }
+
   private normalizeBaseUrl(value: string | undefined | null): string {
     if (!value) {
       return '';
@@ -494,6 +511,7 @@ export class OrderDetailsModalComponent implements OnInit, OnChanges, OnDestroy 
     this.dxfHistory = [];
     this.dxfLoading = false;
     this.dxfError = null;
+    this.failedDxfImageUrls.clear();
   }
 
   private refreshOrderHistory(): void {

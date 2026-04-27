@@ -256,6 +256,7 @@
             >
               <img
                 [src]="imageSrc"
+                (error)="handleDxfImageError(analysis)"
                 [alt]="analysis.fileName || 'DXF render'"
                 class="img-fluid border rounded shadow-sm"
               />
