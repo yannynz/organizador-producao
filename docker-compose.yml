@@ -202,7 +202,7 @@ services:
     environment:
       MINIO_ROOT_USER: minio
       MINIO_ROOT_PASSWORD: minio123
-      MINIO_BROWSER_REDIRECT_URL: http://192.168.10.13:9091
+      MINIO_BROWSER_REDIRECT_URL: http://${MINIO_HOST:-${SERVER_HOST:-192.168.10.13}}:9091
     command: server /data --console-address ":9091"
     ports:
       - "9000:9000"   # API S3
