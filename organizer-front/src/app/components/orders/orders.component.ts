@@ -37,6 +37,8 @@ export class OrdersComponent implements OnInit, OnDestroy {
   imageUrlFallbacks: { [key: string]: string[] } = {};
   loadingImage: { [key: string]: boolean } = {};
   currentUser: User | null = null;
+  loadingOrders = false;
+  ordersLoadError: string | null = null;
   
   private readonly imagePublicBaseUrl = environment.imagePublicBaseUrl || '/facas-renders';
 
@@ -98,20 +100,32 @@ export class OrdersComponent implements OnInit, OnDestroy {
   }
 
   loadOrders() {
-    this.orderService.getOrders().subscribe((orders: orders[]) => {
-      let filteredOrders = orders.filter(order =>
-        this.shouldDisplayOrder(order)
-      );
+    this.loadingOrders = true;
+    this.ordersLoadError = null;
 
-      if (this.filteredPriority) {
-        filteredOrders = filteredOrders.filter(
-          order => order.prioridade === this.filteredPriority
+    this.orderService.getOrders().subscribe({
+      next: (orders: orders[]) => {
+        let filteredOrders = orders.filter(order =>
+          this.shouldDisplayOrder(order)
         );
-      }
 
-      this.orders = filteredOrders.sort((a, b) =>
-        this.comparePriorities(a.prioridade, b.prioridade)
-      );
+        if (this.filteredPriority) {
+          filteredOrders = filteredOrders.filter(
+            order => order.prioridade === this.filteredPriority
+          );
+        }
+
+        this.orders = filteredOrders.sort((a, b) =>
+          this.comparePriorities(a.prioridade, b.prioridade)
+        );
+        this.loadingOrders = false;
+      },
+      error: (error) => {
+        console.error('Erro ao carregar pedidos:', error);
+        this.orders = [];
+        this.ordersLoadError = 'Não foi possível carregar pedidos.';
+        this.loadingOrders = false;
+      }
     });
   }
 
@@ -235,11 +249,11 @@ export class OrdersComponent implements OnInit, OnDestroy {
     if (index !== -1) {
       this.orders[index] = order;
     } else {
-      if (order.status === 0 || order.status === 1) {
+      if (this.shouldDisplayOrder(order)) {
         this.orders.push(order);
       }
     }
-    this.orders = this.orders.filter(o => o.status === 0 || o.status === 1);
+    this.orders = this.orders.filter(o => this.shouldDisplayOrder(o));
     this.orders.sort((a, b) => this.comparePriorities(a.prioridade, b.prioridade));
     console.log('Lista de pedidos após atualização:', this.orders);
   }

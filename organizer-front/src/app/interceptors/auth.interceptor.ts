@@ -4,6 +4,8 @@ import { AuthService } from '../services/auth.service';
 import { NotificationService } from '../services/notification.service';
 import { catchError, throwError } from 'rxjs';
 
+const PUBLIC_READ_ENDPOINTS = ['/api/orders', '/api/dxf-analysis'];
+
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const notificationService = inject(NotificationService);
@@ -11,7 +13,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   let request = req;
 
-  if (token) {
+  if (token && !isPublicReadRequest(req.method, req.url)) {
     request = req.clone({
       setHeaders: {
         Authorization: `Bearer ${token}`
@@ -32,3 +34,23 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     })
   );
 };
+
+function isPublicReadRequest(method: string, url: string): boolean {
+  const normalizedMethod = method.toUpperCase();
+  if (normalizedMethod !== 'GET' && normalizedMethod !== 'HEAD') {
+    return false;
+  }
+
+  const pathname = getPathname(url);
+  return PUBLIC_READ_ENDPOINTS.some(endpoint =>
+    pathname === endpoint || pathname.startsWith(`${endpoint}/`)
+  );
+}
+
+function getPathname(url: string): string {
+  try {
+    return new URL(url, 'http://localhost').pathname;
+  } catch {
+    return url.split('?')[0];
+  }
+}

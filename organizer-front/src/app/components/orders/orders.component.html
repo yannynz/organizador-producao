@@ -99,8 +99,14 @@
        </ng-container>
       </tbody>
     </table>
-<div *ngIf="!orders.length" class="text-center py-4">
+<div *ngIf="loadingOrders" class="text-center py-4">
       <p class="text-muted">Carregando pedidos...</p>
+    </div>
+<div *ngIf="!loadingOrders && ordersLoadError" class="text-center py-4">
+      <p class="text-danger">{{ ordersLoadError }}</p>
+    </div>
+<div *ngIf="!loadingOrders && !ordersLoadError && !orders.length" class="text-center py-4">
+      <p class="text-muted">Nenhum pedido em produção.</p>
     </div>
 
   </div>
