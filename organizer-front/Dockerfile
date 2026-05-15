@@ -8,6 +8,9 @@ RUN apt-get update && apt-get install -y tzdata && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
+ENV NODE_OPTIONS=--max-old-space-size=2048
+ENV NG_BUILD_MAX_WORKERS=1
+ENV npm_config_jobs=1
 
 # Copiar apenas arquivos necessários para o build
 COPY package*.json ./
