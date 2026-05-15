@@ -24,6 +24,17 @@ RUN npm run build -- --configuration=production --ssr=false --prerender=false
 
 # Etapa final: Servir com nginx
 FROM public.ecr.aws/docker/library/nginx:alpine
-COPY --from=build /app/nginx-spa.conf /etc/nginx/conf.d/default.conf
+RUN printf '%s\n' \
+    'server {' \
+    '    listen 80;' \
+    '    server_name _;' \
+    '' \
+    '    root /usr/share/nginx/html;' \
+    '    index index.html;' \
+    '' \
+    '    location / {' \
+    '        try_files $uri $uri/ /index.html;' \
+    '    }' \
+    '}' > /etc/nginx/conf.d/default.conf
 COPY --from=build /app/dist/organizer-front/browser/ /usr/share/nginx/html/
 CMD ["nginx", "-g", "daemon off;"]
