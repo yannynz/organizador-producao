@@ -22,19 +22,10 @@ COPY . .
 # intermitentes do esbuild durante renderização server-side)
 RUN npm run build -- --configuration=production --ssr=false --prerender=false
 
-# Etapa final: Servir com nginx
-FROM public.ecr.aws/docker/library/nginx:alpine
-RUN printf '%s\n' \
-    'server {' \
-    '    listen 80;' \
-    '    server_name _;' \
-    '' \
-    '    root /usr/share/nginx/html;' \
-    '    index index.html;' \
-    '' \
-    '    location / {' \
-    '        try_files $uri $uri/ /index.html;' \
-    '    }' \
-    '}' > /etc/nginx/conf.d/default.conf
-COPY --from=build /app/dist/organizer-front/browser/ /usr/share/nginx/html/
-CMD ["nginx", "-g", "daemon off;"]
+# Etapa final: servir os arquivos estaticos via Node.
+# Evita depender da imagem nginx:alpine no build do frontend; o proxy externo
+# continua sendo o nginx-container definido no docker-compose.
+FROM build AS runtime
+WORKDIR /app/dist/organizer-front/browser
+EXPOSE 80
+CMD ["node", "/app/docker-static-server.mjs"]
