@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { EMPTY, of, throwError } from 'rxjs';
+import { FormBuilder } from '@angular/forms';
 
 import { OrdersComponent } from './orders.component';
 import { WebsocketService } from '../../services/websocket.service';
@@ -38,6 +39,10 @@ describe('OrdersComponent', () => {
     orderService.getOrders.and.returnValue(of([
       { id: 1, nr: '120430', prioridade: 'VERDE', status: 0 } as orders,
       { id: 2, nr: '120431', prioridade: 'AZUL', status: 5 } as orders,
+      { id: 3, nr: '120432', prioridade: 'AMARELO', status: 6 } as orders,
+      { id: 4, nr: '120433', prioridade: 'VERMELHO', status: '1' as unknown as number } as orders,
+      { id: 5, nr: '120434', prioridade: 'VERMELHO', status: 7 } as orders,
+      { id: 6, nr: '120435', prioridade: 'VERMELHO', status: '8' as unknown as number } as orders,
     ]));
 
     await TestBed.configureTestingModule({
@@ -61,8 +66,7 @@ describe('OrdersComponent', () => {
   });
 
   it('loads only visible production orders', () => {
-    expect(component.orders.length).toBe(1);
-    expect(component.orders[0].nr).toBe('120430');
+    expect(component.orders.map(order => order.nr)).toEqual(['120433', '120432', '120430']);
     expect(component.loadingOrders).toBeFalse();
     expect(component.ordersLoadError).toBeNull();
   });
@@ -86,5 +90,30 @@ describe('OrdersComponent', () => {
 
     expect(component.orders.length).toBe(1);
     expect(component.orders[0].status).toBe(6);
+  });
+
+  it('shows only production, cut, and pulled orders', () => {
+    expect(component.shouldDisplayOrder({ status: 0 } as orders)).toBeTrue();
+    expect(component.shouldDisplayOrder({ status: '1' as unknown as number } as orders)).toBeTrue();
+    expect(component.shouldDisplayOrder({ status: 6 } as orders)).toBeTrue();
+    expect(component.shouldDisplayOrder({ status: 7 } as orders)).toBeFalse();
+    expect(component.shouldDisplayOrder({ status: 8 } as orders)).toBeFalse();
+    expect(component.shouldDisplayOrder({ status: 5 } as orders)).toBeFalse();
+  });
+
+  it('does not call the orders API while prerendering on the server', () => {
+    orderService.getOrders.calls.reset();
+    const serverComponent = new OrdersComponent(
+      new FormBuilder(),
+      orderService,
+      new MockWebsocketService() as unknown as WebsocketService,
+      jasmine.createSpyObj<DxfAnalysisService>('DxfAnalysisService', ['getLatestByOrder']),
+      { user$: of(null) } as AuthService,
+      'server',
+    );
+
+    serverComponent.ngOnInit();
+
+    expect(orderService.getOrders).not.toHaveBeenCalled();
   });
 });

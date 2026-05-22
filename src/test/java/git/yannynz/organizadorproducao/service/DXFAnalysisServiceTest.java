@@ -9,6 +9,7 @@ import git.yannynz.organizadorproducao.model.dto.DXFAnalysisView;
 import git.yannynz.organizadorproducao.repository.DXFAnalysisRepository;
 import git.yannynz.organizadorproducao.repository.OrderRepository;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,6 +23,7 @@ import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -253,5 +255,67 @@ class DXFAnalysisServiceTest {
 
         DXFAnalysisView view = service.toView(analysis);
         assertThat(view.imageUrl()).isEqualTo("http://public.local/facas-renders/renders/sample.png");
+    }
+
+    @Test
+    void findLatestByOrderNr_shouldPreferMostRecentAnalysisWithImageAcrossNrVariants() {
+        DXFAnalysis latestWithoutImage = new DXFAnalysis();
+        latestWithoutImage.setAnalysisId("latest-no-image");
+        latestWithoutImage.setOrderNr("120184");
+        latestWithoutImage.setAnalyzedAt(OffsetDateTime.parse("2026-01-10T12:00:00Z"));
+
+        DXFAnalysis olderWithImage = new DXFAnalysis();
+        olderWithImage.setAnalysisId("older-image");
+        olderWithImage.setOrderNr("NR120184");
+        olderWithImage.setImageKey("renders/sha/nr120184.png");
+        olderWithImage.setAnalyzedAt(OffsetDateTime.parse("2026-01-09T12:00:00Z"));
+
+        when(analysisRepository.findTopByOrderNrOrderByAnalyzedAtDesc("120184"))
+                .thenReturn(Optional.of(latestWithoutImage));
+        when(analysisRepository.findTopByOrderNrOrderByAnalyzedAtDesc("NR120184"))
+                .thenReturn(Optional.of(olderWithImage));
+        when(analysisRepository.findTopByOrderNrOrderByAnalyzedAtDesc("CL120184"))
+                .thenReturn(Optional.empty());
+        when(analysisRepository.findLatestWithImageByOrderNr("120184", org.springframework.data.domain.PageRequest.of(0, 1)))
+                .thenReturn(List.of());
+        when(analysisRepository.findLatestWithImageByOrderNr("NR120184", org.springframework.data.domain.PageRequest.of(0, 1)))
+                .thenReturn(List.of(olderWithImage));
+        when(analysisRepository.findLatestWithImageByOrderNr("CL120184", org.springframework.data.domain.PageRequest.of(0, 1)))
+                .thenReturn(List.of());
+
+        Optional<DXFAnalysis> result = service.findLatestByOrderNr("NR 120184");
+
+        assertThat(result).containsSame(olderWithImage);
+    }
+
+    @Test
+    void loadAnalysisImage_shouldRedirectToResolvedPublicStorageUrl() {
+        properties.setImageBaseUrl("http://192.168.10.13:9000/facas-renders");
+        service = new DXFAnalysisService(analysisRepository, orderRepository, messagingTemplate, meterRegistry, properties);
+
+        DXFAnalysis analysis = new DXFAnalysis();
+        analysis.setAnalysisId("analysis-image");
+        analysis.setImageBucket("facas-renders");
+        analysis.setImageUri("http://minio:9000/facas-renders/renders/sha/nr120184.png?signature=internal");
+
+        when(analysisRepository.findByAnalysisId("analysis-image")).thenReturn(Optional.of(analysis));
+
+        var response = service.loadAnalysisImage("analysis-image");
+
+        assertThat(response.getStatusCode().value()).isEqualTo(302);
+        assertThat(response.getHeaders().getLocation()).hasToString(
+                "http://192.168.10.13:9000/facas-renders/renders/sha/nr120184.png");
+    }
+
+    @Test
+    void persistFromPayload_shouldCountFailureForInvalidPayload() {
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> service.persistFromPayload(null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("must not be null");
+
+        verify(analysisRepository, never()).save(any(DXFAnalysis.class));
+        var failedCounter = meterRegistry.find("organizador_dxf_analysis_failed_total").counter();
+        assertThat(failedCounter).isNotNull();
+        assertThat(failedCounter.count()).isEqualTo(1.0);
     }
 }

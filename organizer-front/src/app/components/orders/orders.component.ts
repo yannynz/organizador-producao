@@ -1,4 +1,5 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import {
   FormBuilder,
   FormGroup,
@@ -9,13 +10,13 @@ import {
 import { orders } from '../../models/orders';
 import { Subscription, interval } from 'rxjs';
 import { WebsocketService } from '../../services/websocket.service';
-import { CommonModule } from '@angular/common';
 import { OrderService } from '../../services/orders.service';
 import { DxfAnalysisService } from '../../services/dxf-analysis.service';
 import { AuthService } from '../../services/auth.service';
 import { User, UserRole } from '../../models/user.model';
 import { DxfAnalysis } from '../../models/dxf-analysis';
 import { environment } from '../../enviroment';
+import { OrderStatus } from '../../models/order-status.enum';
 
 @Component({
   selector: 'app-orders',
@@ -48,7 +49,8 @@ export class OrdersComponent implements OnInit, OnDestroy {
     private orderService: OrderService,
     private websocketService: WebsocketService,
     private dxfAnalysisService: DxfAnalysisService,
-    private authService: AuthService
+    private authService: AuthService,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {
     this.createOrderForm = this.formBuilder.group({
       nr: ['', Validators.required],
@@ -76,9 +78,11 @@ export class OrdersComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.loadOrders();
-    this.listenForWebSocketUpdates();
-    this.listenForWebSocketPrioridade();
+    if (this.isBrowser()) {
+      this.loadOrders();
+      this.listenForWebSocketUpdates();
+      this.listenForWebSocketPrioridade();
+    }
 
     this.authService.user$.subscribe(user => {
       this.currentUser = user;
@@ -130,7 +134,12 @@ export class OrdersComponent implements OnInit, OnDestroy {
   }
 
   shouldDisplayOrder(order: orders): boolean {
-    return order.status === 0 || order.status === 1 || order.status === 6;
+    const status = this.normalizeStatus(order.status);
+    return [
+      OrderStatus.EmProducao,
+      OrderStatus.Cortada,
+      OrderStatus.Tirada,
+    ].includes(status);
   }
 
  listenForWebSocketUpdates() {
@@ -279,28 +288,43 @@ export class OrdersComponent implements OnInit, OnDestroy {
   }
 
   getStatusDescription(status: number): string {
-    switch (status) {
-      case 0:
+    switch (this.normalizeStatus(status)) {
+      case OrderStatus.EmProducao:
         return 'Em Produção';
-      case 1:
+      case OrderStatus.Cortada:
         return 'Cortada';
-      case 2:
+      case OrderStatus.ProntoEntrega:
         return 'Pronto para Entrega';
-      case 3:
+      case OrderStatus.SaiuEntrega:
         return 'Saiu para Entrega';
-      case 4:
+      case OrderStatus.Retirada:
         return 'Retirada';
-      case 5:
+      case OrderStatus.Entregue:
         return 'Entregue';
-      case 6:
+      case OrderStatus.Tirada:
         return 'Tirada';
-      case 7:
+      case OrderStatus.MontadaCorte:
         return 'Montada (corte)';
-      case 8:
+      case OrderStatus.MontadaCompleta:
         return 'Montada e vincada';
       default:
         return 'Desconhecido';
     }
+  }
+
+  private normalizeStatus(status: number | string | null | undefined): number {
+    if (typeof status === 'number') {
+      return status;
+    }
+    if (typeof status === 'string' && status.trim() !== '') {
+      const parsed = Number(status);
+      return Number.isFinite(parsed) ? parsed : Number.NaN;
+    }
+    return Number.NaN;
+  }
+
+  private isBrowser(): boolean {
+    return isPlatformBrowser(this.platformId);
   }
 
   highlightOrder(orderId: number) {
