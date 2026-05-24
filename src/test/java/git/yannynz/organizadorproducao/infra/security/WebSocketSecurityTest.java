@@ -28,7 +28,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 
 @WebMvcTest(
         controllers = WebSocketSecurityTest.ProbeController.class,
-        properties = "app.cors.allowed-origins=http://192.168.10.13,http://localhost:4200")
+        properties = "app.cors.allowed-origin-patterns=http://192.168.*,http://10.*")
 @Import({SecurityConfiguration.class, JwtAuthenticationFilter.class})
 class WebSocketSecurityTest {
 
@@ -54,12 +54,12 @@ class WebSocketSecurityTest {
     }
 
     @Test
-    void corsOrigins_ComeFromApplicationProperty() {
+    void corsOriginPatterns_ComeFromApplicationProperty() {
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/ws/orders");
         CorsConfiguration config = corsConfigurationSource.getCorsConfiguration(request);
 
         assertThat(config).isNotNull();
-        assertThat(config.getAllowedOrigins()).containsExactly("http://192.168.10.13", "http://localhost:4200");
+        assertThat(config.getAllowedOriginPatterns()).containsExactly("http://192.168.*", "http://10.*");
     }
 
     @Test

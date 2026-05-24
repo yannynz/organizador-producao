@@ -24,6 +24,7 @@ services:
   backend-container:
     build: .
     container_name: backend-container
+    restart: unless-stopped
     ports:
       - "8081:8080"  # Mapeando a porta interna 8080 para 8081 na máquina local
     environment:
@@ -34,7 +35,7 @@ services:
       SPRING_RABBITMQ_PORT: "5672"
       SPRING_RABBITMQ_USERNAME: guest
       SPRING_RABBITMQ_PASSWORD: guest
-      APP_CORS_ALLOWED_ORIGINS: ${APP_CORS_ALLOWED_ORIGINS:-http://192.168.10.13,http://192.168.10.13:80,http://localhost:4200,http://localhost,http://nginx-container,http://nginx-container:80,http://frontend-container}
+      APP_CORS_ALLOWED_ORIGIN_PATTERNS: ${APP_CORS_ALLOWED_ORIGIN_PATTERNS:-http://localhost,http://localhost:*,http://nginx-container,http://nginx-container:80,http://frontend-container,http://192.168.*,http://192.168.*:*,http://10.*,http://10.*:*,http://172.*,http://172.*:*}
       # Dev: use host acessível externamente para servir as imagens via MinIO.
       APP_DXF_ANALYSIS_IMAGE_BASE_URL: ${APP_DXF_ANALYSIS_IMAGE_BASE_URL:-http://${SERVER_HOST:-192.168.10.13}/facas-renders}
       APP_FRONTEND_URL: http://${SERVER_HOST:-192.168.10.13}
@@ -74,7 +75,7 @@ services:
       - frontend-container
     environment:
       SERVER_HOST: ${SERVER_HOST:-192.168.10.13}
-    command: /bin/sh -c "envsubst '\$SERVER_HOST' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && exec nginx -g 'daemon off;'"
+    command: /bin/sh -c "envsubst '$$SERVER_HOST' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && exec nginx -g 'daemon off;'"
     volumes:
       - ./nginx/organizador.conf:/etc/nginx/nginx.conf.template:ro  # Montando como template
       - /etc/localtime:/etc/localtime:ro  # Montando o arquivo localtime

@@ -11,11 +11,11 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-    private final String[] allowedOrigins;
+    private final String[] allowedOriginPatterns;
 
     public WebSocketConfig(
-            @Value("${app.cors.allowed-origins:http://localhost:4200,http://localhost,http://nginx-container,http://nginx-container:80,http://frontend-container}") String[] allowedOrigins) {
-        this.allowedOrigins = allowedOrigins;
+            @Value("${app.cors.allowed-origin-patterns:http://localhost,http://localhost:*,http://nginx-container,http://nginx-container:80,http://frontend-container,http://192.168.*,http://192.168.*:*,http://10.*,http://10.*:*,http://172.*,http://172.*:*}") String[] allowedOriginPatterns) {
+        this.allowedOriginPatterns = allowedOriginPatterns;
     }
 
     @Override
@@ -26,6 +26,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws/orders").setAllowedOrigins(allowedOrigins);
+        registry.addEndpoint("/ws/orders").setAllowedOriginPatterns(allowedOriginPatterns);
     }
 }
