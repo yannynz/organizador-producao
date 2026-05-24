@@ -31,6 +31,13 @@
 - If following release bumps, keep `Versão x.y.z` messages consistent.
 - PRs: include summary, linked issues, steps to test, and screenshots for UI changes. Note any DB/RabbitMQ changes.
 
+## Change Report & Rollback Rule
+- Every functional, runtime, deploy, network, database, RabbitMQ, MinIO, auth, or FileWatcher change must have a short report under `docs/reports/`.
+- Use `docs/reports/change-report-template.md` as the default structure.
+- The report must include: objective, files changed, evidence before, change applied, evidence after, smoke-test commands, risks, and rollback steps.
+- Do not treat a change as production-ready until rollback is documented with executable commands.
+- For incidents, include the exact user-facing symptom, root-cause evidence, hypotheses discarded, and acceptance criteria.
+
 ## Security & Configuration Tips
 - Do not hardcode secrets. Configure via environment vars (see `docker-compose.yml` and `application.properties`).
 - Flyway manages schema; add new migrations under `src/main/resources/db/migration` using `VYYYYMMDD__description.sql`.
