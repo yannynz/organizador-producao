@@ -2,6 +2,28 @@
   margin-left: 10px;
 }
 
+.navbar {
+  position: relative;
+  z-index: 1090;
+}
+
+.filewatcher-offline-alert {
+  position: fixed;
+  top: 4.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1080;
+  width: min(92vw, 720px);
+  margin: 0;
+  border-width: 2px;
+}
+
+.filewatcher-offline-alert__content {
+  padding-right: 1rem;
+  font-size: 0.95rem;
+  line-height: 1.35;
+}
+
 .footer {
   text-align: center;
   padding: 10px;
@@ -43,3 +65,13 @@ td, th {
   max-width: 100%;
 }
 
+@media (max-width: 575.98px) {
+  .filewatcher-offline-alert {
+    top: 4rem;
+    width: calc(100vw - 1rem);
+  }
+
+  .filewatcher-offline-alert__content {
+    font-size: 0.875rem;
+  }
+}

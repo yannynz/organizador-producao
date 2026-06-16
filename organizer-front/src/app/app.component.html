@@ -59,6 +59,21 @@
   </div>
 </nav>
 
+<div
+  *ngIf="showFileWatcherOfflinePopup"
+  class="filewatcher-offline-alert alert alert-danger alert-dismissible fade show shadow-lg"
+  role="alert"
+  aria-live="assertive">
+  <div class="filewatcher-offline-alert__content">
+    Observador nao iniciado em flfacasserver, facas provavelmente desatualizadas ou nao incluidas, para resolver inicie imediatamente o FileWatcherApp no servidor, grato
+  </div>
+  <button
+    type="button"
+    class="btn-close"
+    aria-label="Fechar aviso"
+    (click)="dismissFileWatcherOfflinePopup()"></button>
+</div>
+
 <div class="container mt-3">
   <router-outlet></router-outlet>
 </div>
