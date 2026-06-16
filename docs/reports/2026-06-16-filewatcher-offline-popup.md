@@ -37,6 +37,7 @@ Build concluido com sucesso antes da alteracao.
 ## Mudanca aplicada
 
 - Adicionado controle no `AppComponent` para iniciar temporizador quando o status recebido indicar `online === false`.
+- O frontend dispara o ping de status ao carregar e repete a cada 30 segundos para manter o status RPC atualizado.
 - O popup aparece apenas apos 90000 ms continuos offline.
 - O popup e fechavel pelo usuario e volta a poder aparecer quando o FileWatcherApp ficar online novamente e depois cair de novo.
 - Adicionado markup Bootstrap responsivo para o aviso.

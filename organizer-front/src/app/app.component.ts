@@ -37,7 +37,7 @@ export class AppComponent implements OnInit, OnDestroy {
       this.handleFileWatcherStatus(evt.online);
     });
 
-    this.pingSub = timer(300).subscribe(() => this.ws.sendPingNow());
+    this.pingSub = timer(300, 30000).subscribe(() => this.ws.sendPingNow());
   }
 
   ngOnDestroy(): void {
